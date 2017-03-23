@@ -148,21 +148,33 @@ contract BlackJack is owned {
 	}
 
 	// Deals one more card to the player
-	function hit() public gameIsInProgress {
+	function hit() public  {
+    if (games[msg.sender].player == 0) {
+			throw;
+		}
+		if (games[msg.sender].state != GameState.InProgress) {
+			throw;
+		}
 		dealCard(true, games[msg.sender]);
 		checkGameResult(games[msg.sender], false);
 	}
 
 	// Deals one more card to the split
 	function hit_split() public {
+    if (splitGames[msg.sender].player == 0) {
+			throw;
+		}
 		if (splitGames[msg.sender].state != GameState.InProgress) {
 			throw;
 		}
 		dealCard(true, splitGames[msg.sender]);
 		checkGameResult(splitGames[msg.sender], false);
+    if (splitGames[msg.sender].state != GameState.InProgress) {
+      games[msg.sender].state = GameState.InProgress;
+    }
 	}
 
-	function requestInsurance() 
+	function requestInsurance()
 		payable
 		public
 		gameIsInProgress
@@ -193,6 +205,8 @@ contract BlackJack is owned {
 			if (splitGame.state != GameState.InProgressSplit) {
 				// Stand in split game and wait for the stand / bust in the main game.
 				splitGame.state = GameState.InProgressSplit;
+        // Move focus to the main game.
+        game.state = GameState.InProgress;
 				return;
 			}
 
