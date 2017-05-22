@@ -1046,21 +1046,11 @@ ScrGame.prototype.getCard = function(cardIndex){
 }
 
 ScrGame.prototype.getPlayerCardsNumber = function() {
-	var key = openkey.substr(2);
-	var data = "0x"+C_PLAYER_CARDS + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getPlayerCardsNumber", params, _callback);
+	infura.ethCall("getPlayerCardsNumber", _callback, "latest");
 }
 
 ScrGame.prototype.getSplitCardsNumber = function() {
-	var key = openkey.substr(2);
-	var data = "0x"+C_SPLIT_CARDS + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getSplitCardsNumber", params, _callback);
+	infura.ethCall("getSplitCardsNumber", _callback, "latest");
 }
 
 ScrGame.prototype.getAllowance = function() {
@@ -1076,21 +1066,15 @@ ScrGame.prototype.getAllowance = function() {
 
 ScrGame.prototype.getInsurance = function(isMain) {
 	if(isMain){}else{isMain = 1}
-	var key = openkey.substr(2);
-	var data = "0x"+C_GET_INSURANCE + pad(numToHex(isMain), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getInsurance", params, _callback);
+	if(isMain){
+		infura.ethCall("getInsurance", _callback, "latest", 1);
+	}else{
+		infura.ethCall("getInsurance", _callback, "latest", 0);
+	}
 }
 
 ScrGame.prototype.isInsuranceAvailable = function() {
-	var key = openkey.substr(2);
-	var data = "0x"+C_INSURANCE_AVAILABLE + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("isInsuranceAvailable", params, _callback);
+	infura.ethCall("isInsuranceAvailable", _callback, "latest");
 }
 
 ScrGame.prototype.isDoubleAvailable = function() {
@@ -1109,38 +1093,21 @@ ScrGame.prototype.isDoubleAvailable = function() {
 }
 
 ScrGame.prototype.getBet = function(isMain) {
-	var val = 0;
+	if(isMain){}else{isMain = 1}
+	
 	if(isMain){
-		val = 1;
-	}
-	var key = openkey.substr(2);
-	var data = "0x"+C_GET_BET + pad(numToHex(val), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	if(isMain){
-		infura.sendRequest("getPlayerBet", params, _callback);
+		infura.ethCall("getPlayerBet", _callback, "latest", 1);
 	} else {
-		infura.sendRequest("getSplitBet", params, _callback);
+		infura.ethCall("getSplitBet", _callback, "latest", 0);
 	}
 }
 
 ScrGame.prototype.getGameId = function() {
-	var key = openkey.substr(2);
-	var data = "0x"+C_GAME_ID + pad(numToHex(1), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getGameId", params, _callback);
+	infura.ethCall("getGameId", _callback, "latest", 1);
 }
 
 ScrGame.prototype.getHouseCardsNumber = function() {
-	var key = openkey.substr(2);
-	var data = "0x"+C_HOUSE_CARDS + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getHouseCardsNumber", params, _callback);
+	infura.ethCall("getHouseCardsNumber", _callback, "latest");
 }
 
 ScrGame.prototype.isSplitAvailable = function() {
@@ -1161,50 +1128,26 @@ ScrGame.prototype.isSplitAvailable = function() {
 }
 
 ScrGame.prototype.checkGameState = function(isMain) {
-	if(openkey == undefined){
-		return false;
-	}
-	var val = 0;
+	if(isMain){}else{isMain = 1}
+	
 	if(isMain){
-		val = 1;
-	}
-	// 0 Run
-	// 1 Player
-	// 2 House
-	// 3 Tie
-	var key = openkey.substr(2);
-	var data = "0x"+C_GAME_STATE + pad(numToHex(val), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	if(isMain){
-		infura.sendRequest("getGameState", params, _callback);
+		infura.ethCall("getGameState", _callback, "latest", 1);
 	} else {
-		infura.sendRequest("getSplitState", params, _callback);
+		infura.ethCall("getSplitState", _callback, "latest", 0);
 	}
 }
 
 ScrGame.prototype.getHouseScore = function() {
-	infura.ethCall("getHouseScore", _callback, "pending");
+	infura.ethCall("getHouseScore", _callback, "latest");
 }
 
 ScrGame.prototype.getPlayerScore = function(isMain) {
-	if(openkey == undefined){
-		return false;
-	}
-	var val = 0;
+	if(isMain){}else{isMain = 1}
+	
 	if(isMain){
-		val = 1;
-	}
-	var key = openkey.substr(2);
-	var data = "0x"+C_PLAYER_SCORE + pad(numToHex(val), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	if(isMain){
-		infura.sendRequest("getPlayerScore", params, _callback);
+		infura.ethCall("getPlayerScore", _callback, "latest", 1);
 	} else {
-		infura.sendRequest("getPlayerSplitScore", params, _callback);
+		infura.ethCall("getPlayerSplitScore", _callback, "latest", 0);
 	}
 }
 
@@ -1267,36 +1210,15 @@ ScrGame.prototype.addHouseCard = function(){
 }
 
 ScrGame.prototype.getPlayerCard = function(value){
-	var key = openkey.substr(2);
-    var callData = "0x"+C_PLAYER_CARD;
-    callData = callData.substr(0, 10);
-	var data = callData + pad(numToHex(value), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getPlayerCard", params, _callback);
+	infura.ethCall("getPlayerCard", _callback, "latest", value);
 }
 
 ScrGame.prototype.getSplitCard = function(value){
-	var key = openkey.substr(2);
-    var callData = "0x"+C_SPLIT_CARD;
-    callData = callData.substr(0, 10);
-	var data = callData + pad(numToHex(value), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getSplitCard", params, _callback);
+	infura.ethCall("getSplitCard", _callback, "latest", value);
 }
 
 ScrGame.prototype.getHouseCard = function(value){
-	var key = openkey.substr(2);
-    var callData = "0x"+C_HOUSE_CARD;
-    callData = callData.substr(0, 10);
-	var data = callData + pad(numToHex(value), 64) + pad(key, 64);
-	var params = {"from":openkey,
-				"to":addressStorage,
-				"data":data};
-	infura.sendRequest("getHouseCard", params, _callback);
+	infura.ethCall("getHouseCard", _callback, "latest", value);
 }
 
 ScrGame.prototype.getBalancePlayer = function(){
