@@ -1768,6 +1768,22 @@ ScrGame.prototype.addHolderObj = function(obj){
 	obj.y = _H + 50;
 }
 
+ScrGame.prototype.makeID = function(){
+    var str = "0x";
+    var possible = "abcdef0123456789";
+
+    for( var i=0; i < 64; i++ ){
+		if(getTimer()%2==0){
+			str += possible.charAt(Math.floor(Math.random() * possible.length));
+		} else {
+			str += possible.charAt(Math.floor(Math.random() * (possible.length-1)));
+		}
+	}
+
+	str = numToHex(str);
+    return str;
+}
+
 // START
 ScrGame.prototype.startGameEth = function(){
 	if(openkey == undefined){
@@ -1828,6 +1844,8 @@ ScrGame.prototype.responseServer = function(value) {
 ScrGame.prototype.responseTransaction = function(name, value) {
 	var prnt = obj_game["game"];
 	var data = "";
+	var seed = prnt.makeID();
+	var args = [];
 	var price = 0;
 	var nameRequest = "sendRaw";
 	var gasPrice="0x9502F9000";//web3.toHex('40000000000');
@@ -1835,25 +1853,36 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	if(name == "deal"){
 		data = "0x"+C_DEAL+pad(numToHex(betGame), 64);
 		price = betGame;
+		var seed1 = prnt.makeID();
+		var seed2 = prnt.makeID();
+		var seed3 = prnt.makeID();
+		args = [price, seed1, seed2, seed3];
 		betGameCur = betGame;
 		nameRequest = "gameTxHash";
 	} else if(name == "hit"){
 		data = "0x"+C_HIT;
+		args = [price, seed];
 	} else if(name == "stand"){
 		data = "0x"+C_STAND;
+		args = [price, seed];
 	} else if(name == "split"){
 		data = "0x"+C_SPLIT;
 		price = betGame;
+		var seed1 = prnt.makeID();
+		var seed2 = prnt.makeID();
+		args = [price, seed1, seed2];
 		gasLimit=0xf4240; //1000000
 		prnt.offsetCards("player", _W/2 - 200);
 		prnt.darkCards(prnt._arMyCards, true);
 	} else if(name == "requestInsurance"){
 		data = "0x"+C_INSURANCE;
 		price = betGame/2;
+		args = [price];
 		prnt.bInsurance = 2;
 	} else if(name == "double"){
 		data = "0x"+C_DOUBLE;
 		price = betGame;
+		args = [price, seed];
 		if(stateNow == S_IN_PROGRESS_SPLIT){
 			betSplitGame = betGame;
 			prnt.fillChips(betSplitGame, "split");
@@ -1888,7 +1917,6 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 					prnt.showError(ERROR_BUF);
 					return false;
 				}
-				var args = [price];
 				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
 				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
 				infura.sendRequest(nameRequest, params, _callback);
