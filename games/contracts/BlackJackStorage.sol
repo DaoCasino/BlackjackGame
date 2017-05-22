@@ -90,7 +90,7 @@ contract BlackJackStorage {
         splitGames[player].houseBigScore = games[player].houseBigScore;
     }
 	
-    function dealSplitCard(address player)
+    function dealSplitCard(address player, bytes32 seed)
         external
         returns (uint8)
     {
@@ -100,7 +100,7 @@ contract BlackJackStorage {
         return card;
     }
 
-    function dealMainCard(address player)
+    function dealMainCard(address player, bytes32 seed)
         external
         returns (uint8)
     {
@@ -110,7 +110,7 @@ contract BlackJackStorage {
         return card;
     }
 
-    function dealHouseCard(address player)
+    function dealHouseCard(address player, bytes32 seed)
         external
         returns (uint8)
     {
