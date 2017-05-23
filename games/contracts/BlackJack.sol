@@ -147,7 +147,7 @@ contract BlackJack is owned {
         MAIN FUNCTIONS
     */
 
-    function deal(uint value, bytes32 seed1, bytes32 seed2, bytes32 seed3)
+    function deal(uint value, bytes32 seed)
         public
         gameFinished
         betIsSuitable(value)
@@ -162,9 +162,9 @@ contract BlackJack is owned {
         storageContract.deleteSplitGame(msg.sender);
 		
         // deal the cards
-        dealCard(true, true, seed1);
-        dealCard(false, true, seed2);
-        dealCard(true, true, seed3);
+        dealCard(true, true, seed);
+        dealCard(false, true, seed);
+        dealCard(true, true, seed);
 
         if (deck.isAce(storageContract.getHouseCard(0, msg.sender))) {
             storageContract.setInsuranceAvailable(true, true, msg.sender);
@@ -232,7 +232,7 @@ contract BlackJack is owned {
         }
     }
 
-    function split(uint value, bytes32 seed1, bytes32 seed2)
+    function split(uint value, bytes32 seed)
         public
         betIsDoubled(value)
         splitAvailable
@@ -245,8 +245,8 @@ contract BlackJack is owned {
         storageContract.createNewSplitGame(msg.sender, value);
 
         // Deal extra cards in each game.
-        dealCard(true, true, seed1);
-        dealCard(true, false, seed2);
+        dealCard(true, true, seed);
+        dealCard(true, false, seed);
 
         checkGameResult(false, false);
 
