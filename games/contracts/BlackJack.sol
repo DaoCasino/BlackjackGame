@@ -162,9 +162,12 @@ contract BlackJack is owned {
         storageContract.deleteSplitGame(msg.sender);
 		
         // deal the cards
-        dealCard(true, true, seed);
-        dealCard(false, true, seed);
-        dealCard(true, true, seed);
+		bytes32 seed1 = substring(seed, 1, 20);
+		bytes32 seed2 = substring(seed, 21, 40);
+		bytes32 seed3 = substring(seed, 41, 60);
+        dealCard(true, true, seed1);
+        dealCard(false, true, seed2);
+        dealCard(true, true, seed3);
 
         if (deck.isAce(storageContract.getHouseCard(0, msg.sender))) {
             storageContract.setInsuranceAvailable(true, true, msg.sender);
@@ -375,6 +378,20 @@ contract BlackJack is owned {
 
         onPlayerWon(isMain, finishGame);
     }
+	
+	function substring(bytes32 str, uint8 val1, uint8 val2)
+        private
+		constant
+		returns (bytes32)
+    {
+		bytes32 newstr = "";
+		
+		for (uint8 i = val1; i < val2; i++) {
+			bytes(newstr).push(str[i]);
+		}
+		
+		return newstr;
+	}
 
     /*
         FUNCTIONS THAT FINISH THE GAME
