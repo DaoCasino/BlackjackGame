@@ -24,14 +24,17 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x5d7d1991119f2defd0a440246bd4f362c61be33c";
-var	addressRpcStorage = "0xde1c7198b037fc8365778e4ae038d7944011e50d";
-var	addressRpcContract = "0xb82790a487de9e19ceeb0dae9d73dcaae465d87a";
+var	addressRpcErc = "0xb0f5dad551ca0845a818a19ab62340887af62a49";
+var	addressRpcStorage = "0xd0957deff78e0f87d949c1a08464af9c6d34a75c";
+var	addressRpcContract = "0x21eaa29db3b883227b0fdfaee80598014e7d7fe4";
 // testnet
-var addressTestDeck = "0x75dacdec23342b26ff598e3304d3ff632b42077a"; // const
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var	addressTestStorage = "0x18d4bd271a6123335edca33eec83318b75ae8ae0";
-var	addressTestContract = "0x1903eef30317204fb5aabd9533659d9b23a7ec37";
+// var addressTestDeck = "0x75dacdec23342b26ff598e3304d3ff632b42077a"; // const
+// var	addressTestStorage = "0x18d4bd271a6123335edca33eec83318b75ae8ae0";
+// var	addressTestContract = "0x1903eef30317204fb5aabd9533659d9b23a7ec37";
+var addressTestDeck = "0x025fbb4a2c0d875febf07c48da7080a0573cb8aa"; // const
+var	addressTestStorage = "0xd1611d5c483a806421b427f6b11805c094893e87";
+var	addressTestContract = "0x93d4112f9354d9e2738932310a7a3bd7c17769c9";
 
 var addressCurErc = "";
 
@@ -414,8 +417,6 @@ function saveData() {
 function loadData() {
 	if(isLocalStorageAvailable()){
 		if(options_rpc){
-			// openkey = "0xeaab5b73c8092a4395ef4bb2c815a29de4dc6b3d";
-			// privkey = "845d3cca6be851f4d4da2c1be30ce36bd3122817b6de80bc5c03d81ea0b59fb1";
 			openkey = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
 			privkey = "d3b6b98613ce7bd4636c5c98cc17afb0403d690f9c2b646726e08334583de101";
 		} else {
