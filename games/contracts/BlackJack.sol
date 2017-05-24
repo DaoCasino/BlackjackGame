@@ -464,11 +464,22 @@ contract BlackJack is owned {
 		returns (bytes32)
     {
 		// bytes32 newstr;
+		// bytes memory newstr = new bytes(32);
+		// uint8 charCount = 0;
+		
+		// for (uint8 i = val1; i < val2; i++) {
+			// byte char = byte(bytes32(uint(str) * 2 ** (8 * i)));
+			// if (char != 0) {
+				// newstr[charCount] = char;
+				// charCount++;
+			// }
+		// }
 		
 		// for (uint8 i = val1; i < val2; i++) {
 			// bytes(newstr).push(str[i]);
 		// }
 		
+		// return newstr;
 		return str;
 	}
 
