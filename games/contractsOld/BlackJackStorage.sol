@@ -23,7 +23,6 @@ contract BlackJackStorage {
 
     mapping (address => Types.Game) public games;
     mapping (address => Types.Game) public splitGames;
-	mapping (bytes32 => Types.Seed) public listGames;
 
     /*
         CONSTRUCTOR
@@ -82,18 +81,6 @@ contract BlackJackStorage {
         games[_player].playerScore = deck.valueOf(games[_player].playerCards[0], false);
         games[_player].playerBigScore = deck.valueOf(games[_player].playerCards[0], true);
     }
-	
-    function createNewSeed(address _player, bytes32 seed, bol isMain)
-        external
-    {
-        listGames[seed] = Types.Seed({
-            player: _player,
-            id: seed,
-            confirmed: false,
-            isMain: isMain,
-            method: SeedMethod.Deal
-        });
-    }
 
     function syncSplitDealerCards(address player)
         external
@@ -103,31 +90,31 @@ contract BlackJackStorage {
         splitGames[player].houseBigScore = games[player].houseBigScore;
     }
 	
-    function dealSplitCard(address player, bytes32 seed)
+    function dealSplitCard(address player)
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(player, splitGames[player].seed);
         splitGames[player].playerCards.push(card);
         splitGames[player].seed += 1;
         return card;
     }
 
-    function dealMainCard(address player, bytes32 seed)
+    function dealMainCard(address player)
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(player, games[player].seed);
         games[player].playerCards.push(card);
         games[player].seed += 1;
         return card;
     }
 
-    function dealHouseCard(address player, bytes32 seed)
+    function dealHouseCard(address player)
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(player, games[player].seed);
         games[player].houseCards.push(card);
         games[player].seed += 1;
         return card;
@@ -138,13 +125,7 @@ contract BlackJackStorage {
     {
         delete splitGames[player];
     }
-	
-	function updateSeedConfimed(bytes32 seed, bool value)
-        external
-    {
-        listGames[seed].confirmed = value;
-    }
-	
+
     function updatePlayerScore(uint8 score, uint8 bigScore, address player)
         external
     {
@@ -196,14 +177,6 @@ contract BlackJackStorage {
     /*
         PUBLIC GETTERS
     */
-
-    function getSeed(uint8 id, address player)
-        public
-        constant
-        returns(uint8)
-    {
-        return games[player].playerCards[id];
-    }
 
     function getPlayerCard(uint8 id, address player)
         public
@@ -330,38 +303,6 @@ contract BlackJackStorage {
             return games[player].state;
         }
         return splitGames[player].state;
-    }
-	
-	function getConfirmed(bytes32 id)
-        public
-        constant
-        returns (bool)
-    {
-        return listGames[id].confirmed;
-    }
-	
-	function getSeedIsMain(bytes32 id)
-        public
-        constant
-        returns (bool)
-    {
-        return listGames[id].isMain;
-    }
-	
-	function getSeedPlayer(bytes32 id)
-        public
-        constant
-        returns (address)
-    {
-        return listGames[id].player;
-    }
-	
-	function getMethod(bytes32 id)
-        public
-        constant
-        returns (Types.SeedMethod)
-    {
-        return listGames[id].method;
     }
 
     function getId(bool isMain, address player)

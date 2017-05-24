@@ -10,14 +10,6 @@ library Types {
         InProgressSplit,
         PlayerBlackJack
     }
-	
-    enum SeedMethod {
-        Deal,
-        Hit,
-        Stand,
-        Split,
-        Double
-    }
 
 
     struct Game {
@@ -41,13 +33,5 @@ library Types {
 
         uint8[] houseCards;
         uint8[] playerCards;
-    }
-	
-    struct Seed {
-        address player;
-        bytes32 id;
-        bool confirmed;
-        bool isMain;
-        SeedMethod method;
     }
 }
