@@ -83,7 +83,7 @@ contract BlackJackStorage {
         games[_player].playerBigScore = deck.valueOf(games[_player].playerCards[0], true);
     }
 	
-    function createNewSeed(address _player, bytes32 seed, bol isMain)
+    function createNewSeed(address _player, bytes32 seed, bool isMain, Types.SeedMethod method)
         external
     {
         listGames[seed] = Types.Seed({
@@ -91,7 +91,7 @@ contract BlackJackStorage {
             id: seed,
             confirmed: false,
             isMain: isMain,
-            method: SeedMethod.Deal
+            method: method
         });
     }
 
