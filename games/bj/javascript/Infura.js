@@ -14,21 +14,23 @@ var C_STAND = "c2897b10";
 var C_INSURANCE = "262b497d";
 var C_DOUBLE = "eee97206";
 
-var C_GET_BET = "f8aec9f5";
-var C_HOUSE_CARD = "792cc6be";
-var C_HOUSE_CARDS = "2594df3f";
-var C_HOUSE_SCORE = "ab44355d";
-var C_GAME_ID = "b2446968";
-var C_GET_INSURANCE = "dc3af6bc";
-var C_PLAYER_CARD = "0a113e84";
-var C_PLAYER_CARDS = "f3f4294b";
-var C_PLAYER_SCORE = "f3e1363e";
-var C_SPLIT_CARD = "58927d1b";
-var C_SPLIT_CARDS = "f61849d8";
-var C_GAME_STATE = "fcc19d69";
-var C_DOUBLE_AVAILABLE = "9b2f2e86";
-var C_INSURANCE_AVAILABLE = "715c07b6";
-var C_ALLOWANCE = "dd62ed3e";
+var nameCall = {getPlayerBet:"f8aec9f5",
+				getSplitBet:"f8aec9f5",
+				getHouseCard:"792cc6be",
+				getHouseCardsNumber:"2594df3f",
+				getHouseScore:"ab44355d",
+				getGameId:"b2446968",
+				getInsurance:"dc3af6bc",
+				getPlayerCard:"0a113e84",
+				getPlayerCardsNumber:"f3f4294b",
+				getPlayerScore:"f3e1363e",
+				getPlayerSplitScore:"f3e1363e",
+				getSplitCard:"58927d1b",
+				getSplitCardsNumber:"f61849d8",
+				getGameState:"fcc19d69",
+				getSplitState:"fcc19d69",
+				isInsuranceAvailable:"715c07b6",
+				getAllowance:"dd62ed3e"}
 
 var Infura = function() {
 	gThis = this;
@@ -110,55 +112,7 @@ Infura.prototype.ethCall = function(name, callback, type, val){
 	
 	if(openkey){
 		var method = "eth_call";
-		var data = "";
-		
-		switch (name) {
-			case "getPlayerBet":
-			case "getSplitBet":
-				data = C_GET_BET
-				break;
-			case "getHouseCard":
-				data = C_HOUSE_CARD;
-				break;
-			case "getHouseCardsNumber":
-				data = C_HOUSE_CARDS;
-				break;
-			case "getHouseScore":
-				data = C_HOUSE_SCORE;
-				break;
-			case "getGameId":
-				data = C_GAME_ID;
-				break;
-			case "getInsurance":
-				data = C_GET_INSURANCE;
-				break;
-			case "getPlayerCard":
-				data = C_PLAYER_CARD;
-				break;
-			case "getPlayerCardsNumber":
-				data = C_PLAYER_CARDS;
-				break;
-			case "getPlayerScore":
-			case "getPlayerSplitScore":
-				data = C_PLAYER_SCORE;
-				break;
-			case "getSplitCard":
-				data = C_SPLIT_CARD;
-				break;
-			case "getSplitCardsNumber":
-				data = C_SPLIT_CARDS;
-				break;
-			case "getGameState":
-			case "getSplitState":
-				data = C_GAME_STATE;
-				break;
-			case "isInsuranceAvailable":
-				data = C_INSURANCE_AVAILABLE;
-				break;
-			case "getAllowance":
-				data = C_ALLOWANCE;
-				break;
-		}
+		var data = nameCall[name];
 		
 		var key = openkey.substr(2);
 		if(val != undefined){

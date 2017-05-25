@@ -30,21 +30,6 @@ var C_SPLIT = "dbceb005";
 var C_STAND = "c2897b10";
 var C_INSURANCE = "262b497d";
 var C_DOUBLE = "eee97206";
-
-var C_GET_BET = "f8aec9f5";
-var C_HOUSE_CARD = "792cc6be";
-var C_HOUSE_CARDS = "2594df3f";
-var C_HOUSE_SCORE = "ab44355d";
-var C_GAME_ID = "b2446968";
-var C_GET_INSURANCE = "dc3af6bc";
-var C_PLAYER_CARD = "0a113e84";
-var C_PLAYER_CARDS = "f3f4294b";
-var C_PLAYER_SCORE = "f3e1363e";
-var C_SPLIT_CARD = "58927d1b";
-var C_SPLIT_CARDS = "f61849d8";
-var C_GAME_STATE = "fcc19d69";
-var C_DOUBLE_AVAILABLE = "9b2f2e86";
-var C_INSURANCE_AVAILABLE = "715c07b6";
 var C_ALLOWANCE = "dd62ed3e";
 
 var urlResult = "http://api.dao.casino/daohack/api.php?a=getreuslt&id";
@@ -177,11 +162,8 @@ ScrGame.prototype.init = function() {
 	this.bg.scale.y = scaleBack;
 	this.addChild(this.bg);
 	
-	if(options_debug || options_rpc){
+	if(options_debug){
 		var str = "Debug";
-		if(options_rpc){
-			str = "RPC";
-		}
 		var tfDebug = addText(str, 20, "#FF0000", "#000000", "right", 400)
 		tfDebug.x = _W-20;
 		tfDebug.y = _H-30;

@@ -16,6 +16,7 @@ module.exports = function(deployer, network) {
     if (network == "development") {
         var owner = "0xaec3ae5d2be00bfc91597d7a1b2c43818d84396a";
         var player = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
+        var playerLW = "0x5a38f2dc66109d77bbca290d9ffa9c4f9fcc7227"; // lightwalet
         var tokenContract;
 		deployer.deploy(ERC20, owner).then(function() { // deploy token contract
             return deployer.deploy(Deck, owner); // deploy deck
@@ -28,17 +29,27 @@ module.exports = function(deployer, network) {
         }).then(function(instance) {
             tokenContract = instance;
             console.log(" - Send 1000 tokens to the player");
-			return tokenContract.issueTokens(player, 1000, { from: owner }); // issue 1000 tokens to the player
+			return tokenContract.issueTokens(playerLW, 1000, { from: owner }); // issue 1000 tokens to the player
 		}).then(function(tx) {
             console.log(" - Send 1000 tokens to the BJ contract");
             return tokenContract.issueTokens(BlackJack.address, 1000, { from: owner }); // issue 1000 tokens to the BJ contract
         }).then(function(tx) {
             return tokenContract.balanceOf.call(BlackJack.address, { from: owner });
         }).then(function(balance) {
+            return tokenContract.balanceOf.call(BlackJack.address, { from: owner });
+        }).then(function(balance) {
             console.log(" - BlackJack contract has " + (balance.toNumber() / 100000000) + " tokens");
-            return tokenContract.balanceOf.call(player, { from: owner });
+            return tokenContract.balanceOf.call(playerLW, { from: owner });
         }).then(function(balance) {
             console.log(" - Player has " + (balance.toNumber() / 100000000) + " tokens");
+        }).then(function() {
+            web3.eth.sendTransaction({
+                from: player,
+                to: playerLW,
+                value: web3.toWei(15, "ether"),
+                gas: 400000,
+            });
+			console.log(" - Player has 15 eth");
         });
     } else if (network == "testnet") {
 		var owner = "0x7e1952131872feee40061360d7ccaf0a72964f9c";
