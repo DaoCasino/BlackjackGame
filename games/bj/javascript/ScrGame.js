@@ -31,6 +31,7 @@ var C_STAND = "c2897b10";
 var C_INSURANCE = "262b497d";
 var C_DOUBLE = "eee97206";
 var C_ALLOWANCE = "dd62ed3e";
+var C_CONFIRM = "b00606a5";
 
 var urlResult = "http://api.dao.casino/daohack/api.php?a=getreuslt&id";
 var urlEtherscan = "https://api.etherscan.io/";
@@ -54,6 +55,7 @@ var gasAmount = 4000000;
 var idGame = -1;
 var idOldGame = -1;
 var _allowance = 0;
+var _seed = "";
 
 var accounts;
 var account;
@@ -505,6 +507,15 @@ ScrGame.prototype.createGUI = function() {
 		btnContract.hint2 = 'Show contract';
 		this.addChild(btnContract);
 		this._arButtons.push(btnContract);
+	} else {
+		var btnConfirm = addButton("btnContract", 80, _H - 80);
+		btnConfirm.name = "btnConfirm";
+		btnConfirm.interactive = true;
+		btnConfirm.buttonMode=true;
+		btnConfirm.overSc = true;
+		btnConfirm.hint2 = 'Confirm';
+		this.addChild(btnConfirm);
+		this._arButtons.push(btnConfirm);
 	}
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
@@ -1341,6 +1352,12 @@ ScrGame.prototype.clickInsurance = function(){
 	prnt.showButtons(false);
 }
 
+ScrGame.prototype.confirmSeed = function(){
+	if(_seed != "" && options_rpc){
+		infura.sendRequest("confirm", openkey, _callback);
+	}
+}
+
 ScrGame.prototype.fullscreen = function() {
 	 if(options_fullscreen) { 
 		this._fCancelFullScreen.call(window.document);
@@ -1799,7 +1816,7 @@ ScrGame.prototype.sendUrlRequest = function(url, name) {
 
 ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
-	value = {"arMyCards":[23,51],"arMySplitCards":[1,10],"arHouseCards":[4,28]}
+	// value = {"arMyCards":[23,51],"arMySplitCards":[1,10],"arHouseCards":[4,28]}
 	// value = {"arMyCards":[23,51]}
 	// console.log("responseServer:", value);
 	
@@ -1835,10 +1852,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	if(name == "deal"){
 		data = "0x"+C_DEAL+pad(numToHex(betGame), 64);
 		price = betGame;
-		var seed1 = prnt.makeID();
-		var seed2 = prnt.makeID();
-		var seed3 = prnt.makeID();
-		args = [price, seed1, seed2, seed3];
+		args = [price, seed];
 		betGameCur = betGame;
 		nameRequest = "gameTxHash";
 	} else if(name == "hit"){
@@ -1850,9 +1864,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	} else if(name == "split"){
 		data = "0x"+C_SPLIT;
 		price = betGame;
-		var seed1 = prnt.makeID();
-		var seed2 = prnt.makeID();
-		args = [price, seed1, seed2];
+		args = [price, seed];
 		gasLimit=0xf4240; //1000000
 		prnt.offsetCards("player", _W/2 - 200);
 		prnt.darkCards(prnt._arMyCards, true);
@@ -1876,8 +1888,14 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 				prnt.tfMyBet.setText(convertToken(betGame));
 			}
 		}
+	} else if(name == "confirm"){
+		data = "0x"+C_CONFIRM;
+		args = [price, _seed, 28, "f34asd", "f74sda"];
 	}
 	
+	if(name != "confirm"){
+		_seed = seed;
+	}
 	prnt.getBalancePlayer();
 	var options = {};
 	options.nonce = value;
@@ -2257,6 +2275,7 @@ ScrGame.prototype.response = function(command, value) {
 			command == "stand" ||
 			command == "split" ||
 			command == "double" ||
+			command == "confirm" ||
 			command == "requestInsurance"){
 		prnt.responseTransaction(command, value);
 	} else if(command == "getInsurance"){
@@ -2449,6 +2468,8 @@ ScrGame.prototype.clickCell = function(item_mc) {
 		copyToClipboard(openkey);
 	} else if(item_mc.name == "btnFullscreen"){
 		this.fullscreen();
+	} else if(item_mc.name == "btnConfirm"){
+		this.confirmSeed();
 	}
 }
 

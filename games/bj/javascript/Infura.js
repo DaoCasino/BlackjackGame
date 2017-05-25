@@ -7,13 +7,6 @@ var urlInfura = "https://mainnet.infura.io/JCnK5ifEPH9qcQkX0Ahl";
 var gThis;
 var repeatRequest = 0;
 
-var C_DEAL = "c959c42b";
-var C_HIT = "2ae3594a";
-var C_SPLIT = "dbceb005";
-var C_STAND = "c2897b10";
-var C_INSURANCE = "262b497d";
-var C_DOUBLE = "eee97206";
-
 var nameCall = {getPlayerBet:"f8aec9f5",
 				getSplitBet:"f8aec9f5",
 				getHouseCard:"792cc6be",
@@ -55,6 +48,7 @@ Infura.prototype.sendRequest = function(name, params, callback){
 			case "split":
 			case "requestInsurance":
 			case "double":
+			case "confirm":
 				method = "eth_getTransactionCount";
 				break;
 			case "gameTxHash":

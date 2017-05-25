@@ -16,7 +16,7 @@ module.exports = function(deployer, network) {
     if (network == "development") {
         var owner = "0xaec3ae5d2be00bfc91597d7a1b2c43818d84396a";
         var player = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
-        var playerLW = "0x5a38f2dc66109d77bbca290d9ffa9c4f9fcc7227"; // lightwalet
+        var playerLW = "0xeef0afc74f9fec76f589cef09e739aded3c57cd5"; // lightwalet
         var tokenContract;
 		deployer.deploy(ERC20, owner).then(function() { // deploy token contract
             return deployer.deploy(Deck, owner); // deploy deck
