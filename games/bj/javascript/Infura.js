@@ -23,6 +23,7 @@ var nameCall = {getPlayerBet:"f8aec9f5",
 				getGameState:"fcc19d69",
 				getSplitState:"fcc19d69",
 				isInsuranceAvailable:"715c07b6",
+				testNum:"ae28f1ed",
 				getAllowance:"dd62ed3e"}
 
 var Infura = function() {

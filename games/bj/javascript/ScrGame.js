@@ -218,6 +218,7 @@ ScrGame.prototype.init = function() {
 		// this.showWndApprove();
 		this.acceptApprove();
 	}
+	// infura.ethCall("testNum", _callback, "latest");
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -1973,6 +1974,8 @@ ScrGame.prototype.response = function(command, value) {
 		obj_game["balanceBank"] = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
 	} else if(command == "getBlockNumber"){
 		blockNumber = value;
+	} else if(command == "testNum"){
+		console.log("!!!!!!!!!!!:", hexToNum(value));
 	} else if(command == "getPlayerCard"){
 		if(value != "0x" && loadPlayerCard < prnt.countPlayerCard){
 			var cardIndex = hexToNum(value);
