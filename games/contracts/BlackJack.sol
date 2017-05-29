@@ -420,30 +420,32 @@ contract BlackJack is owned {
     function checkGameResult(bool isMain, bool finishGame, bytes32 idSeed)
         private
     {
-        if (storageContract.getHouseScore(msg.sender) == BLACKJACK && storageContract.getPlayerScore(isMain, msg.sender) == BLACKJACK) {
+		address player = storageContract.getSeedPlayer(idSeed);
+		
+        if (storageContract.getHouseScore(player) == BLACKJACK && storageContract.getPlayerScore(isMain, player) == BLACKJACK) {
             onTie(isMain, finishGame, idSeed);
             return;
         }
 
-        if (storageContract.getHouseScore(msg.sender) == BLACKJACK && storageContract.getPlayerScore(isMain, msg.sender) != BLACKJACK) {
+        if (storageContract.getHouseScore(player) == BLACKJACK && storageContract.getPlayerScore(isMain, player) != BLACKJACK) {
             onHouseWon(isMain, finishGame, idSeed);
             return;
         }
 
-        if (storageContract.getPlayerScore(isMain, msg.sender) == BLACKJACK) {
+        if (storageContract.getPlayerScore(isMain, player) == BLACKJACK) {
             onPlayerWon(isMain, finishGame, idSeed);
             return;
         }
 
-        if (storageContract.getPlayerScore(isMain, msg.sender) > BLACKJACK) {
+        if (storageContract.getPlayerScore(isMain, player) > BLACKJACK) {
             onHouseWon(isMain, finishGame, idSeed);
             return;
         }
 
         if (!finishGame) return;
 
-        uint8 playerShortage = BLACKJACK - storageContract.getPlayerScore(isMain, msg.sender);
-        uint8 houseShortage = BLACKJACK - storageContract.getHouseScore(msg.sender);
+        uint8 playerShortage = BLACKJACK - storageContract.getPlayerScore(isMain, player);
+        uint8 houseShortage = BLACKJACK - storageContract.getHouseScore(player);
 
         if (playerShortage == houseShortage) {
             onTie(isMain, finishGame, idSeed);
@@ -491,12 +493,13 @@ contract BlackJack is owned {
         private
         standIfNecessary(finishGame, idSeed)
     {
+		address player = storageContract.getSeedPlayer(idSeed);
         // return bet to the player
         // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender))) throw;
-		token.transfer(msg.sender, storageContract.getBet(isMain, msg.sender));
+		token.transfer(player, storageContract.getBet(isMain, player));
 
         // set final state
-        storageContract.updateState(Types.GameState.Tie, isMain, msg.sender);
+        storageContract.updateState(Types.GameState.Tie, isMain, player);
     }
 
     function onHouseWon(bool isMain, bool finishGame, bytes32 idSeed)
@@ -504,32 +507,35 @@ contract BlackJack is owned {
         standIfNecessary(finishGame, idSeed)
         payInsuranceIfNecessary(isMain)
     {
+		address player = storageContract.getSeedPlayer(idSeed);
         // set final state
-        storageContract.updateState(Types.GameState.HouseWon, isMain, msg.sender);
+        storageContract.updateState(Types.GameState.HouseWon, isMain, player);
     }
 
     function onPlayerWon(bool isMain, bool finishGame, bytes32 idSeed)
         private
         standIfNecessary(finishGame, idSeed)
     {
-        if (storageContract.getPlayerScore(isMain, msg.sender) != BLACKJACK) {
+		address player = storageContract.getSeedPlayer(idSeed);
+		
+        if (storageContract.getPlayerScore(isMain, player) != BLACKJACK) {
             // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender) * 2)) throw;
-            token.transfer(msg.sender, storageContract.getBet(isMain, msg.sender) * 2);
+            token.transfer(player, storageContract.getBet(isMain, player) * 2);
             // set final state
-            storageContract.updateState(Types.GameState.PlayerWon, isMain, msg.sender);
+            storageContract.updateState(Types.GameState.PlayerWon, isMain, player);
             return;
         }
 
-        if (storageContract.isNaturalBlackJack(isMain, msg.sender)) {
+        if (storageContract.isNaturalBlackJack(isMain, player)) {
             // if (!msg.sender.send((storageContract.getBet(isMain, msg.sender) * 5) / 2)) throw;
-			token.transfer(msg.sender, (storageContract.getBet(isMain, msg.sender) * 5) / 2);
+			token.transfer(player, (storageContract.getBet(isMain, player) * 5) / 2);
         } else {
             // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender) * 2)) throw;
-			token.transfer(msg.sender, (storageContract.getBet(isMain, msg.sender) * 2));
+			token.transfer(player, (storageContract.getBet(isMain, player) * 2));
         }
 
         // set final state
-        storageContract.updateState(Types.GameState.PlayerBlackJack, isMain, msg.sender);
+        storageContract.updateState(Types.GameState.PlayerBlackJack, isMain, player);
         return;
     }
 
