@@ -18,21 +18,24 @@ var fontDigital = "Digital-7";
 var stats; //для вывода статистики справа
 var valToken = 100000000; // 1 token
 var rndBg = String(Math.ceil(Math.random()*2));
-var abi = [{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"requestInsurance","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"}],"name":"setTokenAddress","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"hit","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"amountInWei","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"maxBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getBank","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"minBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"stand","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"deal","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"split","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"double","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"deckAddress","type":"address"},{"name":"storageAddress","type":"address"},{"name":"tokenAddress","type":"address"}],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_type","type":"uint8"},{"indexed":false,"name":"_card","type":"uint8"}],"name":"Deal","type":"event"}]
+var abi = [{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"requestInsurance","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"}],"name":"setTokenAddress","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"amountInWei","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"maxBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"split","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getBank","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"seed","type":"bytes32"}],"name":"stand","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"minBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"seed","type":"bytes32"}],"name":"hit","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"idSeed","type":"bytes32"},{"name":"_v","type":"uint8"},{"name":"_r","type":"bytes32"},{"name":"_s","type":"bytes32"}],"name":"confirm","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"usedRandom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"deal","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"double","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"deckAddress","type":"address"},{"name":"storageAddress","type":"address"},{"name":"seedAddress","type":"address"},{"name":"tokenAddress","type":"address"}],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_type","type":"uint8"},{"indexed":false,"name":"_card","type":"uint8"}],"name":"Deal","type":"event"}]
 // main
 var addressErc = "";
+var addressSeed = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x99358ef8e0cdbb788668789460b0fc47e3646ede";
-var	addressRpcStorage = "0xd78b5b221fd25251ceeae68b7760f05b756a582d";
-var	addressRpcContract = "0x78d02076d88de702025e0ca992213281162b159c";
+var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
+var	addressRpcSeed = "0xb207301c77a9e6660c9c2e5e8608eaa699a9940f";
+var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // var addressTestDeck = "0x75dacdec23342b26ff598e3304d3ff632b42077a"; // const
 // var	addressTestStorage = "0x18d4bd271a6123335edca33eec83318b75ae8ae0";
 // var	addressTestContract = "0x1903eef30317204fb5aabd9533659d9b23a7ec37";
 var addressTestDeck = "0x025fbb4a2c0d875febf07c48da7080a0573cb8aa"; // const
+var	addressTestSeed = "0xd1611d5c483a806421b427f6b11805c094893e87";
 var	addressTestStorage = "0xd1611d5c483a806421b427f6b11805c094893e87";
 var	addressTestContract = "0x93d4112f9354d9e2738932310a7a3bd7c17769c9";
 
@@ -48,7 +51,7 @@ var options_mainet = false;
 var options_ropsten = true;
 var options_rinkeby = false;
 var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = true;
+var options_rpc = false;
 var options_music = true;
 var options_sound = true;
 var options_mobile = true;

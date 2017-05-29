@@ -64,9 +64,12 @@ module.exports = function(deployer, network) {
 		var erc20 = "0x95a48dca999c89e4e284930d9b9af973a7481287";
         var tokenContract = ERC20.at(erc20);
 		deployer.deploy(Deck, owner).then(function() { // deploy deck
-			return deployer.deploy(BlackJackStorage, Deck.address);  // deploy main BJ contract
+			return deployer.deploy(BlackJackSeed, Deck.address);  // deploy seed BJ contract
 		}).then(function() {
-			return deployer.deploy(BlackJack, Deck.address, BlackJackStorage.address, erc20); // deploy storage contract
+			return deployer.deploy(BlackJackStorage, Deck.address);  // deploy storage BJ contract
+		}).then(function() {
+			// deploy main contract
+			return deployer.deploy(BlackJack, Deck.address, BlackJackStorage.address, BlackJackSeed.address, erc20);
 		}).then(function(tx) {
             console.log(" - Send 15 tokens to the BJ contract");
 			return tokenContract.transfer(BlackJack.address, 1500000000, { from: owner });

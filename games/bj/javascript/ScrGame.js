@@ -178,10 +178,12 @@ ScrGame.prototype.init = function() {
 		urlEtherscan = "https://ropsten.etherscan.io/";
 		addressContract = addressRpcContract;
 		addressStorage = addressRpcStorage;
+		addressSeed = addressRpcSeed;
 	}else if(options_testnet){
 		urlEtherscan = "https://ropsten.etherscan.io/";
 		addressContract = addressTestContract;
 		addressStorage = addressTestStorage;
+		addressSeed = addressTestSeed;
 	}
 	// addressContract = addressBJ;
 	// addressStorage = addressBJStorage;
@@ -1891,7 +1893,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		}
 	} else if(name == "confirm"){
 		data = "0x"+C_CONFIRM;
-		args = [price, _seed, 28, "f34asd", "f74sda"];
+		args = [_seed, 27, "f34", "f4s"];
 	}
 	
 	if(name != "confirm"){
@@ -1904,9 +1906,9 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	options.gasPrice = gasPrice;
 	options.gasLimit = gasLimit;
 	// options.value = price;
-	if(options_rpc){
+	/*if(options_rpc){
 		options.data = data; // method from contact
-	}
+	}*/
 	
 	if(privkey){
 		console.log("The transaction was signed:", name);
@@ -1915,6 +1917,8 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		if(ks){
 			ks.keyFromPassword(passwordUser, function (err, pwDerivedKey) {
 				if (err) {
+					console.log("err:", err);
+					console.log("args:", args);
 					prnt.showError(ERROR_BUF);
 					return false;
 				}
