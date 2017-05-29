@@ -1,6 +1,7 @@
 pragma solidity ^0.4.2;
 import "./Deck.sol";
 import "./BlackJackStorage.sol";
+import "./BlackJackSeed.sol";
 import "./ERC20.sol";
 import "./Types.sol";
 import "./owned.sol";
@@ -19,6 +20,7 @@ contract BlackJack is owned {
 
     // Stores all data
     BlackJackStorage storageContract;
+    BlackJackSeed seedContract;
 
     /*
         CONSTANTS
@@ -133,9 +135,10 @@ contract BlackJack is owned {
         CONSTRUCTOR
     */
 
-    function BlackJack(address deckAddress, address storageAddress, address tokenAddress) {
+    function BlackJack(address deckAddress, address storageAddress, address seedAddress, address tokenAddress) {
         deck = Deck(deckAddress);
         storageContract = BlackJackStorage(storageAddress);
+        seedContract = BlackJackSeed(seedAddress);
         token = ERC20(tokenAddress);
     }
 
@@ -160,7 +163,7 @@ contract BlackJack is owned {
         lastGameId = lastGameId + 1;
         storageContract.createNewGame(lastGameId, msg.sender, value);
         storageContract.deleteSplitGame(msg.sender);
-        storageContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Deal);
+        seedContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Deal);
 		
         // deal the cards
 		// bytes32 seed1 = substring(seed, 1, 20);
@@ -183,7 +186,7 @@ contract BlackJack is owned {
         usedSeed(seed)
     {
 		bool isMain = storageContract.isMainGameInProgress(msg.sender);
-        storageContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Hit);
+        seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Hit);
         /*
         dealCard(true, isMain, seed);
         storageContract.setInsuranceAvailable(false, isMain, msg.sender);
@@ -211,7 +214,7 @@ contract BlackJack is owned {
 		usedSeed(seed)
     {
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
-        storageContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Stand);
+        seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Stand);
 		
         /*if (!isMain) {
             //switch focus to the main game
@@ -249,7 +252,7 @@ contract BlackJack is owned {
         }
         storageContract.updateState(Types.GameState.InProgressSplit, true, msg.sender); // switch to the split game
         storageContract.createNewSplitGame(msg.sender, value);
-		storageContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Split);
+		seedContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Split);
 
         /*// Deal extra cards in each game.
         dealCard(true, true, seed);
@@ -274,7 +277,7 @@ contract BlackJack is owned {
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
 
         storageContract.doubleBet(isMain, msg.sender);
-		storageContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Double);
+		seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Double);
         /*dealCard(true, isMain, seed);
         
         if (storageContract.getState(isMain, msg.sender) == Types.GameState.InProgress) {
@@ -285,16 +288,16 @@ contract BlackJack is owned {
 	function confirm(bytes32 idSeed, uint8 _v, bytes32 _r, bytes32 _s) 
 		public
     {
-		if (storageContract.getConfirmed(idSeed) == true) {
+		if (seedContract.getConfirmed(idSeed) == true) {
 			throw;
 		}
         
         if (ecrecover(idSeed, _v, _r, _s) != owner) {// owner
 			usedRandom[idSeed] = true;
-			address player = storageContract.getSeedPlayer(idSeed);
-			bool isMain = storageContract.getSeedIsMain(idSeed);
-			storageContract.updateSeedConfimed(idSeed, true);
-			if (storageContract.getMethod(idSeed) == Types.SeedMethod.Deal) {
+			address player = seedContract.getSeedPlayer(idSeed);
+			bool isMain = seedContract.getSeedIsMain(idSeed);
+			seedContract.updateSeedConfimed(idSeed, true);
+			if (seedContract.getMethod(idSeed) == Types.SeedMethod.Deal) {
 				// deal the cards
 				dealCard(true, true, substring(_s, 1, 20));
 				dealCard(false, true, substring(_s, 21, 40));
@@ -305,12 +308,12 @@ contract BlackJack is owned {
 				}
 
 				checkGameResult(true, false, idSeed);
-			} else if (storageContract.getMethod(idSeed) == Types.SeedMethod.Hit) {
+			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Hit) {
 				dealCard(true, isMain, _s);
 				storageContract.setInsuranceAvailable(false, isMain, player);
 
 				checkGameResult(isMain, false, idSeed);
-			} else if (storageContract.getMethod(idSeed) == Types.SeedMethod.Stand) {
+			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Stand) {
 				if (!isMain) {
 					//switch focus to the main game
 					storageContract.updateState(Types.GameState.InProgress, true, player);
@@ -336,7 +339,7 @@ contract BlackJack is owned {
 					storageContract.syncSplitDealerCards(player);
 					checkGameResult(false, true, idSeed); // finish the split game
 				}
-			} else if (storageContract.getMethod(idSeed) == Types.SeedMethod.Split) {
+			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Split) {
 				// Deal extra cards in each game.
 				dealCard(true, true, substring(_s, 1, 20));
 				dealCard(true, false, substring(_s, 21, 40));
@@ -346,7 +349,7 @@ contract BlackJack is owned {
 				if (deck.isAce(storageContract.getHouseCard(0, player))) {
 					storageContract.setInsuranceAvailable(true, false, player);
 				}
-			} else if (storageContract.getMethod(idSeed) == Types.SeedMethod.Double) {
+			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Double) {
 				dealCard(true, isMain, _s);
 				
 				if (storageContract.getState(isMain, player) == Types.GameState.InProgress) {
@@ -420,7 +423,7 @@ contract BlackJack is owned {
     function checkGameResult(bool isMain, bool finishGame, bytes32 idSeed)
         private
     {
-		address player = storageContract.getSeedPlayer(idSeed);
+		address player = seedContract.getSeedPlayer(idSeed);
 		
         if (storageContract.getHouseScore(player) == BLACKJACK && storageContract.getPlayerScore(isMain, player) == BLACKJACK) {
             onTie(isMain, finishGame, idSeed);
@@ -493,7 +496,7 @@ contract BlackJack is owned {
         private
         standIfNecessary(finishGame, idSeed)
     {
-		address player = storageContract.getSeedPlayer(idSeed);
+		address player = seedContract.getSeedPlayer(idSeed);
         // return bet to the player
         // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender))) throw;
 		token.transfer(player, storageContract.getBet(isMain, player));
@@ -507,7 +510,7 @@ contract BlackJack is owned {
         standIfNecessary(finishGame, idSeed)
         payInsuranceIfNecessary(isMain)
     {
-		address player = storageContract.getSeedPlayer(idSeed);
+		address player = seedContract.getSeedPlayer(idSeed);
         // set final state
         storageContract.updateState(Types.GameState.HouseWon, isMain, player);
     }
@@ -516,7 +519,7 @@ contract BlackJack is owned {
         private
         standIfNecessary(finishGame, idSeed)
     {
-		address player = storageContract.getSeedPlayer(idSeed);
+		address player = seedContract.getSeedPlayer(idSeed);
 		
         if (storageContract.getPlayerScore(isMain, player) != BLACKJACK) {
             // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender) * 2)) throw;

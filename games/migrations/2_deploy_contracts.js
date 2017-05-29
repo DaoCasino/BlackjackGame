@@ -1,5 +1,6 @@
 var BlackJack = artifacts.require("BlackJack.sol");
 var BlackJackStorage = artifacts.require("BlackJackStorage.sol");
+var BlackJackSeed = artifacts.require("BlackJackSeed.sol");
 var Deck = artifacts.require("Deck.sol");
 var ERC20 = artifacts.require("ERC20.sol");
 
@@ -21,9 +22,16 @@ module.exports = function(deployer, network) {
 		deployer.deploy(ERC20, owner).then(function() { // deploy token contract
             return deployer.deploy(Deck, owner); // deploy deck
         }).then(function() {
+			return deployer.deploy(BlackJackSeed, Deck.address);  // deploy seed BJ contract
+        }).then(function() {
 			return deployer.deploy(BlackJackStorage, Deck.address);  // deploy main BJ contract
 		}).then(function() {
-			return deployer.deploy(BlackJack, Deck.address, BlackJackStorage.address, ERC20.address); // deploy storage contract
+			// deploy storage contract
+			return deployer.deploy(BlackJack, 
+									Deck.address, 
+									BlackJackStorage.address, 
+									BlackJackSeed.address, 
+									ERC20.address);
 		}).then(function() {
             return ERC20.deployed(); // get deplyed instance of the token contract
         }).then(function(instance) {
@@ -50,7 +58,7 @@ module.exports = function(deployer, network) {
                 gas: 400000,
             });
 			console.log(" - Player has 15 eth");
-        });
+        });/**/
     } else if (network == "testnet") {
 		var owner = "0x7e1952131872feee40061360d7ccaf0a72964f9c";
 		var erc20 = "0x95a48dca999c89e4e284930d9b9af973a7481287";
