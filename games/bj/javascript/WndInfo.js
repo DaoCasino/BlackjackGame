@@ -34,7 +34,6 @@ WndInfo.prototype.init = function(_prnt) {
 	this.btnOk.overSc=true;
 	
 	this.tf = addText("", 26, "#FFCC00", "#000000", "center", 500, 3)
-	this.tf.y = -70;
 	this.addChild(this.tf);
 	this.tfBtn = addText("", 26, "#FFFFFF", "#000000", "center", 350)
 	this.tfBtn.y = this.btnOk.y - this.tfBtn.height/2;
@@ -62,6 +61,7 @@ WndInfo.prototype.show = function(str, callback, addStr) {
 	};
 	
 	this.tf.setText(str);
+	this.tf.y = -this.tf.height/2;
 	this.tfBtn.setText(addStr);
 }
 

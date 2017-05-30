@@ -178,12 +178,10 @@ ScrGame.prototype.init = function() {
 		urlEtherscan = "https://ropsten.etherscan.io/";
 		addressContract = addressRpcContract;
 		addressStorage = addressRpcStorage;
-		addressSeed = addressRpcSeed;
 	}else if(options_testnet){
 		urlEtherscan = "https://ropsten.etherscan.io/";
 		addressContract = addressTestContract;
 		addressStorage = addressTestStorage;
-		addressSeed = addressTestSeed;
 	}
 	// addressContract = addressBJ;
 	// addressStorage = addressBJStorage;
@@ -1654,7 +1652,7 @@ ScrGame.prototype.showError = function(value, callback) {
 			str = "OOOPS! \n The maximum bet is 5."
 			break;
 		default:
-			str = "ERR: " + value;
+			str = "ERROR! \n\n " + value + " \n\n Contact technical support.";
 			break;
 	}
 	prnt.createWndInfo(str, callback);
@@ -1770,11 +1768,12 @@ ScrGame.prototype.addHolderObj = function(obj){
 	obj.y = _H + 50;
 }
 
-ScrGame.prototype.makeID = function(){
+ScrGame.prototype.makeID = function(count){
+	if(count){}else{count = 64}
     var str = "0x";
     var possible = "abcdef0123456789";
 
-    for( var i=0; i < 64; i++ ){
+    for( var i=0; i < count; i++ ){
 		if(getTimer()%2==0){
 			str += possible.charAt(Math.floor(Math.random() * possible.length));
 		} else {
@@ -1784,6 +1783,33 @@ ScrGame.prototype.makeID = function(){
 
 	str = numToHex(str);
     return str;
+}
+
+ScrGame.prototype.getLogs = function(){
+	var params = {
+		"fromBlock": blockNumber,
+		"toBlock": "latest",
+		"address": addressContract,
+	}
+	infura.sendRequest("getLogs", params, _callback);
+}
+
+ScrGame.prototype.showLogs = function(arLogs){
+	if(arLogs == undefined){
+		return false;
+	}
+	var len = arLogs.length;
+	var index = 0;
+	if(len > 50){
+		index = len-50;
+	}
+	
+	// for (var i = index; i < len; i ++) {
+		var obj = arLogs[len-1];
+		if(obj){
+			console.log("count confirm:", hexToNum(obj.data));
+		}
+	// }
 }
 
 // START
@@ -1850,7 +1876,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	var args = [];
 	var price = 0;
 	var nameRequest = "sendRaw";
-	var gasPrice="0x9502F9000";//web3.toHex('40000000000');
+	var gasPrice="0x"+numToHex(40000000000);
 	var gasLimit=0x927c0; //web3.toHex('600000');
 	if(name == "deal"){
 		data = "0x"+C_DEAL+pad(numToHex(betGame), 64);
@@ -1860,10 +1886,10 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		nameRequest = "gameTxHash";
 	} else if(name == "hit"){
 		data = "0x"+C_HIT;
-		args = [price, seed];
+		args = [seed];
 	} else if(name == "stand"){
 		data = "0x"+C_STAND;
-		args = [price, seed];
+		args = [seed];
 	} else if(name == "split"){
 		data = "0x"+C_SPLIT;
 		price = betGame;
@@ -1893,7 +1919,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		}
 	} else if(name == "confirm"){
 		data = "0x"+C_CONFIRM;
-		args = [_seed, 27, "f34", "f4s"];
+		args = [_seed, 27, prnt.makeID(5), prnt.makeID(5)];
 	}
 	
 	if(name != "confirm"){
@@ -1906,9 +1932,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	options.gasPrice = gasPrice;
 	options.gasLimit = gasLimit;
 	// options.value = price;
-	/*if(options_rpc){
-		options.data = data; // method from contact
-	}*/
+	// options.data = data; // method from contact
 	
 	if(privkey){
 		console.log("The transaction was signed:", name);
@@ -1918,7 +1942,6 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 			ks.keyFromPassword(passwordUser, function (err, pwDerivedKey) {
 				if (err) {
 					console.log("err:", err);
-					console.log("args:", args);
 					prnt.showError(ERROR_BUF);
 					return false;
 				}
@@ -1940,12 +1963,16 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	}
 }
 
-ScrGame.prototype.response = function(command, value) {
+ScrGame.prototype.response = function(command, value, error) {
 	var prnt = obj_game["game"];
 	
-	if(value == undefined || options_debug){
+	if(value == undefined || error || options_debug){
 		if((command == "sendRaw" || command == "gameTxHash") && !options_debug){
-			prnt.showError(ERROR_CONTRACT);
+			if(error){
+				prnt.showError(error.message);
+			} else {
+				prnt.showError(ERROR_CONTRACT);
+			}
 			prnt.bWait = false;
 			if(prnt.countPlayerCard == 0){
 				prnt.clearBet();
@@ -1978,8 +2005,8 @@ ScrGame.prototype.response = function(command, value) {
 		obj_game["balanceBank"] = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
 	} else if(command == "getBlockNumber"){
 		blockNumber = value;
-	} else if(command == "testNum"){
-		console.log("!!!!!!!!!!!:", hexToNum(value));
+	} else if(command == "getLogs"){
+		prnt.showLogs(value);
 	} else if(command == "getPlayerCard"){
 		if(value != "0x" && loadPlayerCard < prnt.countPlayerCard){
 			var cardIndex = hexToNum(value);
@@ -2468,7 +2495,8 @@ ScrGame.prototype.clickCell = function(item_mc) {
 	} else if(item_mc.name == "btnShare"){
 		this.shareFB();
 	} else if(item_mc.name == "btnTweet"){
-		this.shareTwitter();
+		// this.shareTwitter();
+		this.getLogs();
 	} else if(item_mc.name == "btnClearBets"){
 		this.clearBet();
 	} else if(item_mc.name == "btnKey" || item_mc.name == "icoKey"){

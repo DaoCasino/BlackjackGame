@@ -23,7 +23,6 @@ var nameCall = {getPlayerBet:"f8aec9f5",
 				getGameState:"fcc19d69",
 				getSplitState:"fcc19d69",
 				isInsuranceAvailable:"715c07b6",
-				testNum:"ae28f1ed",
 				getAllowance:"dd62ed3e"}
 
 var Infura = function() {
@@ -84,10 +83,10 @@ Infura.prototype.sendRequest = function(name, params, callback){
 									"params":arParams,
 									"id":1}),
 			success: function (d) {
-				if(method == "eth_sendRawTransaction"){
+				if(method == "eth_sendRawTransaction" && d.result){
 					gThis.sendRequestServer("responseServer", d.result, callback);
 				}
-				callback(name, d.result);
+				callback(name, d.result, d.error);
 			},
 			error: function(jQXHR, textStatus, errorThrown)
 			{
