@@ -24,9 +24,9 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0xd78b5b221fd25251ceeae68b7760f05b756a582d";
-var	addressRpcStorage = "0xf1589b22306cef6a5938ba84f9d0f311412d9bf0";
-var	addressRpcContract = "0xceea5b7a51c0a2dc028afb72818a218a4da98205";
+var	addressRpcErc = "0x21eaa29db3b883227b0fdfaee80598014e7d7fe4";
+var	addressRpcStorage = "0x5b3e1e6167329e1db958a8e717262ca50d43c932";
+var	addressRpcContract = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // var addressTestDeck = "0x75dacdec23342b26ff598e3304d3ff632b42077a"; // const
@@ -37,9 +37,6 @@ var	addressTestStorage = "0xd1611d5c483a806421b427f6b11805c094893e87";
 var	addressTestContract = "0x93d4112f9354d9e2738932310a7a3bd7c17769c9";
 
 var addressCurErc = "";
-
-// Deal
-// 5000000, "7729cdbb258df21c1997212856a837436a89d67ecabb60ad54b3149a314ab2db"
 
 var options_debug = false;
 var options_test = false;

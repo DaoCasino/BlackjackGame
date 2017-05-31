@@ -248,7 +248,8 @@ contract BlackJack is owned {
 		}
 		
 		if(storageContract.getPlayerScore(true, player) >= BLACKJACK &&
-		storageContract.getSplitCardsNumber(player) == 0){
+		(storageContract.getSplitCardsNumber(player) == 0 ||
+		storageContract.getPlayerScore(false, player) >= BLACKJACK)){
 			dealCard(false, true, s);
 		} else {
 			uint8 val = 1;
@@ -314,7 +315,7 @@ contract BlackJack is owned {
 				dealCard(true, isMain, _s);
 				
 				if (storageContract.getState(isMain, player) == Types.GameState.InProgress) {
-					stand(idSeed);
+					autoStand(isMain, idSeed);
 				}
 			}
         }
