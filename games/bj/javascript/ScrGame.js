@@ -1553,6 +1553,9 @@ ScrGame.prototype.loadBet = function(value){
 	this.fillChips(betGame);
 	if(this.countPlayerSplitCard > 0){
 		this.tfMyBet.x = _W/2 - 250;
+		betSplitGame = betGame;
+		this.fillChips(betSplitGame, "split");
+		this.tfSplitBet.setText(convertToken(betSplitGame));
 	}
 }
 
@@ -1800,16 +1803,17 @@ ScrGame.prototype.showLogs = function(arLogs){
 	}
 	var len = arLogs.length;
 	var index = 0;
-	if(len > 50){
-		index = len-50;
+	if(len > 10){
+		index = len-10;
 	}
-	
-	// for (var i = index; i < len; i ++) {
-		var obj = arLogs[len-1];
+	console.log("showLogs: ---------------");
+	for (var i = index; i < len; i ++) {
+		// var obj = arLogs[len-1];
+		var obj = arLogs[i];
 		if(obj){
 			console.log("count confirm:", hexToNum(obj.data));
 		}
-	// }
+	}
 }
 
 // START
@@ -1969,6 +1973,9 @@ ScrGame.prototype.response = function(command, value, error) {
 	if(value == undefined || error || options_debug){
 		if((command == "sendRaw" || command == "gameTxHash") && !options_debug){
 			if(error){
+				// OUT OF GAS - Wrong arguments from the client
+				// invalid JUMP - ?
+				console.log("response:", error);
 				prnt.showError(error.message);
 			} else {
 				prnt.showError(ERROR_CONTRACT);
@@ -1990,9 +1997,6 @@ ScrGame.prototype.response = function(command, value, error) {
 		prnt.getBalancePlayer();
 		prnt.timeGetState = TIME_GET_STATE - 1000;
 		prnt.timeWaitResponse = 0;
-		// prnt.timeGetState = 0;
-		// prnt.checkGameState(true);
-		// prnt.getGameId();
 	} else if(command == "getEthereum"){
 		var obj = JSON.parse(value);
 		if(prnt.tfGetEth){
@@ -2103,9 +2107,6 @@ ScrGame.prototype.response = function(command, value, error) {
 				strResult = "+"+String(bet);
 				break;
 			case S_HOUSE_WON:
-				// if(prnt.bInsurance == 2){
-					// bet = bet/2;
-				// }
 				strResult = "-"+String(bet);
 				break;
 			case S_TIE:
@@ -2185,7 +2186,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.getBet(false); // todo fixed load bet
 			return false;
 		}
-		console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
+		// console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
 		
 		prnt.getBalancePlayer();
 		
