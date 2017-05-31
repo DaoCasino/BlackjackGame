@@ -509,16 +509,16 @@ ScrGame.prototype.createGUI = function() {
 		btnContract.hint2 = 'Show contract';
 		this.addChild(btnContract);
 		this._arButtons.push(btnContract);
-	} else {
-		var btnConfirm = addButton("btnContract", 80, _H - 80);
-		btnConfirm.name = "btnConfirm";
-		btnConfirm.interactive = true;
-		btnConfirm.buttonMode=true;
-		btnConfirm.overSc = true;
-		btnConfirm.hint2 = 'Confirm';
-		this.addChild(btnConfirm);
-		this._arButtons.push(btnConfirm);
 	}
+	
+	var btnConfirm = addButton("btnContract", 180, _H - 80);
+	btnConfirm.name = "btnConfirm";
+	btnConfirm.interactive = true;
+	btnConfirm.buttonMode=true;
+	btnConfirm.overSc = true;
+	btnConfirm.hint2 = 'Confirm';
+	this.addChild(btnConfirm);
+	this._arButtons.push(btnConfirm);
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -1348,7 +1348,10 @@ ScrGame.prototype.clickInsurance = function(){
 }
 
 ScrGame.prototype.confirmSeed = function(){
-	if(_seed != "" && options_rpc && _seed != _seedUsed){
+	if(options_rpc && _seed == _seedUsed){
+		return false;
+	}
+	if(_seed != ""){
 		infura.sendRequest("confirm", openkey, _callback);
 	}
 }
@@ -1934,7 +1937,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	// options.data = data; // method from contact
 	
 	if(privkey){
-		// console.log("The transaction was signed:", name);
+		console.log("The transaction was signed:", name);
 		// The transaction was signed
 		
 		if(ks){
@@ -2072,7 +2075,6 @@ ScrGame.prototype.response = function(command, value, error) {
 		}
 	} else if(command == "getSplitBet"){
 		betSplitGame = Number(hexToNum(value));
-		console.log("betSplitGame:", betSplitGame);
 		if(betGame > 0 && betSplitGame > 0 && 
 		(prnt._arMySplitCards.length > 0 || !prnt.bBetLoad)){
 			prnt.fillChips(betSplitGame, "split");
@@ -2088,7 +2090,6 @@ ScrGame.prototype.response = function(command, value, error) {
 	} else if(command == "getHouseScore"){
 		houseScore = Number(hexToNum(value));
 	} else if(command == "getPlayerSplitScore"){
-		console.log("getPlayerSplitScore:", betSplitGame);
 		var point = Number(hexToNum(value));
 		var bet = betSplitGame/valToken;
 		var strResult = "";

@@ -30,7 +30,6 @@ contract BlackJack is owned {
     uint public maxBet = 500000000;
 
     uint32 lastGameId;
-    uint8 testId;
 	
 	bytes32 private s;
 
@@ -45,9 +44,6 @@ contract BlackJack is owned {
     event Deal(
         uint8 _type, // 0 - player, 1 - house, 2 - split player
         uint8 _card
-    );
-    event Test(
-        uint8 _value
     );
 
     /*
@@ -271,9 +267,6 @@ contract BlackJack is owned {
 	function confirm(bytes32 idSeed, uint8 _v, bytes32 _r, bytes32 _s) 
 		public
     {
-		testId = testId + 1;
-        Test(testId);
-		
 		if (seedContract.getConfirmed(idSeed) == true) {
 			throw;
 		}
@@ -340,17 +333,17 @@ contract BlackJack is owned {
         uint8 newCard;
         if (isMain && player) {
             newCard = storageContract.dealMainCard(msg.sender, seed);
-            // Deal(0, newCard);
+            Deal(0, newCard);
         }
 
         if (!isMain && player) {
             newCard = storageContract.dealSplitCard(msg.sender, seed);
-            // Deal(2, newCard);
+            Deal(2, newCard);
         }
 
         if (!player) {
             newCard = storageContract.dealHouseCard(msg.sender, seed);
-            // Deal(1, newCard);
+            Deal(1, newCard);
         }
 
         if (player) {
