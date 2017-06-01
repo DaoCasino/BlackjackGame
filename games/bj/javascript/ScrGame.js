@@ -1937,7 +1937,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	// options.data = data; // method from contact
 	
 	if(privkey){
-		console.log("The transaction was signed:", name);
+		// console.log("The transaction was signed:", name);
 		// The transaction was signed
 		
 		if(ks){

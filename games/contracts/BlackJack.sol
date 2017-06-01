@@ -243,15 +243,15 @@ contract BlackJack is owned {
 			return;
 		}
 		
-		if(storageContract.getPlayerScore(true, player) >= BLACKJACK &&
+		if(storageContract.getPlayerScore(true, player) > BLACKJACK &&
 		(storageContract.getSplitCardsNumber(player) == 0 ||
-		storageContract.getPlayerScore(false, player) >= BLACKJACK)){
-			dealCard(false, true, s);
+		storageContract.getPlayerScore(false, player) > BLACKJACK)){
+			dealCard(false, true, s[1]);
 		} else {
 			uint8 val = 1;
 			while (storageContract.getHouseScore(player) < 17) {
-				dealCard(false, true, substring(s, val, val+4));
-				val += 5;
+				dealCard(false, true, s[val]);
+				val += 1;
 			}
 		}
 
@@ -279,9 +279,9 @@ contract BlackJack is owned {
 			seedContract.updateSeedConfimed(idSeed, true);
 			if (seedContract.getMethod(idSeed) == Types.SeedMethod.Deal) {
 				// deal the cards
-				dealCard(true, true, substring(_s, 1, 20));
-				dealCard(false, true, substring(_s, 21, 40));
-				dealCard(true, true, substring(_s, 41, 60));
+				dealCard(true, true, _s[1]);
+				dealCard(false, true, _s[2]);
+				dealCard(true, true, _s[3]);
 
 				if (deck.isAce(storageContract.getHouseCard(0, player))) {
 					storageContract.setInsuranceAvailable(true, true, player);
@@ -296,8 +296,8 @@ contract BlackJack is owned {
 				autoStand(isMain, idSeed);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Split) {
 				// Deal extra cards in each game.
-				dealCard(true, true, substring(_s, 1, 20));
-				dealCard(true, false, substring(_s, 21, 40));
+				dealCard(true, true, _s[1]);
+				dealCard(true, false, _s[2]);
 
 				checkGameResult(false, false, idSeed);
 
@@ -417,31 +417,6 @@ contract BlackJack is owned {
 
         onPlayerWon(isMain, finishGame, idSeed);
     }
-	
-	function substring(bytes32 str, uint8 val1, uint8 val2)
-        private
-		constant
-		returns (bytes32)
-    {
-		// bytes32 newstr;
-		// bytes memory newstr = new bytes(32);
-		// uint8 charCount = 0;
-		
-		// for (uint8 i = val1; i < val2; i++) {
-			// byte char = byte(bytes32(uint(str) * 2 ** (8 * i)));
-			// if (char != 0) {
-				// newstr[charCount] = char;
-				// charCount++;
-			// }
-		// }
-		
-		// for (uint8 i = val1; i < val2; i++) {
-			// bytes(newstr).push(str[i]);
-		// }
-		
-		// return newstr;
-		return str;
-	}
 
     /*
         FUNCTIONS THAT FINISH THE GAME
