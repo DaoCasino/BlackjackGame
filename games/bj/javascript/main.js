@@ -24,15 +24,15 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x2e9c5a28a1946d66d0a558c1f9750d7e851bda03";
-var	addressRpcStorage = "0x49953ce8da3cc2085d1bad051e1236c201f88911";
-var	addressRpcContract = "0x694319e15f0dc86b16c063cd6b1e1580658df642";
+var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
+var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0x7696aba48fe6fbe57b230d2d7e86dfaaab9b9a0c"; // const
-var	addressTestSeed = "0x9bd0adad5b6c19649287126b5f5c8aa1fabdb503"; // const
-var	addressTestStorage = "0xf8af75901240767c5127557e4c734cccab8cea3c";
-var	addressTestContract = "0xd7e1db02284de85173b4f464aed1939843ea0a96";
+var addressTestDeck = "0x4e4d39bf22c275aef853019914fbb760002b0296"; // const
+var	addressTestSeed = "0xc7c0bf6bbd8d9c914f515290db977d27efdafd6f"; // const
+var	addressTestStorage = "0xe98df655a8a61e784b79aec765febcf133e3e305";
+var	addressTestContract = "0x669a5efad3cc5c9d2ea5c9ae35b1b90003de24d6";
 
 var addressCurErc = "";
 
@@ -43,7 +43,7 @@ var options_mainet = false;
 var options_ropsten = true;
 var options_rinkeby = false;
 var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = true;
+var options_rpc = false;
 var options_music = true;
 var options_sound = true;
 var options_mobile = true;

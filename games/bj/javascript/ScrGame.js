@@ -23,6 +23,11 @@ var R_LOSE = "LOSE...";
 var R_BUST = "BUST!";
 var R_PUSH = "PUSH";
 var R_BLACKJACK = "BLACKJACK";
+var DEAL = 0;
+var HIT = 1;
+var STAND = 2;
+var SPLIT = 3;
+var DOUBLE = 4;
 
 var C_DEAL = "c959c42b";
 var C_HIT = "2ae3594a";
@@ -57,6 +62,7 @@ var idOldGame = -1;
 var _allowance = 0;
 var _seed = "";
 var _seedUsed = "";
+var _currentMethod = -1;
 
 var accounts;
 var account;
@@ -91,6 +97,7 @@ var _oDealerCardOffset;
 var _oReceiveWinOffset;
 var _oFichesDealerOffset;
 var _oRemoveCardsOffset;
+var _contract;
 
 ScrGame.prototype.init = function() {
 	this.face_mc = new PIXI.Container();
@@ -99,6 +106,7 @@ ScrGame.prototype.init = function() {
 	this.cards_mc = new PIXI.Container();
 	this.gfx_mc = new PIXI.Container();
 	
+	_contract = new Contract(this);
 	this.startTime = getTimer();
 	this.gameTime = getTimer();
 	this._arButtons = [];
@@ -225,7 +233,7 @@ ScrGame.prototype.init = function() {
 		this.showError(ERROR_KEY, showHome);
 	}
 	
-	// for(var i=1; i<53; i++){
+	// for(var i=0; i<52; i++){
 		// this.getCard(i);
 	// }
 
@@ -266,6 +274,9 @@ ScrGame.prototype.clearGame = function(){
 	houseScore = 0;
 	stateNow = -1;
 	stateSplit = -1;
+	_seed = "";
+	_seedUsed = "";
+	_currentMethod = -1;
 	this.timeTotal = 0;
 	this.timeCloseWnd = 0;
 	this.timeNewCard = 0;
@@ -1772,16 +1783,16 @@ ScrGame.prototype.makeID = function(count){
 	if(count){}else{count = 64}
     var str = "0x";
     var possible = "abcdef0123456789";
+	var t = String(getTimer());
+	count -= t.length;
+	str += t;
 
     for( var i=0; i < count; i++ ){
-		if(getTimer()%2==0){
-			str += possible.charAt(Math.floor(Math.random() * possible.length));
-		} else {
-			str += possible.charAt(Math.floor(Math.random() * (possible.length-1)));
-		}
+		str += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
 
 	str = numToHex(str);
+	
     return str;
 }
 
@@ -1821,11 +1832,13 @@ ScrGame.prototype.startGameEth = function(){
 	}
 	
 	this.bClickStart = true;
-	infura.sendRequest("deal", openkey, _callback);
+	// infura.sendRequest("deal", openkey, _callback);
 	
 	// test fast game
-	// this.startGame = true;
-	// this.responseServer();
+	this.startGame = true;
+	this.bSplit = false;
+	_currentMethod = DEAL;
+	this.sendSeed("0x14963965039618f89a0d8a00af57fe504dc40e2dc241276b065abb83636d14d0");
 }
 
 ScrGame.prototype.sendUrlRequest = function(url, name) {
@@ -1844,10 +1857,25 @@ ScrGame.prototype.sendUrlRequest = function(url, name) {
 	}
 }
 
+ScrGame.prototype.sendSeed = function(seed) {
+	var prnt = obj_game["game"];
+	var isMain = true;
+	if(prnt.bSplit){
+		isMain = false;
+	}
+	var objGame = {"arMyCards":prnt._arMyCards,
+			"arMySplitCards":prnt._arMySplitCards,
+			"arHouseCards":prnt._arHouseCards,
+			"myPoints":prnt.getMyPoints(),
+			"splitPoints":prnt.getMySplitPoints(),
+			"housePoints":prnt.getHousePoints()}
+	_contract.confirmSeed(seed, _currentMethod, objGame, isMain);
+}
+
 ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
 	// value = {"arMyCards":[23,51],"arMySplitCards":[1,10],"arHouseCards":[4,28]}
-	// value = {"arMyCards":[23,51]}
+	// value = {"arMyCards":[23,51,34], "arMySplitCards":[1]}
 	// console.log("responseServer:", value);
 	
 	for(var name in value){
@@ -1880,18 +1908,22 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	var gasPrice="0x"+numToHex(40000000000);
 	var gasLimit=0x927c0; //web3.toHex('600000');
 	if(name == "deal"){
+		_currentMethod = DEAL;
 		data = "0x"+C_DEAL+pad(numToHex(betGame), 64);
 		price = betGame;
 		args = [price, seed];
 		betGameCur = betGame;
 		nameRequest = "gameTxHash";
 	} else if(name == "hit"){
+		_currentMethod = HIT;
 		data = "0x"+C_HIT;
 		args = [seed];
 	} else if(name == "stand"){
+		_currentMethod = STAND;
 		data = "0x"+C_STAND;
 		args = [seed];
 	} else if(name == "split"){
+		_currentMethod = SPLIT;
 		data = "0x"+C_SPLIT;
 		price = betGame;
 		args = [price, seed];
@@ -1904,6 +1936,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		args = [price];
 		prnt.bInsurance = 2;
 	} else if(name == "double"){
+		_currentMethod = DOUBLE;
 		data = "0x"+C_DOUBLE;
 		price = betGame;
 		args = [price, seed];

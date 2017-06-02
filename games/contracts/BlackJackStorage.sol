@@ -94,7 +94,7 @@ contract BlackJackStorage {
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(seed);
         splitGames[player].playerCards.push(card);
         splitGames[player].seed += 1;
         return card;
@@ -104,7 +104,7 @@ contract BlackJackStorage {
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(seed);
         games[player].playerCards.push(card);
         games[player].seed += 1;
         return card;
@@ -114,7 +114,7 @@ contract BlackJackStorage {
         external
         returns (uint8)
     {
-        uint8 card = deck.deal(player, seed);
+        uint8 card = deck.deal(seed);
         games[player].houseCards.push(card);
         games[player].seed += 1;
         return card;

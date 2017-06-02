@@ -5,13 +5,10 @@ contract Deck {
 	// returns random number from 0 to 51
 	// let's say 'value' % 4 means suit (0 - Hearts, 1 - Spades, 2 - Diamonds, 3 - Clubs)
 	//			 'value' / 4 means: 0 - King, 1 - Ace, 2 - 10 - pip values, 11 - Jacket, 12 - Queen
-	function deal(address player, bytes32 cardNumber)
+	function deal(bytes32 cardNumber)
 		external
 		returns (uint8)
 	{
-		// uint b = block.number;
-		// uint timestamp = block.timestamp;
-		// return uint8(uint256(keccak256(block.blockhash(b), player, cardNumber, timestamp)) % 52);
 		return uint8(sha3(cardNumber))%52;
 	}
 
