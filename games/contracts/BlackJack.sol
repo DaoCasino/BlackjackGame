@@ -276,7 +276,7 @@ contract BlackJack is owned {
 			throw;
 		}
 		
-        if (ecrecover(idSeed, _v, _r, _s) == owner) {// ==owner
+        if (ecrecover(idSeed, _v, _r, _s) != owner) {// ==owner
 			s = _s;
 			usedRandom[idSeed] = true;
 			address player = seedContract.getSeedPlayer(idSeed);

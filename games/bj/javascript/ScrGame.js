@@ -98,6 +98,7 @@ var _oReceiveWinOffset;
 var _oFichesDealerOffset;
 var _oRemoveCardsOffset;
 var _contract;
+var _countBankrollers = 0;
 
 ScrGame.prototype.init = function() {
 	this.face_mc = new PIXI.Container();
@@ -214,7 +215,6 @@ ScrGame.prototype.init = function() {
 	
 	this.createGUI();
 	this.createAccount();
-	this.getGameId();
 	
 	infura.sendRequest("getBalance", openkey, _callback);
 	this.getBalancePlayer();
@@ -223,10 +223,13 @@ ScrGame.prototype.init = function() {
 	infura.sendRequest("getBlockNumber", undefined, _callback);
 	this.checkGameState(true);
 	this.getAllowance();
-	if(!this.bApprove){
+	if(this.bApprove){
+		this.getBankrolls();
+	} else {
 		// this.showWndApprove();
 		this.acceptApprove();
 	}
+	this.getGameId();
 	// infura.ethCall("testNum", _callback, "latest");
 	
 	if(openkey){} else {
@@ -441,9 +444,13 @@ ScrGame.prototype.createGUI = function() {
 	this.tfTotalTime.x = icoTime.x + 30;
 	this.tfTotalTime.y = icoTime.y - 12;
 	this.face_mc.addChild(this.tfTotalTime);
+	this.tfBankrollers= addText("Bankrollers: 0", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	this.tfBankrollers.x = icoTime.x - 10;
+	this.tfBankrollers.y = this.tfTotalTime.y + 45;
+	this.face_mc.addChild(this.tfBankrollers);
 	this.tfVers= addText(version, fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfVers.x = icoTime.x - 10;
-	this.tfVers.y = this.tfTotalTime.y + 40;
+	this.tfVers.y = this.tfBankrollers.y + 40;
 	this.face_mc.addChild(this.tfVers);
 	this.tfYourBet = addText("Your bet: 0", 40, "#ffde00", undefined, "left", 300, 4, fontDigital)
 	this.tfYourBet.x = -70;
@@ -522,14 +529,16 @@ ScrGame.prototype.createGUI = function() {
 		this._arButtons.push(btnContract);
 	}
 	
-	var btnConfirm = addButton("btnContract", 180, _H - 80);
-	btnConfirm.name = "btnConfirm";
-	btnConfirm.interactive = true;
-	btnConfirm.buttonMode=true;
-	btnConfirm.overSc = true;
-	btnConfirm.hint2 = 'Confirm';
-	this.addChild(btnConfirm);
-	this._arButtons.push(btnConfirm);
+	if(options_rpc){
+		var btnConfirm = addButton("btnContract", 180, _H - 80);
+		btnConfirm.name = "btnConfirm";
+		btnConfirm.interactive = true;
+		btnConfirm.buttonMode=true;
+		btnConfirm.overSc = true;
+		btnConfirm.hint2 = 'Confirm';
+		this.addChild(btnConfirm);
+		this._arButtons.push(btnConfirm);
+	}
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -763,7 +772,7 @@ ScrGame.prototype.showChips = function(value) {
 	if(value){
 		alpha = 1;
 	}
-	if(this.startGame){
+	if(this.startGame || _countBankrollers == 0){
 		alpha = a;
 	}
 	if(betGame != 0 && value && this.bWait){
@@ -774,7 +783,7 @@ ScrGame.prototype.showChips = function(value) {
 		var obj = this._arBtnChips[i];
 		obj.alpha = alpha;
 	}
-	if(value && betGame == 0){
+	if(value && betGame == 0 && _countBankrollers > 0){
 		this.bClear = false;
 		this.bWait = false;
 		this.arrow.visible = true;
@@ -1662,6 +1671,9 @@ ScrGame.prototype.showError = function(value, callback) {
 		case ERROR_MAX_BET:
 			str = "OOOPS! \n The maximum bet is 5."
 			break;
+		case ERROR_BANKROLLER:
+			str = "OOOPS! \n No online bankroller. \n Come back later"
+			break;
 		default:
 			str = "ERROR! \n\n " + value + " \n\n Contact technical support.";
 			break;
@@ -1824,6 +1836,27 @@ ScrGame.prototype.showLogs = function(arLogs){
 	// }
 }
 
+ScrGame.prototype.getBankrolls = function(){
+	var prnt = obj_game["game"];
+	
+	$.ajax("https://platform.dao.casino/api/proxy.php?a=bankrolls").done(function (d) {
+        var _arr = JSON.parse(d);
+        if (!_arr) {
+           showError(ERROR_BANKROLLER);      
+            return;
+        }
+        
+		_countBankrollers = _arr.length;
+		prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+        
+        if (_arr.length) {
+            // addressContract = _arr[0];
+			prnt.showChips(true);
+            // initGame();
+        }
+    });
+}
+
 // START
 ScrGame.prototype.startGameEth = function(){
 	if(openkey == undefined){
@@ -1832,13 +1865,13 @@ ScrGame.prototype.startGameEth = function(){
 	}
 	
 	this.bClickStart = true;
-	// infura.sendRequest("deal", openkey, _callback);
+	infura.sendRequest("deal", openkey, _callback);
 	
 	// test fast game
-	this.startGame = true;
-	this.bSplit = false;
-	_currentMethod = DEAL;
-	this.sendSeed("0x14963965039618f89a0d8a00af57fe504dc40e2dc241276b065abb83636d14d0");
+	// this.startGame = true;
+	// this.bSplit = false;
+	// _currentMethod = DEAL;
+	// this.sendSeed("0x14963965039618f89a0d8a00af57fe504dc40e2dc241276b065abb83636d14d0");
 }
 
 ScrGame.prototype.sendUrlRequest = function(url, name) {
@@ -1869,6 +1902,7 @@ ScrGame.prototype.sendSeed = function(seed) {
 			"myPoints":prnt.getMyPoints(),
 			"splitPoints":prnt.getMySplitPoints(),
 			"housePoints":prnt.getHousePoints()}
+	console.log("sendSeed:", objGame);
 	_contract.confirmSeed(seed, _currentMethod, objGame, isMain);
 }
 
@@ -1982,7 +2016,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 				}
 				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
 				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
-				infura.sendRequest(nameRequest, params, _callback);
+				infura.sendRequest(nameRequest, params, _callback, seed);
 				prnt.timeWaitResponse = TIME_LONG_RESPONSE;
 			})
 		} else {
@@ -2359,12 +2393,14 @@ ScrGame.prototype.response = function(command, value, error) {
 			_allowance = hexToNum(value);
 			prnt.bApprove = true;
 			if(prnt.bClickApprove){
-				prnt.showChips(true);
+				prnt.getBankrolls();
+				// prnt.showChips(true);
 				prnt.createWndInfo("The approval was completed successfully.", undefined, "OK");
 			}
 		}
 	} else if(command == "responseServer"){
-		prnt.responseServer(value)
+		// Bankroll.getRandom(metaCode, addressContract, _seed, prnt.sendSeed);
+		prnt.sendSeed(value);
 	} else if(command == "sendRaw"){
 		prnt.timeWaitResponse = 0;
 		prnt.getBalancePlayer();
@@ -2380,10 +2416,6 @@ ScrGame.prototype.update = function(diffTime){
 		return false;
 	}
 	
-	// if(this.startGame || 
-	// this.bClickStart || 
-	// stateNow == S_IN_PROGRESS || 
-	// stateNow == S_IN_PROGRESS_SPLIT){
 	if(this.startGame){
 		this.timeTotal += diffTime;
 		this.tfTotalTime.setText(Math.round(this.timeTotal/1000));
@@ -2475,7 +2507,9 @@ ScrGame.prototype.clickCell = function(item_mc) {
 	}
 	
 	if(item_mc.name == "btnDeal"){
-		if(betGame >= minBet && obj_game["balanceBank"] >= (betGame/valToken)*3){
+		if((betGame >= minBet && 
+		obj_game["balanceBank"] >= (betGame/valToken)*3) || 
+		_countBankrollers > 0){
 			if(obj_game["balancePlEth"] > 0){
 				item_mc.alpha = 0.5;
 				this.btnClear.alpha = 0.5;
@@ -2502,8 +2536,12 @@ ScrGame.prototype.clickCell = function(item_mc) {
 				obj_game["game"].showChips(true);
 			}
 		} else {
-			console.log("balanceBank:", obj_game["balanceBank"]);
-			obj_game["game"].showError(ERROR_BANK);
+			if(_countBankrollers > 0){
+				console.log("balanceBank:", obj_game["balanceBank"]);
+				obj_game["game"].showError(ERROR_BANK);
+			} else {
+				obj_game["game"].showError(ERROR_BANKROLLER);
+			}
 			obj_game["game"].clearBet();
 			obj_game["game"].bWait = false;
 			obj_game["game"].showChips(true);

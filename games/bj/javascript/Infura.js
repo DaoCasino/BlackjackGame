@@ -36,7 +36,7 @@ var Infura = function() {
 	}
 };
 
-Infura.prototype.sendRequest = function(name, params, callback){
+Infura.prototype.sendRequest = function(name, params, callback, seed){
 	if(options_ethereum && openkey){
 		var method = name;
 		var arParams = [params, "latest"]; // latest, pending
@@ -84,7 +84,8 @@ Infura.prototype.sendRequest = function(name, params, callback){
 									"id":1}),
 			success: function (d) {
 				if(method == "eth_sendRawTransaction" && d.result){
-					gThis.sendRequestServer("responseServer", d.result, callback);
+					// callback("responseServer", d.result);
+					gThis.sendRequestServer("responseServer", d.result, callback, seed);
 				}
 				callback(name, d.result, d.error);
 			},
@@ -141,43 +142,34 @@ Infura.prototype.ethCall = function(name, callback, type, val){
 	}
 }
 
-Infura.prototype.sendRequestServer = function(name, txid, callback){
-	// console.log("success gameTxHash:", txid);
-	/*repeatRequest = 0;
-	var seed = this.makeID();
+Infura.prototype.sendRequestServer = function(name, txid, callback, seed){
+	if(txid == undefined){
+		return false;
+	}
+	repeatRequest = 0;
 	var url = "https://platform.dao.casino/api/proxy.php?a=roll&";
-	$.get(url+"txid="+txid+"&vconcat="+seed, 
+	$.get(url+"txid="+txid+"&vconcat="+seed+"&address="+addressContract, 
 		function(d){
 			gThis.checkJson(name, seed, callback);
 		}
-	);*/
+	);
 }
 
 Infura.prototype.checkJson = function(name, seed, callback){
 	$.ajax({
-		url: "https://platform.dao.casino/api/proxy.php?a=get&vconcat="+seed,
+		url: "https://platform.dao.casino/api/proxy.php?a=get&vconcat="+seed+"&address="+addressContract,
 		type: "POST",
 		async: false,
-		dataType: 'json',
+		//dataType: 'json',
 		success: function (obj) {
-			if(obj){
-				if(obj.arMyCards){
-					repeatRequest = 0;
-					// console.log("checkJson:", seed);
-					// callback(name, obj);
-				} else {
-					setTimeout(function () {
-						if(repeatRequest < 20){
-							repeatRequest++;
-							gThis.checkJson(name, seed);
-						}
-					}, 1000);
-				}
+			if(obj && (''+obj).substr(0,2)=='0x'){
+				repeatRequest = 0;
+				callback(name, obj);
 			} else {
 				setTimeout(function () {
 					if(repeatRequest < 20){
 						repeatRequest++;
-						gThis.checkJson(name, seed);
+						gThis.checkJson(name, seed, callback);
 					}
 				}, 1000);
 			}

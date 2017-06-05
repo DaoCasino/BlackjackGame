@@ -1,6 +1,7 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.54"
+var version = "v. 1.0.54";
+var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
 var dataMovie = [];
@@ -29,10 +30,10 @@ var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
 var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0x4e4d39bf22c275aef853019914fbb760002b0296"; // const
-var	addressTestSeed = "0xc7c0bf6bbd8d9c914f515290db977d27efdafd6f"; // const
-var	addressTestStorage = "0xe98df655a8a61e784b79aec765febcf133e3e305";
-var	addressTestContract = "0x669a5efad3cc5c9d2ea5c9ae35b1b90003de24d6";
+var addressTestDeck = "0x613b41fad7dc4118bee9a6eba436286418dc2a55"; // const
+var	addressTestSeed = "0xfd38c122f10cf5c8871d516aceef3f2581374973";
+var	addressTestStorage = "0xa8ac72d0dacfb27cdedc06a796652c8d8d42adec";
+var	addressTestContract = "0xe32db7dbccd6ba6f0ec3250cb802387c084078ea";
 
 var addressCurErc = "";
 
@@ -59,6 +60,7 @@ var ERROR_CONTRACT = 5;
 var ERROR_BALANCE = 6;
 var ERROR_DEAL = 7;
 var ERROR_MAX_BET = 8;
+var ERROR_BANKROLLER = 9;
 
 if(options_rpc){
 	addressCurErc = addressRpcErc;
