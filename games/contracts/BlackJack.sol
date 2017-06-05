@@ -7,6 +7,11 @@ import "./Types.sol";
 import "./owned.sol";
 
 contract BlackJack is owned {
+	uint   public meta_version = 1;
+    string public meta_code    = 'blackjack_v1';
+    string public meta_name    = 'BlackjackGame';
+    string public meta_link    = 'https://github.com/DaoCasino/BlackjackGame';
+	
     using Types for *;
 
     /*
@@ -271,7 +276,7 @@ contract BlackJack is owned {
 			throw;
 		}
 		
-        if (ecrecover(idSeed, _v, _r, _s) != owner) {// owner
+        if (ecrecover(idSeed, _v, _r, _s) == owner) {// ==owner
 			s = _s;
 			usedRandom[idSeed] = true;
 			address player = seedContract.getSeedPlayer(idSeed);
