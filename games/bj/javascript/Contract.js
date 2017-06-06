@@ -23,11 +23,24 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 	this.myPoints = _objGame.myPoints;
 	this.splitPoints = _objGame.splitPoints;
 	this.housePoints = _objGame.housePoints;
-	this._arMyCards = _objGame.arMyCards;
-	this._arMySplitCards = _objGame.arMySplitCards;
-	this._arHouseCards = _objGame.arHouseCards;
-	console.log("______________________________________", arMethod[method]);
-	console.log("_arMyCards 1:", this._arMyCards);
+	this._arMyCards = [];
+	this._arMySplitCards = [];
+	this._arHouseCards = [];
+	
+	var i = 0;
+	var point = 0;
+	for (i = 0; i < _objGame.arMyCards.length; i++) {
+		point = _objGame.arMyCards[i].id;
+		this._arMyCards.push(point);
+	}
+	for (i = 0; i < _objGame.arMySplitCards.length; i++) {
+		point = _objGame.arMySplitCards[i].id;
+		this._arMySplitCards.push(point);
+	}
+	for (i = 0; i < _objGame.arHouseCards.length; i++) {
+		point = _objGame.arHouseCards[i].id;
+		this._arHouseCards.push(point);
+	}
 	
 	switch(method){
 		case DEAL:
@@ -50,7 +63,6 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 			break;
 	}
 	
-	console.log("_arMyCards 2:", this._arMyCards);
 	var objGame = {"arMyCards":this._arMyCards,
 			"arMySplitCards":this._arMySplitCards,
 			"arHouseCards":this._arHouseCards}
@@ -62,7 +74,6 @@ Contract.prototype.stand = function(isMain, s){
 	if (!isMain) {
 		return;
 	}
-	console.log("stand: !!!!");
 	
 	if(this.myPoints > BLACKJACK &&
 	(this._arMySplitCards.lenth == 0 ||
@@ -79,7 +90,6 @@ Contract.prototype.stand = function(isMain, s){
 
 Contract.prototype.dealCard = function(player, isMain, seed){
 	var newCard = this.deal(seed);
-	console.log("dealCard:", newCard, seed);
 	
 	if(player){
 		if (isMain) {
@@ -96,7 +106,6 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 }
 
 Contract.prototype.deal = function(cardNumber){
-	// return uint8(sha3(cardNumber))%52;
 	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
 	var rand = bigInt(hash,16).divmod(52).remainder.value;
 	

@@ -830,9 +830,6 @@ ScrGame.prototype.showPlayerCard = function(card){
 		if(this.mySplitPoints > 0){
 			card.x = _W/2 - 200 + lastPlayerCard*30;
 			this.tfMyPoints.x = _W/2-270;
-			// if(this.bSplit && !this.bStandSplit){
-				// card.img.tint = 0x999999;
-			// }
 		} else {
 			card.x = _W/2 - 80 + lastPlayerCard*30;
 			this.tfMyPoints.x = _W/2-150;
@@ -853,9 +850,6 @@ ScrGame.prototype.showPlayerSplitCard = function(card){
 		var offsetY = 50;
 		card.x = _W/2 + 200 + lastPlayerSplitCard*30;
 		card.y = _H/2 + 70;
-		// if(!this.bSplit && this.bStandSplit){
-			// card.img.tint = 0x999999;
-		// }
 		this.cards_mc.addChild(card);
 		lastPlayerSplitCard++;
 		dealedCards.push(card);
@@ -1051,6 +1045,7 @@ ScrGame.prototype.getCard = function(cardIndex){
 	var spriteName = suit + "_" + cardSymbol;
 	var newCard = addObj(spriteName, 0, 0, scaleCard);
 	if(newCard){
+		newCard.id = cardIndex;
 		newCard.point = point;
 		newCard.ace = ace;
 	}else{
@@ -1515,6 +1510,8 @@ ScrGame.prototype.sendCard = function(obj){
 	}
 	
 	if(card){
+		prnt.checkResult(true);
+		prnt.checkResult(false);
 		card.visible = false;
 		if(type == "suit"){
 			createjs.Tween.get(suit).to({x:_x, y:_y},400)
@@ -1857,6 +1854,24 @@ ScrGame.prototype.getBankrolls = function(){
     });
 }
 
+ScrGame.prototype.checkResult = function(isMain){
+	var prnt = obj_game["game"];
+	var points = prnt.mySplitPoints;
+	if(isMain){
+		points = prnt.myPoints;
+	}
+	console.log("checkResult:", prnt._arNewCards.length);
+	if(prnt._arNewCards.length == 0){
+		// this.myPoints
+		// this.mySplitPoints
+		// this.housePoints
+		if(points == 21 && prnt.housePoints == 21){
+			console.log("TIE main");
+		}
+		
+	}
+}
+
 // START
 ScrGame.prototype.startGameEth = function(){
 	if(openkey == undefined){
@@ -1902,7 +1917,7 @@ ScrGame.prototype.sendSeed = function(seed) {
 			"myPoints":prnt.getMyPoints(),
 			"splitPoints":prnt.getMySplitPoints(),
 			"housePoints":prnt.getHousePoints()}
-	console.log("sendSeed:", objGame);
+	
 	_contract.confirmSeed(seed, _currentMethod, objGame, isMain);
 }
 
@@ -1913,7 +1928,6 @@ ScrGame.prototype.responseServer = function(value) {
 	// console.log("responseServer:", value);
 	
 	for(var name in value){
-		console.log("name:", name, value[name]);
 		var obj = value[name];
 		switch(name){
 			case "arMyCards":
@@ -2399,7 +2413,6 @@ ScrGame.prototype.response = function(command, value, error) {
 			}
 		}
 	} else if(command == "responseServer"){
-		// Bankroll.getRandom(metaCode, addressContract, _seed, prnt.sendSeed);
 		prnt.sendSeed(value);
 	} else if(command == "sendRaw"){
 		prnt.timeWaitResponse = 0;
