@@ -25,9 +25,9 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x2e9c5a28a1946d66d0a558c1f9750d7e851bda03";
-var	addressRpcStorage = "0x49953ce8da3cc2085d1bad051e1236c201f88911";
-var	addressRpcContract = "0x694319e15f0dc86b16c063cd6b1e1580658df642";
+var	addressRpcErc = "0x916c23146ef05a234faf842114a0c57efcb9971f";
+var	addressRpcStorage = "0x937b9ec5c69992da6c11efa52d7923047574ba9a";
+var	addressRpcContract = "0x752fe215aeab720de10afa5b474cb7ca7eacfb71";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 var addressTestDeck = "0x613b41fad7dc4118bee9a6eba436286418dc2a55"; // const
@@ -44,7 +44,7 @@ var options_mainet = false;
 var options_ropsten = true;
 var options_rinkeby = false;
 var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = true;
+var options_rpc = false;
 var options_music = true;
 var options_sound = true;
 var options_mobile = true;

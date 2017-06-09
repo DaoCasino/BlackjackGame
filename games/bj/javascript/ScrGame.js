@@ -28,6 +28,7 @@ var HIT = 1;
 var STAND = 2;
 var SPLIT = 3;
 var DOUBLE = 4;
+var BLACKJACK = 21;
 
 var C_DEAL = "c959c42b";
 var C_HIT = "2ae3594a";
@@ -149,6 +150,7 @@ ScrGame.prototype.init = function() {
 	this.curWindow;
 	this.startGame = false;
 	this._gameOver = false;
+	this._gameEnd = false;
 	this.bWindow = false;
 	this.bBetLoad = false;
 	this.bWait = false;
@@ -296,6 +298,7 @@ ScrGame.prototype.clearGame = function(){
 	this.bEndTurnSplit = false;
 	this.bWaitSplit = false;
 	this.bClickStart = false;
+	this._gameEnd = false;
 	this.bInsurance = -1;
 	var i = 0;
 	
@@ -1839,7 +1842,7 @@ ScrGame.prototype.getBankrolls = function(){
 	$.ajax("https://platform.dao.casino/api/proxy.php?a=bankrolls").done(function (d) {
         var _arr = JSON.parse(d);
         if (!_arr) {
-           showError(ERROR_BANKROLLER);      
+			prnt.showError(ERROR_BANKROLLER);      
             return;
         }
         
@@ -1857,18 +1860,79 @@ ScrGame.prototype.getBankrolls = function(){
 ScrGame.prototype.checkResult = function(isMain){
 	var prnt = obj_game["game"];
 	var points = prnt.mySplitPoints;
+	var str = "";
+	var _x = _W/2 + 200-75;
+	var _y = _H/2 - 35;
 	if(isMain){
+		// prnt._gameEnd = true;
 		points = prnt.myPoints;
+		_x = _W/2 - 80-75;
+		if(prnt.mySplitPoints > 0){
+			_x = _W/2 - 200-75;
+		}
 	}
-	console.log("checkResult:", prnt._arNewCards.length);
-	if(prnt._arNewCards.length == 0){
-		// this.myPoints
-		// this.mySplitPoints
-		// this.housePoints
-		if(points == 21 && prnt.housePoints == 21){
-			console.log("TIE main");
+	if(prnt._arNewCards.length == 1 && points > 0 && prnt.housePoints > 0){
+		console.log("checkResult");
+		if(points == BLACKJACK && prnt.housePoints == BLACKJACK && str==""){
+			str = "tfPush";
+			if(isMain){
+				prnt._gameEnd = true;
+			}
+		}
+		if (prnt.housePoints == BLACKJACK && points != BLACKJACK && str=="") {
+			str = "tfLose";
+			if(isMain){
+				prnt._gameEnd = true;
+			}
+        }
+        if (points == BLACKJACK && str=="") {
+			str = "tfBlackjack";
+			if(isMain){
+				prnt._gameEnd = true;
+			}
+        }
+        if (points > BLACKJACK && str=="") {
+            str = "tfBust";
+			if(isMain){
+				prnt._gameEnd = true;
+			}
+        }
+		if (points == prnt.housePoints && str=="") {
+            str = "tfPush";
+        }
+        if (points < prnt.housePoints && str=="") {
+			str = "tfLose";
+        }
+        if (str=="") {
+			str = "tfWin";
 		}
 		
+		if(prnt.bStand && (prnt.mySplitPoints == 0 || prnt.bStandSplit)){
+			prnt._gameEnd = true;
+		}
+		
+		if(prnt._gameEnd){
+			prnt.showResult(str, _x, _y);
+			
+			if(isMain){
+				idOldGame = idGame;
+				prnt.clearText();
+				prnt.getBet(false);
+				prnt.getBet(true);
+				betGame = 0;
+				betSplitGame = 0;
+				betGameOld = 0;
+				valInsurance = 0;
+				prnt.timeWaitResponse = 0;
+				//---------------------
+				prnt.bClickStart = false;
+				prnt.bWait = false;
+				prnt.startGame = false;
+				prnt.timeShowBtnChips = TIME_SHOW_BTN_CHIPS + prnt._arNewCards.length*1000;
+				prnt.getBalanceBank();
+				prnt.showButtons(false);
+			}
+		}
 	}
 }
 

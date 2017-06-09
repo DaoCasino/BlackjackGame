@@ -271,6 +271,7 @@ contract BlackJack is owned {
 	
 	function confirm(bytes32 idSeed, uint8 _v, bytes32 _r, bytes32 _s) 
 		public
+		// onlyOwner
     {
 		if (seedContract.getConfirmed(idSeed) == true) {
 			throw;
