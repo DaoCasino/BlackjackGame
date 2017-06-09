@@ -25,15 +25,15 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x916c23146ef05a234faf842114a0c57efcb9971f";
-var	addressRpcStorage = "0x937b9ec5c69992da6c11efa52d7923047574ba9a";
-var	addressRpcContract = "0x752fe215aeab720de10afa5b474cb7ca7eacfb71";
+var	addressRpcErc = "0x1342a9991907e3aa7ef061b9d1ac146eb7b51713";
+var	addressRpcStorage = "0xf8064dd08912b3d6c08f9efd4fe2a94f738b6d60";
+var	addressRpcContract = "0x08dae5f6329af99e173835b3fc2775ce28309de8";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0x613b41fad7dc4118bee9a6eba436286418dc2a55"; // const
-var	addressTestSeed = "0xfd38c122f10cf5c8871d516aceef3f2581374973";
-var	addressTestStorage = "0xa8ac72d0dacfb27cdedc06a796652c8d8d42adec";
-var	addressTestContract = "0xe32db7dbccd6ba6f0ec3250cb802387c084078ea";
+var addressTestDeck = "0x4dd741849daf306d802d883fc868c165ad66c22b"; // const
+var	addressTestSeed = "0xdc8ed5b6c6551c851a9bc3e280e57ff850e1f9e2";
+var	addressTestStorage = "0x0748bb18d976a82491486b66889753b29d775db4";
+var	addressTestContract = "0xdab304cb88f5eba27f653019a27f08c0ae04599d";
 
 var addressCurErc = "";
 
