@@ -256,9 +256,9 @@ contract BlackJack is owned {
 		if(storageContract.getPlayerScore(true, player) > BLACKJACK &&
 		(storageContract.getSplitCardsNumber(player) == 0 ||
 		storageContract.getPlayerScore(false, player) > BLACKJACK)){
-			dealCard(false, true, s[1], idSeed);
+			dealCard(false, true, s[15], idSeed);
 		} else {
-			uint8 val = 1;
+			uint8 val = 15;
 			while (storageContract.getHouseScore(player) < 17) {
 				dealCard(false, true, s[val], idSeed);
 				val += 1;
@@ -290,9 +290,9 @@ contract BlackJack is owned {
 			seedContract.updateSeedConfimed(idSeed, true);
 			if (seedContract.getMethod(idSeed) == Types.SeedMethod.Deal) {
 				// deal the cards
-				dealCard(true, true, _s[1], idSeed);
-				dealCard(false, true, _s[2], idSeed);
-				dealCard(true, true, _s[3], idSeed);
+				dealCard(true, true, _s[15], idSeed);
+				dealCard(false, true, _s[16], idSeed);
+				dealCard(true, true, _s[17], idSeed);
 
 				if (deck.isAce(storageContract.getHouseCard(0, player))) {
 					storageContract.setInsuranceAvailable(true, true, player);
@@ -307,8 +307,8 @@ contract BlackJack is owned {
 				autoStand(isMain, idSeed, player);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Split) {
 				// Deal extra cards in each game.
-				dealCard(true, true, _s[1], idSeed);
-				dealCard(true, false, _s[2], idSeed);
+				dealCard(true, true, _s[15], idSeed);
+				dealCard(true, false, _s[16], idSeed);
 
 				checkGameResult(false, false, idSeed);
 
