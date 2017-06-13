@@ -63,8 +63,7 @@ contract BlackJack is owned {
         _;
     }
 
-    modifier gameIsGoingOn(bytes32 idSeed) {
-		address player = seedContract.getSeedPlayer(idSeed);
+    modifier gameIsGoingOn(address player) {
         if (!storageContract.isMainGameInProgress(player) && !storageContract.isSplitGameInProgress(player)) {
             throw;
         }
@@ -119,7 +118,8 @@ contract BlackJack is owned {
 
     modifier standIfNecessary(bool isMain, bool finishGame, bytes32 idSeed) {
         if (!finishGame) {
-            autoStand(isMain, idSeed);
+			address player = seedContract.getSeedPlayer(idSeed);
+            autoStand(isMain, idSeed, player);
         } else {
             _;
         }
@@ -178,7 +178,7 @@ contract BlackJack is owned {
 	
     function hit(bytes32 seed)
         public
-        gameIsGoingOn(seed)
+        gameIsGoingOn(msg.sender)
         usedSeed(seed)
     {
 		bool isMain = storageContract.isMainGameInProgress(msg.sender);
@@ -202,7 +202,7 @@ contract BlackJack is owned {
 	
     function stand(bytes32 seed)
         public
-        gameIsGoingOn(seed)
+        gameIsGoingOn(msg.sender)
 		usedSeed(seed)
     {
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
@@ -241,11 +241,10 @@ contract BlackJack is owned {
 		logId(seed);
     }
 	
-    function autoStand(bool isMain, bytes32 idSeed)
+    function autoStand(bool isMain, bytes32 idSeed, address player)
         public
-        gameIsGoingOn(idSeed)
+        gameIsGoingOn(player)
     {
-		address player = seedContract.getSeedPlayer(idSeed);
         if (!isMain) {
 			//switch focus to the main game
 			storageContract.updateState(Types.GameState.InProgress, true, player);
@@ -305,7 +304,7 @@ contract BlackJack is owned {
 				storageContract.setInsuranceAvailable(false, isMain, player);
 				checkGameResult(isMain, false, idSeed);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Stand) {
-				autoStand(isMain, idSeed);
+				autoStand(isMain, idSeed, player);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Split) {
 				// Deal extra cards in each game.
 				dealCard(true, true, _s[1], idSeed);
@@ -320,7 +319,7 @@ contract BlackJack is owned {
 				dealCard(true, isMain, _s, idSeed);
 				
 				if (storageContract.getState(isMain, player) == Types.GameState.InProgress) {
-					autoStand(isMain, idSeed);
+					autoStand(isMain, idSeed, player);
 				}
 			}
         }

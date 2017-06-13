@@ -166,12 +166,14 @@ Infura.prototype.sendRequestServer = function(name, txid, callback, seed){
 	var url = "https://platform.dao.casino/api/proxy.php?a=roll&";
 	$.get(url+"txid="+txid+"&vconcat="+seed+"&address="+addressContract, 
 		function(d){
-			gThis.checkJson(name, seed, callback);
+			if(options_speedgame){
+				gThis.speedGame(name, seed, callback);
+			}
 		}
 	);
 }
 
-Infura.prototype.checkJson = function(name, seed, callback){
+Infura.prototype.speedGame = function(name, seed, callback){
 	$.ajax({
 		url: "https://platform.dao.casino/api/proxy.php?a=get&vconcat="+seed+"&address="+addressContract,
 		type: "POST",
@@ -180,12 +182,13 @@ Infura.prototype.checkJson = function(name, seed, callback){
 		success: function (obj) {
 			if(obj && (''+obj).substr(0,2)=='0x'){
 				repeatRequest = 0;
+				console.log("_s from server:", obj);
 				callback(name, obj);
 			} else {
 				setTimeout(function () {
 					if(repeatRequest < 20){
 						repeatRequest++;
-						gThis.checkJson(name, seed, callback);
+						gThis.speedGame(name, seed, callback);
 					}
 				}, 1000);
 			}

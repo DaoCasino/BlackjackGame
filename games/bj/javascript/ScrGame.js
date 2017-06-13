@@ -1858,6 +1858,9 @@ ScrGame.prototype.getBankrolls = function(){
 }
 
 ScrGame.prototype.checkResult = function(isMain){
+	if(!options_speedgame){
+		return;
+	}
 	var prnt = obj_game["game"];
 	var points = prnt.mySplitPoints;
 	var bet = betSplitGame/valToken;
