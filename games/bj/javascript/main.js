@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.54";
+var version = "v. 1.0.55";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -25,15 +25,15 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x1342a9991907e3aa7ef061b9d1ac146eb7b51713";
-var	addressRpcStorage = "0xf8064dd08912b3d6c08f9efd4fe2a94f738b6d60";
-var	addressRpcContract = "0x08dae5f6329af99e173835b3fc2775ce28309de8";
+var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
+var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0x4dd741849daf306d802d883fc868c165ad66c22b"; // const
-var	addressTestSeed = "0xdc8ed5b6c6551c851a9bc3e280e57ff850e1f9e2";
-var	addressTestStorage = "0x0748bb18d976a82491486b66889753b29d775db4";
-var	addressTestContract = "0xdab304cb88f5eba27f653019a27f08c0ae04599d";
+var addressTestDeck = "0xefd1c3ccf362f2c6d09181fd5ac5267fe5bd827d";
+var	addressTestSeed = "0x487d4f2d1cc8cb2d646ece0210da4a83161f472f";
+var	addressTestStorage = "0x986838a1f3e55b47cad6d9f49fd4f104b95a1176";
+var	addressTestContract = "0x50e9283c6cd21932ddc33a877cbd9bfda3b7f316";
 
 var addressCurErc = "";
 

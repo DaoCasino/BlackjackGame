@@ -46,10 +46,11 @@ contract BlackJack is owned {
         EVENTS
     */
 
-    event Deal(
-        uint8 _type, // 0 - player, 1 - house, 2 - split player
-        uint8 _card
-    );
+    // event Deal(
+        // uint8 _type, // 0 - player, 1 - house, 2 - split player
+        // uint8 _card
+    // );
+	event logId(bytes32 Id);
 
     /*
         MODIFIERS
@@ -171,6 +172,7 @@ contract BlackJack is owned {
         storageContract.createNewGame(lastGameId, msg.sender, value);
         storageContract.deleteSplitGame(msg.sender);
         seedContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Deal);
+		logId(seed);
     }
 	
     function hit(bytes32 seed)
@@ -180,6 +182,7 @@ contract BlackJack is owned {
     {
 		bool isMain = storageContract.isMainGameInProgress(msg.sender);
         seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Hit);
+		logId(seed);
     }
 	
     function requestInsurance(uint value)
@@ -203,6 +206,7 @@ contract BlackJack is owned {
     {
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
         seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Stand);
+		logId(seed);
     }
 
     function split(uint value, bytes32 seed)
@@ -233,6 +237,7 @@ contract BlackJack is owned {
 
         storageContract.doubleBet(isMain, msg.sender);
 		seedContract.createNewSeed(msg.sender, seed, isMain, Types.SeedMethod.Double);
+		logId(seed);
     }
 	
     function autoStand(bool isMain, bytes32 idSeed)
@@ -339,17 +344,17 @@ contract BlackJack is owned {
         uint8 newCard;
         if (isMain && player) {
             newCard = storageContract.dealMainCard(msg.sender, seed);
-            Deal(0, newCard);
+            // Deal(0, newCard);
         }
 
         if (!isMain && player) {
             newCard = storageContract.dealSplitCard(msg.sender, seed);
-            Deal(2, newCard);
+            // Deal(2, newCard);
         }
 
         if (!player) {
             newCard = storageContract.dealHouseCard(msg.sender, seed);
-            Deal(1, newCard);
+            // Deal(1, newCard);
         }
 
         if (player) {
