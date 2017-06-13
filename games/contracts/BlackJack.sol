@@ -63,8 +63,9 @@ contract BlackJack is owned {
         _;
     }
 
-    modifier gameIsGoingOn() {
-        if (!storageContract.isMainGameInProgress(msg.sender) && !storageContract.isSplitGameInProgress(msg.sender)) {
+    modifier gameIsGoingOn(bytes32 idSeed) {
+		address player = seedContract.getSeedPlayer(idSeed);
+        if (!storageContract.isMainGameInProgress(player) && !storageContract.isSplitGameInProgress(player)) {
             throw;
         }
         _;
@@ -177,7 +178,7 @@ contract BlackJack is owned {
 	
     function hit(bytes32 seed)
         public
-        gameIsGoingOn
+        gameIsGoingOn(seed)
         usedSeed(seed)
     {
 		bool isMain = storageContract.isMainGameInProgress(msg.sender);
@@ -201,7 +202,7 @@ contract BlackJack is owned {
 	
     function stand(bytes32 seed)
         public
-        gameIsGoingOn
+        gameIsGoingOn(seed)
 		usedSeed(seed)
     {
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
@@ -242,7 +243,7 @@ contract BlackJack is owned {
 	
     function autoStand(bool isMain, bytes32 idSeed)
         public
-        gameIsGoingOn
+        gameIsGoingOn(idSeed)
     {
 		address player = seedContract.getSeedPlayer(idSeed);
         if (!isMain) {
@@ -256,11 +257,11 @@ contract BlackJack is owned {
 		if(storageContract.getPlayerScore(true, player) > BLACKJACK &&
 		(storageContract.getSplitCardsNumber(player) == 0 ||
 		storageContract.getPlayerScore(false, player) > BLACKJACK)){
-			dealCard(false, true, s[1]);
+			dealCard(false, true, s[1], idSeed);
 		} else {
 			uint8 val = 1;
 			while (storageContract.getHouseScore(player) < 17) {
-				dealCard(false, true, s[val]);
+				dealCard(false, true, s[val], idSeed);
 				val += 1;
 			}
 		}
@@ -290,9 +291,9 @@ contract BlackJack is owned {
 			seedContract.updateSeedConfimed(idSeed, true);
 			if (seedContract.getMethod(idSeed) == Types.SeedMethod.Deal) {
 				// deal the cards
-				dealCard(true, true, _s[1]);
-				dealCard(false, true, _s[2]);
-				dealCard(true, true, _s[3]);
+				dealCard(true, true, _s[1], idSeed);
+				dealCard(false, true, _s[2], idSeed);
+				dealCard(true, true, _s[3], idSeed);
 
 				if (deck.isAce(storageContract.getHouseCard(0, player))) {
 					storageContract.setInsuranceAvailable(true, true, player);
@@ -300,15 +301,15 @@ contract BlackJack is owned {
 
 				checkGameResult(true, false, idSeed);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Hit) {
-				dealCard(true, isMain, _s);
+				dealCard(true, isMain, _s, idSeed);
 				storageContract.setInsuranceAvailable(false, isMain, player);
 				checkGameResult(isMain, false, idSeed);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Stand) {
 				autoStand(isMain, idSeed);
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Split) {
 				// Deal extra cards in each game.
-				dealCard(true, true, _s[1]);
-				dealCard(true, false, _s[2]);
+				dealCard(true, true, _s[1], idSeed);
+				dealCard(true, false, _s[2], idSeed);
 
 				checkGameResult(false, false, idSeed);
 
@@ -316,7 +317,7 @@ contract BlackJack is owned {
 					storageContract.setInsuranceAvailable(true, false, player);
 				}
 			} else if (seedContract.getMethod(idSeed) == Types.SeedMethod.Double) {
-				dealCard(true, isMain, _s);
+				dealCard(true, isMain, _s, idSeed);
 				
 				if (storageContract.getState(isMain, player) == Types.GameState.InProgress) {
 					autoStand(isMain, idSeed);
@@ -337,38 +338,39 @@ contract BlackJack is owned {
         SUPPORT FUNCTIONS
     */
 	
-    function dealCard(bool player, bool isMain, bytes32 seed)
+    function dealCard(bool bPlayer, bool isMain, bytes32 seed, bytes32 idSeed)
         private
     {
         usedRandom[seed] = true;
         uint8 newCard;
-        if (isMain && player) {
-            newCard = storageContract.dealMainCard(msg.sender, seed);
+		address player = seedContract.getSeedPlayer(idSeed);
+        if (isMain && bPlayer) {
+            newCard = storageContract.dealMainCard(player, seed);
             // Deal(0, newCard);
         }
 
-        if (!isMain && player) {
-            newCard = storageContract.dealSplitCard(msg.sender, seed);
+        if (!isMain && bPlayer) {
+            newCard = storageContract.dealSplitCard(player, seed);
             // Deal(2, newCard);
         }
 
-        if (!player) {
-            newCard = storageContract.dealHouseCard(msg.sender, seed);
+        if (!bPlayer) {
+            newCard = storageContract.dealHouseCard(player, seed);
             // Deal(1, newCard);
         }
 
-        if (player) {
-            uint8 playerScore = recalculateScore(newCard, storageContract.getPlayerSmallScore(isMain, msg.sender), false);
-            uint8 playerBigScore = recalculateScore(newCard, storageContract.getPlayerBigScore(isMain, msg.sender), true);
+        if (bPlayer) {
+            uint8 playerScore = recalculateScore(newCard, storageContract.getPlayerSmallScore(isMain, player), false);
+            uint8 playerBigScore = recalculateScore(newCard, storageContract.getPlayerBigScore(isMain, player), true);
             if (isMain) {
-                storageContract.updatePlayerScore(playerScore, playerBigScore, msg.sender);
+                storageContract.updatePlayerScore(playerScore, playerBigScore, player);
             } else {
-                storageContract.updatePlayerSplitScore(playerScore, playerBigScore, msg.sender);
+                storageContract.updatePlayerSplitScore(playerScore, playerBigScore, player);
             }
         } else {
-            uint8 houseScore = recalculateScore(newCard, storageContract.getHouseSmallScore(msg.sender), false);
-            uint8 houseBigScore = recalculateScore(newCard, storageContract.getHouseBigScore(msg.sender), true);
-            storageContract.updateHouseScore(houseScore, houseBigScore, msg.sender);
+            uint8 houseScore = recalculateScore(newCard, storageContract.getHouseSmallScore(player), false);
+            uint8 houseBigScore = recalculateScore(newCard, storageContract.getHouseBigScore(player), true);
+            storageContract.updateHouseScore(houseScore, houseBigScore, player);
         }
     }
 

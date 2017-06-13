@@ -532,7 +532,7 @@ ScrGame.prototype.createGUI = function() {
 		this._arButtons.push(btnContract);
 	}
 	
-	// if(options_rpc){
+	if(options_rpc){
 		var btnConfirm = addButton("btnContract", 180, _H - 80);
 		btnConfirm.name = "btnConfirm";
 		btnConfirm.interactive = true;
@@ -541,7 +541,7 @@ ScrGame.prototype.createGUI = function() {
 		btnConfirm.hint2 = 'Confirm';
 		this.addChild(btnConfirm);
 		this._arButtons.push(btnConfirm);
-	// }
+	}
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -2081,11 +2081,12 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	} else if(name == "confirm"){
 		data = "0x"+C_CONFIRM;
 		args = [_seed, 27, prnt.makeID(), prnt.makeID()];
-		// args = ["0x14972804336899fccf55917ee8e876abeae877a38f6e65ba69c786f573e76060", 
-				// 28, 
-				// "0x997050f6636843ca886b6f81bf34e392ddd1b8e1fa21e65ea67eb430782241cf", 
-				// "0x620a366f434da62ebf3004b45836f6c7a97e035dd9c91dbe7be67a10b99667fc"];
 		_seedUsed = _seed;
+		// args = ["0x149734752882291be0a032c38359fd804076b89cdf8dd9b00ada9c332f991988", 
+				// 28, 
+				// "0x09ef51d79ece3128c5e4ccdeef74e98f9caad31a3ed3aa0750addce0e92ffac4", 
+				// "0x2fcdbc1a9f018af04f9d6fe46b2c443fea1b2ad67ac2c35c451d4a5252d30f3f"];
+		// _seedUsed = "0x149734752882291be0a032c38359fd804076b89cdf8dd9b00ada9c332f991988";
 	}
 	
 	if(name != "confirm"){
@@ -2113,7 +2114,6 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 					return false;
 				}
 				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
-				console.log("registerTx:", registerTx);
 				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
 				infura.sendRequest(nameRequest, params, _callback, seed);
 				prnt.timeWaitResponse = TIME_LONG_RESPONSE;
