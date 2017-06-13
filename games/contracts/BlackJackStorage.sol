@@ -49,7 +49,6 @@ contract BlackJackStorage {
             houseScore: 0,
             houseBigScore: 0,
             state: Types.GameState.InProgress,
-            seed: 3,
             insurance: 0,
             insuranceAvailable: false,
             id: gameId
@@ -69,7 +68,6 @@ contract BlackJackStorage {
             houseScore: games[_player].houseScore,
             houseBigScore: games[_player].houseBigScore,
             state: Types.GameState.InProgress,
-            seed: 128,
             insurance: 0,
             insuranceAvailable: false,
             id: 0
@@ -96,7 +94,6 @@ contract BlackJackStorage {
     {
         uint8 card = deck.deal(seed);
         splitGames[player].playerCards.push(card);
-        splitGames[player].seed += 1;
         return card;
     }
 
@@ -106,7 +103,6 @@ contract BlackJackStorage {
     {
         uint8 card = deck.deal(seed);
         games[player].playerCards.push(card);
-        games[player].seed += 1;
         return card;
     }
 
@@ -116,7 +112,6 @@ contract BlackJackStorage {
     {
         uint8 card = deck.deal(seed);
         games[player].houseCards.push(card);
-        games[player].seed += 1;
         return card;
     }
 

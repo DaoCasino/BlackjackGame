@@ -35,8 +35,6 @@ library Types {
 
         uint32 id;
 
-        uint8 seed;
-
         bool insuranceAvailable;
 
         uint8[] houseCards;
