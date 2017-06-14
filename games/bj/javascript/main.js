@@ -30,10 +30,10 @@ var	addressRpcStorage = "0x752fe215aeab720de10afa5b474cb7ca7eacfb71";
 var	addressRpcContract = "0xc6a21388c4c6cd506490af9fc4b73dfadcdbd2c5";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0xc9b07a626e7f3d90524a05f3981107cb7c4a8186";
-var	addressTestSeed = "0x04f4035b1c51f365ac12737c7a25215d5bf8db7d";
-var	addressTestStorage = "0x456fec81f550fc5cc1f0a12918671d28e60dab88";
-var	addressTestContract = "0xe330cc178198689985858b3160fc424128da4ce7";
+var addressTestDeck = "0x3f7ab55ce3a5b3737ecfce170abc96d510f74ec0";
+var	addressTestSeed = "0x0b1834a0020b80474ac8da093230e67f0416e241";
+var	addressTestStorage = "0x6a67cf661257c812ceda393de94f3b74ce054b01";
+var	addressTestContract = "0x14490517c76b0b2160c64d5b7abaf38460122f46";
 
 var addressCurErc = "";
 
@@ -50,7 +50,7 @@ var options_sound = true;
 var options_mobile = true;
 var options_pause = false;
 var options_fullscreen = false;
-var options_speedgame = false;
+var options_speedgame = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -906,3 +906,10 @@ function hideGame() {
 
 visibly.onVisible(visGame)
 visibly.onHidden(hideGame)
+
+function rndSHA3(cardNumber) {
+	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
+	var rand = bigInt(hash,16).divmod(52).remainder.value;
+	
+	return rand;
+}

@@ -50,6 +50,7 @@ contract BlackJack is owned {
         // uint8 _type, // 0 - player, 1 - house, 2 - split player
         // uint8 _card
     // );
+	
 	event logId(bytes32 Id);
 
     /*

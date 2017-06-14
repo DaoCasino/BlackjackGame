@@ -69,7 +69,7 @@ var accounts;
 var account;
 var gameIsGoingOn;
 var dealedCards = new Array();
-var suit = {0: 'Hearts', 1: 'Diamonds', 2: 'Spades', 3: 'Cubs'};
+var suit = {0: 'Hearts', 1: 'Diamonds', 2: 'Spades', 3: 'Clubs'};
 var cardType = {0: 'King', 1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 
 				6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
                 11: 'Jacket', 12: 'Queen'};
@@ -1020,6 +1020,44 @@ ScrGame.prototype.showSuitCard = function(){
 	}
 }
 
+ScrGame.prototype.getNameCard = function(cardIndex){
+	var cardType = Math.floor(cardIndex / 4);
+	var cardSymbol = String(cardType);
+	var s = cardIndex % 4 + 1;
+	var suit = "";
+	switch (cardType) {
+		case 0:
+			cardSymbol = "K";
+			break;
+		case 1:
+			cardSymbol = "A";
+			break;
+		case 11:
+			cardSymbol = "J";
+			break;
+		case 12:
+			cardSymbol = "Q";
+			break;
+	}
+	switch (s) {
+		case 1:
+			suit = "Hearts";
+			break;
+		case 2:
+			suit = "Diamonds";
+			break;
+		case 3:
+			suit = "Spades";
+			break;
+		case 4:
+			suit = "Clubs";
+			break;
+	}
+	
+	var spriteName = suit + "_" + cardSymbol;
+	return spriteName;
+}
+
 ScrGame.prototype.getCard = function(cardIndex){
 	var cardType = Math.floor(cardIndex / 4);
 	var cardSymbol = String(cardType);
@@ -1054,7 +1092,7 @@ ScrGame.prototype.getCard = function(cardIndex){
 	}else{
 		// console.log("UNDEFINED spriteName:", cardIndex, spriteName);
 	}
-	// console.log("spriteName:", cardIndex, spriteName);
+	console.log("dealContract:", cardIndex, this.getNameCard(cardIndex));
 	return newCard;
 }
 
@@ -1831,7 +1869,8 @@ ScrGame.prototype.showLogs = function(arLogs){
 		var obj = arLogs[len-1];
 		// var obj = arLogs[i];
 		if(obj){
-			console.log("count confirm:", hexToNum(obj.data));
+			// console.log("count confirm:", hexToNum(obj.data));
+			console.log("log:", obj.data);
 		}
 	// }
 }
@@ -1928,7 +1967,7 @@ ScrGame.prototype.checkResult = function(isMain){
 		if(prnt._gameEnd){
 			console.log("!!!!!!!!!!!!checkResult!!!!!!!!!!");
 			prnt.showResult(str, _x, _y);
-			
+			// TODO: wait blockcain or no
 			if(isMain){
 				idOldGame = idGame;
 				prnt.clearText();
@@ -2083,18 +2122,17 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		}
 	} else if(name == "confirm"){
 		data = "0x"+C_CONFIRM;
-		args = [_seed, 27, prnt.makeID(), prnt.makeID()];
+		var v = 27;
+		var r = prnt.makeID();
+		var s = prnt.makeID();
+		args = [_seed, v, r, s];
 		_seedUsed = _seed;
-		// args = ["0x149734752882291be0a032c38359fd804076b89cdf8dd9b00ada9c332f991988", 
-				// 28, 
-				// "0x09ef51d79ece3128c5e4ccdeef74e98f9caad31a3ed3aa0750addce0e92ffac4", 
-				// "0x2fcdbc1a9f018af04f9d6fe46b2c443fea1b2ad67ac2c35c451d4a5252d30f3f"];
-		// _seedUsed = "0x149734752882291be0a032c38359fd804076b89cdf8dd9b00ada9c332f991988";
+		// prnt.response("responseServer", s);
 	}
 	
 	if(name != "confirm"){
 		_seed = seed;
-		console.log("_seed:", _seed);
+		// console.log("_seed:", _seed);
 	}
 	prnt.getBalancePlayer();
 	var options = {};
@@ -2314,29 +2352,31 @@ ScrGame.prototype.response = function(command, value, error) {
 	} else if(command == "getSplitState"){
 		if(value != "0x"){
 			stateSplit = hexToNum(value);
-			var _x = _W/2 + 200-75;
-			var _y = _H/2 - 35;
-			switch (stateSplit){
-				case S_PLAYER_WON:
-						prnt.showResult("tfWin", _x, _y);
-					break;
-				case S_BLACKJACK:
-						if(prnt.countPlayerSplitCard == 2){
-							prnt.showResult("tfBlackjack", _x, _y);
-						} else {
+			if(!options_speedgame){
+				var _x = _W/2 + 200-75;
+				var _y = _H/2 - 35;
+				switch (stateSplit){
+					case S_PLAYER_WON:
 							prnt.showResult("tfWin", _x, _y);
-						}
-					break;
-				case S_HOUSE_WON:
-					// if(prnt.mySplitPoints > 21){
-						// prnt.showResult("tfBust", _x, _y);
-					// } else {
-						prnt.showResult("tfLose", _x, _y);
-					// }
-					break;
-				case S_TIE:
-					prnt.showResult("tfPush", _x, _y);
-					break;
+						break;
+					case S_BLACKJACK:
+							if(prnt.countPlayerSplitCard == 2){
+								prnt.showResult("tfBlackjack", _x, _y);
+							} else {
+								prnt.showResult("tfWin", _x, _y);
+							}
+						break;
+					case S_HOUSE_WON:
+						// if(prnt.mySplitPoints > 21){
+							// prnt.showResult("tfBust", _x, _y);
+						// } else {
+							prnt.showResult("tfLose", _x, _y);
+						// }
+						break;
+					case S_TIE:
+						prnt.showResult("tfPush", _x, _y);
+						break;
+				}
 			}
 		}
 	} else if(command == "getGameState"){
@@ -2426,7 +2466,7 @@ ScrGame.prototype.response = function(command, value, error) {
 				// prnt.clearChips();
 				// prnt.clearSplitChips();
 				console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				if(!prnt._gameEnd){
+				if(!prnt._gameEnd && !options_speedgame){ 
 					switch (stateNow){
 						case S_BLACKJACK:
 							console.log("BLACKJACK:", prnt.valPlayerScore);

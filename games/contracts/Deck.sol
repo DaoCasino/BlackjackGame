@@ -7,9 +7,9 @@ contract Deck {
 	//			 'value' / 4 means: 0 - King, 1 - Ace, 2 - 10 - pip values, 11 - Jacket, 12 - Queen
 	function deal(bytes32 cardNumber)
 		external
-		returns (uint8)
+		returns (uint)
 	{
-		return uint8(sha3(cardNumber))%52;
+		return uint(sha3(cardNumber))%52;
 	}
 
 	function valueOf(uint8 card, bool isBigAce)
