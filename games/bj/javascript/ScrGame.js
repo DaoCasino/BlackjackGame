@@ -1092,7 +1092,7 @@ ScrGame.prototype.getCard = function(cardIndex){
 	}else{
 		// console.log("UNDEFINED spriteName:", cardIndex, spriteName);
 	}
-	console.log("dealContract:", cardIndex, this.getNameCard(cardIndex));
+	
 	return newCard;
 }
 
@@ -2222,6 +2222,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"player", id:cardIndex});
+			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getSplitCard"){
@@ -2230,6 +2231,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerSplitCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"split", id:cardIndex});
+			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getHouseCard"){
@@ -2238,6 +2240,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadHouseCard++
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"house", id:cardIndex});
+			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
