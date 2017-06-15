@@ -1846,7 +1846,7 @@ ScrGame.prototype.makeID = function(count){
 		str += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
 
-	str = numToHex(str);
+	str = "0x" + web3_sha3(numToHex(str));
 	
     return str;
 }
@@ -1951,6 +1951,8 @@ ScrGame.prototype.checkResult = function(isMain){
             str = "tfBust";
 			if(isMain){
 				prnt._gameEnd = true;
+				prnt._arHouseCards.push(Math.floor(Math.random(51)));
+				prnt.addCard("arHouseCards", loadHouseCard, 2, prnt._arHouseCards);
 			}
         }
 		if (points == prnt.housePoints && str=="") {
@@ -1972,19 +1974,8 @@ ScrGame.prototype.checkResult = function(isMain){
 		}
 		
 		if(prnt._gameEnd){
-			console.log("!!!!!!!!!!!!checkResult!!!!!!!!!!");
 			prnt.showResult(str, _x, _y);
-			if(isMain){
-				// idOldGame = idGame;
-				// prnt.getBet(false);
-				// prnt.getBet(true);
-				// betGame = 0;
-				// betSplitGame = 0;
-				// betGameOld = 0;
-				// valInsurance = 0;
-				// prnt.startGame = false;
-				// prnt.timeShowBtnChips = TIME_SHOW_BTN_CHIPS + prnt._arNewCards.length*1000;
-				
+			if(isMain){				
 				prnt.clearText();
 				prnt.timeWaitResponse = 0;
 				prnt.bClickStart = false;
@@ -2034,6 +2025,7 @@ ScrGame.prototype.sendSeed = function(seed) {
 	if(prnt.bSplit){
 		isMain = false;
 	}
+	console.log("sendSeed:", isMain);
 	var objGame = {"arMyCards":prnt._arMyCards,
 			"arMySplitCards":prnt._arMySplitCards,
 			"arHouseCards":prnt._arHouseCards,
@@ -2226,7 +2218,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"player", id:cardIndex});
-			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getSplitCard"){
@@ -2235,7 +2227,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerSplitCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"split", id:cardIndex});
-			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getHouseCard"){
@@ -2244,7 +2236,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadHouseCard++
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"house", id:cardIndex});
-			console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
