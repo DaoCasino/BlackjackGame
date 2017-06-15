@@ -101,7 +101,6 @@ var _oFichesDealerOffset;
 var _oRemoveCardsOffset;
 var _contract;
 var _countBankrollers = 0;
-var _balanceSGBet = -1; // speed game
 
 var _strWaitBlockchain = "Wait response from blockchain.";
 
@@ -1133,23 +1132,17 @@ ScrGame.prototype.isInsuranceAvailable = function() {
 
 ScrGame.prototype.isDoubleAvailable = function() {
 	if(stateNow == S_IN_PROGRESS || 
-	stateNow == S_IN_PROGRESS_SPLIT ||
-	options_speedgame){
+	stateNow == S_IN_PROGRESS_SPLIT){
 		if(((!this.bSplit && this._arMyCards.length == 2 && 
 		this.myPoints > 8 && this.myPoints < 12) ||
 		(this.bSplit && this._arMySplitCards.length == 2 &&
 		this.mySplitPoints > 8 && this.mySplitPoints < 12)) &&
-		this.getMinBalance() >= betGame){
+		obj_game["balance"] >= betGame){
 			return true;
 		}
 	}
 	
 	return false;
-}
-
-ScrGame.prototype.getMinBalance = function() {	
-	var minBet = Math.min(_balanceSGBet, obj_game["balance"]);
-	return minBet;
 }
 
 ScrGame.prototype.getBet = function(isMain) {	
@@ -1174,7 +1167,7 @@ ScrGame.prototype.isSplitAvailable = function() {
 	if((stateNow == S_IN_PROGRESS ||
 	options_speedgame) && 
 	this._arMyCards.length == 2 &&
-	this.getMinBalance() >= betGame &&
+	obj_game["balance"] >= betGame &&
 	this.bSplit == false &&
 	betGame > 0 &&
 	this._arMySplitCards.length == 0 &&
@@ -1281,16 +1274,13 @@ ScrGame.prototype.getBalancePlayer = function(){
 	var value = callERC20("balanceOf", openkey);
 	obj_game["balance"] = Number(value);
 	login_obj["balance"] = obj_game["balance"];
-	if(_balanceSGBet == -1){
-		_balanceSGBet = obj_game["balance"];
-	}
-	
-	prnt.tfBalance.setText(convertToken(prnt.getMinBalance()) + " BET");
-	if(prnt.getMinBalance() > 0){
+	prnt.tfBalance.setText(convertToken(obj_game["balance"]) + " BET");
+	if(obj_game["balance"] > 0){
 		prnt.tfGetEth.setText("");
 		if(prnt.oldBalance == -1){
-			prnt.oldBalance = Number(prnt.getMinBalance());
+			prnt.oldBalance = Number(obj_game["balance"]);
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
+			// prnt.showButtons(true);
 		}
 	}
 }
@@ -1349,13 +1339,11 @@ ScrGame.prototype.clickDouble = function(){
 		this.bStand = true;
 		this.showButtons(false);
 		infura.sendRequest("double", openkey, _callback);
-		_balanceSGBet -= betGame;
-		this.tfBalance.setText(this.getMinBalance() + " BET");
 	}
 }
 
 ScrGame.prototype.clickSplit = function(){
-	if(this.getMinBalance() < betGame && obj_game["balancePlEth"] == 0){
+	if(obj_game["balance"] < betGame && obj_game["balancePlEth"] == 0){
 		obj_game["game"].showError(ERROR_BALANCE);
 		return false;
 	}
@@ -1368,8 +1356,6 @@ ScrGame.prototype.clickSplit = function(){
 	this.tfMyBet.setText(str);
 	this.tfMyBet.x = _W/2 - 250;
 	this.tfSplitBet.setText(str);
-	_balanceSGBet -= betGame;
-	this.tfBalance.setText(this.getMinBalance() + " BET");
 	
 	if(options_debug){
 		this._arMySplitCards = [this._arMyCards[1]];
@@ -1419,8 +1405,6 @@ ScrGame.prototype.clickInsurance = function(){
 	infura.sendRequest("requestInsurance", openkey, _callback);
 	prnt.bWait = true;
 	prnt.showButtons(false);
-	_balanceSGBet -= betGame/2;
-	prnt.tfBalance.setText(prnt.getMinBalance() + " BET");
 }
 
 ScrGame.prototype.confirmSeed = function(){
@@ -1539,6 +1523,7 @@ ScrGame.prototype.sendCard = function(obj){
 		prnt.showPlayerCard(card);
 		if(betGame > 0){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
+			// prnt.showButtons(true);
 		}
 	} else if(type == "split"){
 		_x = _W/2 + 200 + lastPlayerSplitCard*30;
@@ -1549,6 +1534,7 @@ ScrGame.prototype.sendCard = function(obj){
 		prnt.showPlayerSplitCard(card);
 		if(betGame > 0){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
+			// prnt.showButtons(true);
 		}
 	} else if(type == "house"){
 		_x = _W/2 - 80 + lastHouseCard*30;
@@ -1649,7 +1635,7 @@ ScrGame.prototype.clickChip = function(item_mc){
 	betGame += value;
 	betGame = toFixed(betGame, 2);
 	
-	if(betGame > this.getMinBalance() || obj_game["balancePlEth"] == 0){
+	if(betGame > obj_game["balance"] || obj_game["balancePlEth"] == 0){
 		obj_game["game"].showError(ERROR_BALANCE);
 		betGame = oldBet;
 	} else if(betGame > maxBet){
@@ -2311,7 +2297,7 @@ ScrGame.prototype.response = function(command, value, error) {
 		if((stateNow == S_IN_PROGRESS ||
 		stateNow == S_IN_PROGRESS_SPLIT) && 
 		prnt.bInsurance == -1 && prnt._arMyCards.length == 2 &&
-		hexToNum(value) && valInsurance == 0 && prnt.getMinBalance() > 0){
+		hexToNum(value) && valInsurance == 0 && obj_game["balance"] > 0){
 			prnt.showInsurance();
 		}
 	} else if(command == "getHouseScore"){
@@ -2697,8 +2683,6 @@ ScrGame.prototype.clickCell = function(item_mc) {
 					this.addHouseCard();
 					this.showButtons(true);
 				} else {
-					_balanceSGBet -= betGame;
-					this.tfBalance.setText(this.getMinBalance()) + " BET";
 					this.startGameEth();
 				}
 			} else {
