@@ -798,6 +798,10 @@ ScrGame.prototype.showChips = function(value) {
 }
 
 ScrGame.prototype.showButtons = function(value) {
+	if(prnt.tfStatus.getText() == _strWaitBlockchain && value){
+		return;
+	}
+	
 	var a = 0.5;
 	var alpha = a;
 	if(value){
@@ -1280,7 +1284,6 @@ ScrGame.prototype.getBalancePlayer = function(){
 		if(prnt.oldBalance == -1){
 			prnt.oldBalance = Number(obj_game["balance"]);
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-			// prnt.showButtons(true);
 		}
 	}
 }
@@ -1523,7 +1526,6 @@ ScrGame.prototype.sendCard = function(obj){
 		prnt.showPlayerCard(card);
 		if(betGame > 0){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-			// prnt.showButtons(true);
 		}
 	} else if(type == "split"){
 		_x = _W/2 + 200 + lastPlayerSplitCard*30;
@@ -1534,7 +1536,6 @@ ScrGame.prototype.sendCard = function(obj){
 		prnt.showPlayerSplitCard(card);
 		if(betGame > 0){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-			// prnt.showButtons(true);
 		}
 	} else if(type == "house"){
 		_x = _W/2 - 80 + lastHouseCard*30;
@@ -2419,18 +2420,12 @@ ScrGame.prototype.response = function(command, value, error) {
 				}
 				if(stateNow == S_IN_PROGRESS && stateOld == S_IN_PROGRESS_SPLIT){
 					prnt.bWait = false;
-					// prnt.showButtons(true);
-					if(prnt.tfStatus.getText() != _strWaitBlockchain){
-						prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-					}
+					prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 					prnt.darkCards(prnt._arMyCards, false);
 					prnt.darkCards(prnt._arMySplitCards, true);
 				}
 				if(stateOld == -1){
-					// prnt.showButtons(true);	
-					if(prnt.tfStatus.getText() != _strWaitBlockchain){
-						prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-					}
+					prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 					
 					if(prnt.bSplit){
 						prnt.darkCards(prnt._arMyCards, true);
