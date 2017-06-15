@@ -182,7 +182,6 @@ Infura.prototype.speedGame = function(name, seed, callback){
 		success: function (obj) {
 			if(obj && (''+obj).substr(0,2)=='0x'){
 				repeatRequest = 0;
-				console.log("_s from server:", obj);
 				callback(name, obj);
 			} else {
 				setTimeout(function () {

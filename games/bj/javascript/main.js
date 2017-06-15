@@ -25,15 +25,15 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x85b5a5785b51cb33c8eec9e5e053ef7800a1e1a0";
-var	addressRpcStorage = "0x752fe215aeab720de10afa5b474cb7ca7eacfb71";
-var	addressRpcContract = "0xc6a21388c4c6cd506490af9fc4b73dfadcdbd2c5";
+var	addressRpcErc = "0x4da4e49a39d70797a454a697ddb08fa6201cd145";
+var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
+var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-var addressTestDeck = "0x3f7ab55ce3a5b3737ecfce170abc96d510f74ec0";
-var	addressTestSeed = "0x0b1834a0020b80474ac8da093230e67f0416e241";
-var	addressTestStorage = "0x6a67cf661257c812ceda393de94f3b74ce054b01";
-var	addressTestContract = "0x14490517c76b0b2160c64d5b7abaf38460122f46";
+var addressTestDeck = "0x5954b051d4de25031c2a7c8fb943518860dc234b";
+var	addressTestSeed = "0x1b340a62733f5895e157fa8f5e241daa8b597327";
+var	addressTestStorage = "0x00972a3dc0b97a8247b41b43c6a3bdf2f2c32453";
+var	addressTestContract = "0xe034d122e1b865078aec58d8a5b648691f8ee9a9";
 
 var addressCurErc = "";
 
@@ -104,15 +104,6 @@ function initGame() {
 	startTime = getTimer();
     onResize();
     update();
-	
-	var font1 = addText("font1", 16, "#000000")
-	font1.x = _W/2;
-	font1.y = -100;
-	stage.addChild(font1);
-	var font2 = addText("font2", 16, "#000000", undefined, "center", 200, 2)
-	font2.x = _W/2;
-	font2.y = -120;
-	stage.addChild(font2);
 	
 	// soundManager = new SoundManager();
 	// soundManager.currentMusic = "none";

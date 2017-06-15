@@ -98,7 +98,7 @@ Contract.prototype.stand = function(isMain, s){
 
 Contract.prototype.dealCard = function(player, isMain, seed){
 	var newCard = this.deal(seed);
-	console.log("dealClient:", newCard, prnt.getNameCard(newCard));
+	// console.log("dealClient:", newCard, prnt.getNameCard(newCard));
 	
 	var cardType = Math.floor(newCard / 4);
 	var point = cardType;

@@ -158,7 +158,7 @@ contract BlackJackStorage {
             splitGames[player].insurance = insurance;
         }
     }
-
+	
     function updateState(Types.GameState state, bool isMain, address player)
         external
     {
