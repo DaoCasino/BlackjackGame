@@ -25,9 +25,9 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x4da4e49a39d70797a454a697ddb08fa6201cd145";
-var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
-var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
+var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
+var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 var addressTestDeck = "0x5954b051d4de25031c2a7c8fb943518860dc234b";
