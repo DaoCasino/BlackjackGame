@@ -213,8 +213,8 @@ contract BlackJack is owned {
 
     function split(uint value, bytes32 seed)
         public
-        betIsDoubled(value)
-        splitAvailable
+        // betIsDoubled(value) // return in mainet
+        // splitAvailable // return in mainet
 		usedSeed(seed)
     {
 		if (!token.transferFrom(msg.sender, this, value)) {
@@ -229,7 +229,7 @@ contract BlackJack is owned {
     function double(uint value, bytes32 seed)
         public
         betIsDoubled(value)
-        doubleAvailable
+        // doubleAvailable // return in mainet
 		usedSeed(seed)
     {
 		if (!token.transferFrom(msg.sender, this, value)) {

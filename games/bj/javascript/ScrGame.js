@@ -167,6 +167,7 @@ ScrGame.prototype.init = function() {
 	this.bApprove = false;
 	this.bClickApprove = false;
 	this.bStandNecessary = false;
+	this.bShowResult = false;
 	this.bInsurance = -1;
 	login_obj["allowance"] = false;
 	
@@ -298,6 +299,7 @@ ScrGame.prototype.clearGame = function(){
 	this.bWaitSplit = false;
 	this.bClickStart = false;
 	this.bStandNecessary = false;
+	this.bShowResult = false;
 	this._gameEnd = false;
 	this.bInsurance = -1;
 	var i = 0;
@@ -1525,7 +1527,7 @@ ScrGame.prototype.sendCard = function(obj){
 		
 		if(loadHouseCard==1){
 			prnt._arNewCards.push({type:"suit", id:0});
-			if(valInsurance == 0 && card.point == 11){
+			if(valInsurance == 0 && card.point == 11 && prnt.myPoints != BLACKJACK){
 				prnt.showInsurance();
 			}
 		}
@@ -1990,6 +1992,7 @@ ScrGame.prototype.checkResult = function(isMain){
 				prnt.timeWaitResponse = 0;
 				prnt.bClickStart = false;
 				prnt.bWait = false;
+				prnt.bShowResult = true;
 				prnt.getBalanceBank();
 				prnt.showButtons(false);
 				prnt.tfStatus.setText(_strWaitBlockchain);
@@ -2161,7 +2164,6 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	} else {
 		_nonceTx = numToHex(hexToNum(_nonceTx) + 1);
 	}
-	console.log("_nonceTx:", hexToNum(_nonceTx));
 	
 	prnt.getBalancePlayer();
 	var options = {};
@@ -2388,7 +2390,7 @@ ScrGame.prototype.response = function(command, value, error) {
 	} else if(command == "getSplitState"){
 		if(value != "0x"){
 			stateSplit = hexToNum(value);
-			if(!options_speedgame){
+			if(!prnt.bShowResult){
 				var _x = _W/2 + 200-75;
 				var _y = _H/2 - 35;
 				switch (stateSplit){
@@ -2501,7 +2503,7 @@ ScrGame.prototype.response = function(command, value, error) {
 				prnt.timeWaitResponse = 0;
 				// prnt.clearChips();
 				// prnt.clearSplitChips();
-				if(!prnt._gameEnd && !options_speedgame){ 
+				if(!prnt._gameEnd && !prnt.bShowResult){ 
 					switch (stateNow){
 						case S_BLACKJACK:
 							console.log("BLACKJACK:", prnt.valPlayerScore);
