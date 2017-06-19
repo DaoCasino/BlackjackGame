@@ -166,6 +166,7 @@ ScrGame.prototype.init = function() {
 	this.bClickStart = false;
 	this.bApprove = false;
 	this.bClickApprove = false;
+	this.bStandNecessary = false;
 	this.bInsurance = -1;
 	login_obj["allowance"] = false;
 	
@@ -296,6 +297,7 @@ ScrGame.prototype.clearGame = function(){
 	this.bEndTurnSplit = false;
 	this.bWaitSplit = false;
 	this.bClickStart = false;
+	this.bStandNecessary = false;
 	this._gameEnd = false;
 	this.bInsurance = -1;
 	var i = 0;
@@ -680,7 +682,7 @@ ScrGame.prototype.acceptApprove = function() {
 		prnt.showError(ERROR_BALANCE);
 	}
 }
-	
+
 ScrGame.prototype.showWndApprove = function() {
 	var str = "Do you want to approve the cancellation of 1000 tokens inside the game?";
 	if(obj_game["balancePlEth"] > 0){
@@ -1955,9 +1957,18 @@ ScrGame.prototype.checkResult = function(isMain){
 			if(prnt.bStand && !prnt.bSplit){
 				prnt._gameEnd = true;
 			} else if(points == BLACKJACK && isMain){
-				_currentMethod = STAND;
-				prnt.sendSeed(_seed);
-				return false;
+				if(prnt.bStandNecessary){
+					prnt._gameEnd = true;
+				} else {
+					console.log("BLACKJACK: 21");
+					prnt.showButtons(false);
+					prnt.bWait = true;
+					prnt.bStandNecessary = true;
+					_currentMethod = STAND;
+					prnt.sendSeed(_seed);
+					
+					return false;
+				}
 			}
 		}
 		
@@ -2150,6 +2161,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 	} else {
 		_nonceTx = numToHex(hexToNum(_nonceTx) + 1);
 	}
+	console.log("_nonceTx:", hexToNum(_nonceTx));
 	
 	prnt.getBalancePlayer();
 	var options = {};
@@ -2419,7 +2431,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.getBet(false); // todo fixed load bet
 			return false;
 		}
-		// console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
+		console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
 		
 		prnt.getBalancePlayer();
 		

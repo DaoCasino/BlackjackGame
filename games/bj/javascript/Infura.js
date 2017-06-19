@@ -100,7 +100,7 @@ Infura.prototype.sendRequest = function(name, params, callback, seed){
 									"params":arParams,
 									"id":1}),
 			success: function (d) {
-				if(method == "eth_sendRawTransaction" && d.result){
+				if(method == "eth_sendRawTransaction" && name != "requestInsurance" && d.result){
 					gThis.sendRequestServer("responseServer", d.result, callback, seed);
 				}
 				callback(name, d.result, d.error);

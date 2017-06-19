@@ -30,10 +30,16 @@ var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
 var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
+// work
 var addressTestDeck = "0x5954b051d4de25031c2a7c8fb943518860dc234b";
 var	addressTestSeed = "0x1b340a62733f5895e157fa8f5e241daa8b597327";
 var	addressTestStorage = "0x00972a3dc0b97a8247b41b43c6a3bdf2f2c32453";
 var	addressTestContract = "0xe034d122e1b865078aec58d8a5b648691f8ee9a9";
+// new
+// var addressTestDeck = "0xcaa68bdcf810c7dab966f0c6bc0ae5fb8a6c72f2";
+// var	addressTestSeed = "0x20717bec80b51b9f0fd3ba0e1992f28deedf1252";
+// var	addressTestStorage = "0x1b59db2af295619e5c048a7e4dd9b76d8826e910";
+// var	addressTestContract = "0xa1c4c109df4e0a1299be9a532ca3fc93c5582591";
 
 var addressCurErc = "";
 
