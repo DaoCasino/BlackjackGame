@@ -135,7 +135,7 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 Contract.prototype.deal = function(cardNumber){	
 	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
 	var rand = bigInt(hash,16).divmod(52).remainder.value;
-	rand = 29;
+	// rand = 29;
 	// rand = 21;
 	// rand = 40;
 	return rand;

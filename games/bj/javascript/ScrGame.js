@@ -1952,10 +1952,12 @@ ScrGame.prototype.checkResult = function(isMain){
 		}
 		
 		if(!prnt._gameEnd){
-			if((prnt.bStand && !prnt.bSplit) ||
-			(points == BLACKJACK && isMain)){
+			if(prnt.bStand && !prnt.bSplit){
 				prnt._gameEnd = true;
-				console.log("!!!!!!!!!!!!!!!!");
+			} else if(points == BLACKJACK && isMain){
+				_currentMethod = STAND;
+				prnt.sendSeed(_seed);
+				return false;
 			}
 		}
 		
@@ -2056,6 +2058,7 @@ ScrGame.prototype.sendSeed = function(seed) {
 
 ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
+	prnt.tfStatus.setText("");
 	
 	for(var name in value){
 		var obj = value[name];
