@@ -224,6 +224,10 @@ ScrGame.prototype.init = function() {
 	this.getBalanceErc();
 	infura.sendRequest("getBlockNumber", undefined, _callback);
 	this.checkGameState(true);
+	this.tfApprove = addText("Wait. Approve contract.", 50, "#FCB70F", "#4F3904", "center", 600, 4);
+	this.tfApprove.x = _W/2;
+	this.tfApprove.y = _H/2 - 35;
+	this.face_mc.addChild(this.tfApprove);
 	this.getAllowance();
 	if(this.bApprove){
 		this.getBankrolls();
@@ -2575,6 +2579,7 @@ ScrGame.prototype.response = function(command, value, error) {
 		if(hexToNum(value)){
 			_allowance = hexToNum(value);
 			prnt.bApprove = true;
+			prnt.tfApprove.visible = false;
 			if(prnt.bClickApprove){
 				prnt.getBankrolls();
 				// prnt.showChips(true);

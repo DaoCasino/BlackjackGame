@@ -189,8 +189,8 @@ contract BlackJack is owned {
 	
     function requestInsurance(uint value)
         public
-        betIsInsurance(value)
-        insuranceAvailable
+        betIsInsurance(value) // return in mainet
+        // insuranceAvailable // return in mainet
     {
 		if (!token.transferFrom(msg.sender, this, value)) {
             throw;
@@ -217,9 +217,10 @@ contract BlackJack is owned {
         // splitAvailable // return in mainet
 		usedSeed(seed)
     {
-		if (!token.transferFrom(msg.sender, this, value)) {
-            throw;
-        }
+		// return in mainet
+		// if (!token.transferFrom(msg.sender, this, value)) {
+            // throw;
+        // }
 		// switch to the split game
         storageContract.updateState(Types.GameState.InProgressSplit, true, msg.sender);
         storageContract.createNewSplitGame(msg.sender, value);
@@ -228,13 +229,14 @@ contract BlackJack is owned {
 
     function double(uint value, bytes32 seed)
         public
-        betIsDoubled(value)
+        // betIsDoubled(value)
         // doubleAvailable // return in mainet
 		usedSeed(seed)
     {
-		if (!token.transferFrom(msg.sender, this, value)) {
-            throw;
-        }
+		// return in mainet
+		// if (!token.transferFrom(msg.sender, this, value)) {
+            // throw;
+        // }
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
 
         storageContract.doubleBet(isMain, msg.sender);
