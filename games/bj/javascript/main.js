@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.55";
+var version = "v. 1.0.56";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -57,6 +57,7 @@ var options_mobile = true;
 var options_pause = false;
 var options_fullscreen = false;
 var options_speedgame = true;
+var options_splitdouble = false;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;

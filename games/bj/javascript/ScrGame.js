@@ -23,6 +23,7 @@ var R_LOSE = "LOSE...";
 var R_BUST = "BUST!";
 var R_PUSH = "PUSH";
 var R_BLACKJACK = "BLACKJACK";
+var INSURANCE = -1;
 var DEAL = 0;
 var HIT = 1;
 var STAND = 2;
@@ -512,20 +513,26 @@ ScrGame.prototype.createGUI = function() {
 	this.btnHit = btnHit;
 	var btnStand = this.createButton2("btnStand", "Stand", _W/2-90, 950, scGui);
 	this.btnStand = btnStand;
-	var btnSplit = this.createButton2("btnSplit", "Split", 1650, 800, scGui);
-	this.btnSplit = btnSplit;
-	var btnDouble = this.createButton2("btnDouble", "Double", 1500, 890, scGui);
-	this.btnDouble = btnDouble;
-	
 	btnDeal.alpha = 0.5;
 	btnClear.alpha = 0.5;
 	btnHit.alpha = 0.5;
 	btnHit.alpha = 0.5;
 	btnStand.alpha = 0.5;
-	btnSplit.alpha = 0.5;
-	btnDouble.alpha = 0.5;
 	btnHit.visible = false;
 	btnStand.visible = false;
+	btnDeal.hint = 'To activate "Deal" please choose a bet';
+	btnClear.hint = 'To "Clear" please choose a bet';
+	
+	if(options_splitdouble){
+		var btnSplit = this.createButton2("btnSplit", "Split", 1650, 800, scGui);
+		this.btnSplit = btnSplit;
+		var btnDouble = this.createButton2("btnDouble", "Double", 1500, 890, scGui);
+		this.btnDouble = btnDouble;
+		btnSplit.alpha = 0.5;
+		btnDouble.alpha = 0.5;
+		btnSplit.hint = 'To play "Split" wait for dealt a pair';
+		btnDouble.hint = 'To play "Double"  on hard 9-11 points';
+	}
 	
 	if(!options_rpc){
 		var btnContract = addButton("btnContract", 80, _H - 80);
@@ -576,10 +583,6 @@ ScrGame.prototype.createGUI = function() {
 	this.addChild(btnTweet);
 	this._arButtons.push(btnTweet);
 	
-	btnDeal.hint = 'To activate "Deal" please choose a bet';
-	btnClear.hint = 'To "Clear" please choose a bet';
-	btnSplit.hint = 'To play "Split" wait for dealt a pair';
-	btnDouble.hint = 'To play "Double"  on hard 9-11 points';
 	btnFB.hint2 = 'Share Facebook';
 	btnTweet.hint2 = 'Tweet';
 	btnDao.hint2 = 'Home';
@@ -822,15 +825,17 @@ ScrGame.prototype.showButtons = function(value) {
 	}
     this.btnHit.alpha = alpha;
     this.btnStand.alpha = alpha;
-	if(value && this.isSplitAvailable()){
-		this.btnSplit.alpha = 1;
-	} else {
-		this.btnSplit.alpha = a;
-	}
-	if(value && this.isDoubleAvailable()){
-		this.btnDouble.alpha = 1;
-	} else {
-		this.btnDouble.alpha = a;
+	if(options_splitdouble){
+		if(value && this.isSplitAvailable()){
+			this.btnSplit.alpha = 1;
+		} else {
+			this.btnSplit.alpha = a;
+		}
+		if(value && this.isDoubleAvailable()){
+			this.btnDouble.alpha = 1;
+		} else {
+			this.btnDouble.alpha = a;
+		}
 	}
 }
 
@@ -2130,6 +2135,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		prnt.offsetCards("player", _W/2 - 200);
 		prnt.darkCards(prnt._arMyCards, true);
 	} else if(name == "requestInsurance"){
+		_currentMethod = INSURANCE;
 		data = "0x"+C_INSURANCE;
 		price = betGame/2;
 		args = [price];
@@ -2191,7 +2197,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 				}
 				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
 				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
-				infura.sendRequest(nameRequest, params, _callback, seed);
+				infura.sendRequest(nameRequest, params, _callback, seed, _currentMethod);
 				prnt.timeWaitResponse = TIME_LONG_RESPONSE;
 			})
 		} else {

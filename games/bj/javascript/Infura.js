@@ -6,6 +6,7 @@
 var urlInfura = "https://mainnet.infura.io/JCnK5ifEPH9qcQkX0Ahl";
 var gThis;
 var repeatRequest = 0;
+var INSURANCE = -1;
 
 var nameCall = {getPlayerBet:"f8aec9f5",
 				getSplitBet:"f8aec9f5",
@@ -53,7 +54,7 @@ Infura.prototype.makeID = function(count){
     return str;
 }
 
-Infura.prototype.sendRequest = function(name, params, callback, seed){
+Infura.prototype.sendRequest = function(name, params, callback, seed, currentMethod){
 	if(options_ethereum && openkey){
 		var method = name;
 		var arParams = [params, "latest"]; // latest, pending
@@ -100,7 +101,7 @@ Infura.prototype.sendRequest = function(name, params, callback, seed){
 									"params":arParams,
 									"id":1}),
 			success: function (d) {
-				if(method == "eth_sendRawTransaction" && name != "requestInsurance" && d.result){
+				if(method == "eth_sendRawTransaction" && d.result && currentMethod != INSURANCE){
 					gThis.sendRequestServer("responseServer", d.result, callback, seed);
 				}
 				callback(name, d.result, d.error);
