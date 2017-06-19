@@ -1516,7 +1516,7 @@ ScrGame.prototype.sendCard = function(obj){
 		}
 		_y = _H/2 + 70;
 		prnt.showPlayerCard(card);
-		if(betGame > 0){
+		if(betGame > 0 || options_speedgame){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 		}
 	} else if(type == "split"){
@@ -1526,7 +1526,7 @@ ScrGame.prototype.sendCard = function(obj){
 			card.img.tint = 0x999999;
 		}
 		prnt.showPlayerSplitCard(card);
-		if(betGame > 0){
+		if(betGame > 0 || options_speedgame){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 		}
 	} else if(type == "house"){
