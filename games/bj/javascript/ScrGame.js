@@ -269,7 +269,6 @@ ScrGame.prototype.resetGame = function(){
 	this.bClear = true;
 	this.bWait = false;
 	this.clearBet();
-	console.log("clearBet 1");
 	this.clearGame();
 }
 
@@ -1592,6 +1591,9 @@ ScrGame.prototype.sendCard = function(obj){
 }
 
 ScrGame.prototype.loadBet = function(value){
+	if(betGame > 0){
+		return false;
+	}
 	this.timeGetState = TIME_GET_STATE-1000;
 	this.bBetLoad = true;
 	this.bWait = false;
@@ -2237,7 +2239,6 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.bWait = false;
 			if(prnt.countPlayerCard == 0){
 				prnt.clearBet();
-				console.log("clearBet 2");
 				prnt.tfStatus.setText("");
 				prnt.bClickStart = false;
 				prnt.showChips(true);
@@ -2597,7 +2598,6 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.tfApprove.visible = false;
 			if(prnt.bClickApprove){
 				prnt.getBankrolls();
-				// prnt.showChips(true);
 				prnt.createWndInfo("The approval was completed successfully.", undefined, "OK");
 			}
 		}
@@ -2730,7 +2730,6 @@ ScrGame.prototype.clickCell = function(item_mc) {
 			} else {
 				obj_game["game"].showError(ERROR_BANKROLLER);
 			}
-			console.log("clearBet 3");
 			obj_game["game"].clearBet();
 			obj_game["game"].bWait = false;
 			obj_game["game"].showChips(true);
@@ -2758,7 +2757,6 @@ ScrGame.prototype.clickCell = function(item_mc) {
 		this.shareTwitter();
 	} else if(item_mc.name == "btnClearBets"){
 		this.clearBet();
-		console.log("clearBet 4");
 	} else if(item_mc.name == "btnKey" || item_mc.name == "icoKey"){
 		copyToClipboard(openkey);
 	} else if(item_mc.name == "btnFullscreen"){

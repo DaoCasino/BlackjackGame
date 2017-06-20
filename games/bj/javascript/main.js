@@ -30,12 +30,7 @@ var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
 var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
 var addressTestErc = "0x09720df949d447ed7669479786d4c7d19279bbb0"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-// work
-// var addressTestDeck = "0x5954b051d4de25031c2a7c8fb943518860dc234b";
-// var	addressTestSeed = "0x1b340a62733f5895e157fa8f5e241daa8b597327";
-// var	addressTestStorage = "0x00972a3dc0b97a8247b41b43c6a3bdf2f2c32453";
-// var	addressTestContract = "0xe034d122e1b865078aec58d8a5b648691f8ee9a9";
-// new
+// work (slow game)
 var addressTestDeck = "0x0308fe7cc10256ba6c9a3e91ec7c7fa74da802e3";
 var	addressTestSeed = "0xc223c32c4153640b98ef54df4c9099bed7a3c5c9";
 var	addressTestStorage = "0xb78c5f18dcc8cbd65a87408e99b97d0a988d7d16";
