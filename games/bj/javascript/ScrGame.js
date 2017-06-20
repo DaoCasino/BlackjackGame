@@ -464,7 +464,7 @@ ScrGame.prototype.createGUI = function() {
 	this.tfVers.x = icoTime.x - 10;
 	this.tfVers.y = this.tfBankrollers.y + 40;
 	this.face_mc.addChild(this.tfVers);
-	this.tfVers2= addText("alpha version", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	this.tfVers2= addText("beta version", fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfVers2.x = icoTime.x - 10;
 	this.tfVers2.y = _H - this.tfVers2.height;
 	this.face_mc.addChild(this.tfVers2);
