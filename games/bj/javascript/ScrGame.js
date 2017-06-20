@@ -464,7 +464,11 @@ ScrGame.prototype.createGUI = function() {
 	this.tfVers.x = icoTime.x - 10;
 	this.tfVers.y = this.tfBankrollers.y + 40;
 	this.face_mc.addChild(this.tfVers);
-	this.tfVers2= addText("beta version", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	var strVer = "beta version";
+	if(options_speedgame){
+		strVer = "alpha version";
+	}
+	this.tfVers2= addText(strVer, fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfVers2.x = icoTime.x - 10;
 	this.tfVers2.y = _H - this.tfVers2.height;
 	this.face_mc.addChild(this.tfVers2);
@@ -1522,9 +1526,9 @@ ScrGame.prototype.sendCard = function(obj){
 		}
 		_y = _H/2 + 70;
 		prnt.showPlayerCard(card);
-		// if(betGame > 0 || options_speedgame){
+		if(betGame > 0 || options_speedgame){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-		// }
+		}
 	} else if(type == "split"){
 		_x = _W/2 + 200 + lastPlayerSplitCard*30;
 		_y = _H/2 + 70;
@@ -1532,9 +1536,9 @@ ScrGame.prototype.sendCard = function(obj){
 			card.img.tint = 0x999999;
 		}
 		prnt.showPlayerSplitCard(card);
-		// if(betGame > 0 || options_speedgame){
+		if(betGame > 0 || options_speedgame){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
-		// }
+		}
 	} else if(type == "house"){
 		_x = _W/2 - 80 + lastHouseCard*30;
 		_y = _H/2 - 200;
