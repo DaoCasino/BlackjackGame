@@ -1,0 +1,7 @@
+games/contractsNew/BlackJack.sol
+games/contractsNew/BlackJackStorage.sol
+games/contractsNew/Types.sol
+games/contractsNew/owned.sol
+games/contractsNew/Migrations.sol
+games/contractsNew/ERC20.sol
+games/contractsNew/Deck.sol

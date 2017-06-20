@@ -1,6 +1,7 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.53"
+var version = "v. 1.0.57";
+var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
 var dataMovie = [];
@@ -18,28 +19,29 @@ var fontDigital = "Digital-7";
 var stats; //для вывода статистики справа
 var valToken = 100000000; // 1 token
 var rndBg = String(Math.ceil(Math.random()*2));
-var abi = [{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"requestInsurance","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"}],"name":"setTokenAddress","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"hit","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"amountInWei","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"maxBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getBank","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"minBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"stand","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"deal","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"split","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"double","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"deckAddress","type":"address"},{"name":"storageAddress","type":"address"},{"name":"tokenAddress","type":"address"}],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_type","type":"uint8"},{"indexed":false,"name":"_card","type":"uint8"}],"name":"Deal","type":"event"}]
+var abi = [{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"requestInsurance","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"}],"name":"setTokenAddress","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"amountInWei","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"maxBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"split","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getBank","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"seed","type":"bytes32"}],"name":"stand","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"minBet","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"seed","type":"bytes32"}],"name":"hit","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"idSeed","type":"bytes32"},{"name":"_v","type":"uint8"},{"name":"_r","type":"bytes32"},{"name":"_s","type":"bytes32"}],"name":"confirm","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"usedRandom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"deal","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"},{"name":"seed","type":"bytes32"}],"name":"double","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"deckAddress","type":"address"},{"name":"storageAddress","type":"address"},{"name":"seedAddress","type":"address"},{"name":"tokenAddress","type":"address"}],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_type","type":"uint8"},{"indexed":false,"name":"_card","type":"uint8"}],"name":"Deal","type":"event"}]
 // main
 var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
 var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
-var	addressRpcStorage = "0xb207301c77a9e6660c9c2e5e8608eaa699a9940f";
-var	addressRpcContract = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
+var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
 // testnet
-var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
-// var addressTestDeck = "0x75dacdec23342b26ff598e3304d3ff632b42077a"; // const
-// var	addressTestStorage = "0x18d4bd271a6123335edca33eec83318b75ae8ae0";
-// var	addressTestContract = "0x1903eef30317204fb5aabd9533659d9b23a7ec37";
-var addressTestDeck = "0x025fbb4a2c0d875febf07c48da7080a0573cb8aa"; // const
-var	addressTestStorage = "0xd1611d5c483a806421b427f6b11805c094893e87";
-var	addressTestContract = "0x93d4112f9354d9e2738932310a7a3bd7c17769c9";
+var addressTestErc = "0x09720df949d447ed7669479786d4c7d19279bbb0"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
+// work
+// var addressTestDeck = "0x5954b051d4de25031c2a7c8fb943518860dc234b";
+// var	addressTestSeed = "0x1b340a62733f5895e157fa8f5e241daa8b597327";
+// var	addressTestStorage = "0x00972a3dc0b97a8247b41b43c6a3bdf2f2c32453";
+// var	addressTestContract = "0xe034d122e1b865078aec58d8a5b648691f8ee9a9";
+// new
+var addressTestDeck = "0x0308fe7cc10256ba6c9a3e91ec7c7fa74da802e3";
+var	addressTestSeed = "0xc223c32c4153640b98ef54df4c9099bed7a3c5c9";
+var	addressTestStorage = "0xb78c5f18dcc8cbd65a87408e99b97d0a988d7d16";
+var	addressTestContract = "0x8076cad2113e336e932b99605c759c9a86809634";
 
 var addressCurErc = "";
-
-// Deal
-// 5000000, "7729cdbb258df21c1997212856a837436a89d67ecabb60ad54b3149a314ab2db"
 
 var options_debug = false;
 var options_test = false;
@@ -54,6 +56,8 @@ var options_sound = true;
 var options_mobile = true;
 var options_pause = false;
 var options_fullscreen = false;
+var options_speedgame = false;
+var options_splitdouble = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -64,6 +68,7 @@ var ERROR_CONTRACT = 5;
 var ERROR_BALANCE = 6;
 var ERROR_DEAL = 7;
 var ERROR_MAX_BET = 8;
+var ERROR_BANKROLLER = 9;
 
 if(options_rpc){
 	addressCurErc = addressRpcErc;
@@ -106,15 +111,6 @@ function initGame() {
 	startTime = getTimer();
     onResize();
     update();
-	
-	var font1 = addText("font1", 16, "#000000")
-	font1.x = _W/2;
-	font1.y = -100;
-	stage.addChild(font1);
-	var font2 = addText("font2", 16, "#000000", undefined, "center", 200, 2)
-	font2.x = _W/2;
-	font2.y = -120;
-	stage.addChild(font2);
 	
 	// soundManager = new SoundManager();
 	// soundManager.currentMusic = "none";
@@ -424,8 +420,8 @@ function loadData() {
 		if(options_rpc){
 			// openkey = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
 			// privkey = "d3b6b98613ce7bd4636c5c98cc17afb0403d690f9c2b646726e08334583de101";
-			openkey = "0xeef0afc74f9fec76f589cef09e739aded3c57cd5"; // LW
-			privkey = "797e595c9e01641ba4c739b07c45782753c260c57a013a90f38ee95ac7c073fc"; // LW
+			openkey = "0x39b3da1a4343d68f7e2b2bf69e2cd2652256b942"; // LW
+			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
 			openkey = localStorage.getItem('openkey')
 			privkey = localStorage.getItem('privkey')
@@ -908,3 +904,10 @@ function hideGame() {
 
 visibly.onVisible(visGame)
 visibly.onHidden(hideGame)
+
+function rndSHA3(cardNumber) {
+	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
+	var rand = bigInt(hash,16).divmod(52).remainder.value;
+	
+	return rand;
+}
