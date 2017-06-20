@@ -37,23 +37,6 @@ var Infura = function() {
 	}
 };
 
-Infura.prototype.makeID = function(count){
-	if(count){}else{count = 64}
-    var str = "0x";
-    var possible = "abcdef0123456789";
-	var t = String(getTimer());
-	count -= t.length;
-	str += t;
-
-    for( var i=0; i < count; i++ ){
-		str += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-
-	str = numToHex(str);
-	
-    return str;
-}
-
 Infura.prototype.sendRequest = function(name, params, callback, seed, currentMethod){
 	if(options_ethereum && openkey){
 		var method = name;
@@ -160,16 +143,14 @@ Infura.prototype.ethCall = function(name, callback, type, val){
 }
 
 Infura.prototype.sendRequestServer = function(name, txid, callback, seed){
-	if(txid == undefined){
+	if(txid == undefined || !options_speedgame){
 		return false;
 	}
 	repeatRequest = 0;
 	var url = "https://platform.dao.casino/api/proxy.php?a=roll&";
 	$.get(url+"txid="+txid+"&vconcat="+seed+"&address="+addressContract, 
 		function(d){
-			if(options_speedgame){
-				gThis.speedGame(name, seed, callback);
-			}
+			gThis.speedGame(name, seed, callback);
 		}
 	);
 }

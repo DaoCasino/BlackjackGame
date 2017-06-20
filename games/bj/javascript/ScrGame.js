@@ -292,7 +292,9 @@ ScrGame.prototype.clearGame = function(){
 	this.timeNewCard = 0;
 	this.timeWaitResponse = 0;
 	this.countWait = 0;
+	this.countPlayerCard = 0;
 	this.countPlayerSplitCard = 0;
+	this.countHouseCard = 0;
 	this.myPoints = 0;
 	this.mySplitPoints = 0;
 	this.valPlayerScore = 0;
@@ -1841,8 +1843,9 @@ ScrGame.prototype.makeID = function(count){
     for( var i=0; i < count; i++ ){
 		str += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
-
-	str = "0x" + web3_sha3(numToHex(str));
+	if(!options_rpc){
+		str = "0x" + web3_sha3(numToHex(str));
+	}
 	
     return str;
 }
@@ -2289,7 +2292,6 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
-		// console.log("getPlayerCardsNumber", !prnt.bWaitSplit, hexToNum(value),prnt.countPlayerCard);
 		if(!prnt.bWaitSplit && hexToNum(value) > prnt.countPlayerCard){
 			prnt.countPlayerCard = hexToNum(value);
 			prnt.addPlayerCard();
