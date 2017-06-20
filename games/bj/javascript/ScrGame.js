@@ -462,6 +462,10 @@ ScrGame.prototype.createGUI = function() {
 	this.tfVers.x = icoTime.x - 10;
 	this.tfVers.y = this.tfBankrollers.y + 40;
 	this.face_mc.addChild(this.tfVers);
+	this.tfVers2= addText("alpha version", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	this.tfVers2.x = icoTime.x - 10;
+	this.tfVers2.y = _H - this.tfVers2.height;
+	this.face_mc.addChild(this.tfVers2);
 	this.tfYourBet = addText("Your bet: 0", 40, "#ffde00", undefined, "left", 300, 4, fontDigital)
 	this.tfYourBet.x = -70;
 	this.tfYourBet.y = 0;
@@ -2285,6 +2289,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
+		// console.log("getPlayerCardsNumber", !prnt.bWaitSplit, hexToNum(value),prnt.countPlayerCard);
 		if(!prnt.bWaitSplit && hexToNum(value) > prnt.countPlayerCard){
 			prnt.countPlayerCard = hexToNum(value);
 			prnt.addPlayerCard();

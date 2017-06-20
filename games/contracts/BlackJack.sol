@@ -190,7 +190,7 @@ contract BlackJack is owned {
     function requestInsurance(uint value)
         public
         betIsInsurance(value) // return in mainet
-        // insuranceAvailable // return in mainet
+        insuranceAvailable // return in mainet
     {
 		if (!token.transferFrom(msg.sender, this, value)) {
             throw;
@@ -213,30 +213,31 @@ contract BlackJack is owned {
 
     function split(uint value, bytes32 seed)
         public
-        // betIsDoubled(value) // return in mainet
-        // splitAvailable // return in mainet
+        betIsDoubled(value) // return in mainet
+        splitAvailable // return in mainet
 		usedSeed(seed)
     {
 		// return in mainet
-		// if (!token.transferFrom(msg.sender, this, value)) {
-            // throw;
-        // }
+		if (!token.transferFrom(msg.sender, this, value)) {
+            throw;
+        }
 		// switch to the split game
         storageContract.updateState(Types.GameState.InProgressSplit, true, msg.sender);
         storageContract.createNewSplitGame(msg.sender, value);
 		seedContract.createNewSeed(msg.sender, seed, true, Types.SeedMethod.Split);
+		logId(seed);
     }
 
     function double(uint value, bytes32 seed)
         public
-        // betIsDoubled(value)
-        // doubleAvailable // return in mainet
+        betIsDoubled(value)
+        doubleAvailable // return in mainet
 		usedSeed(seed)
     {
 		// return in mainet
-		// if (!token.transferFrom(msg.sender, this, value)) {
-            // throw;
-        // }
+		if (!token.transferFrom(msg.sender, this, value)) {
+            throw;
+        }
         bool isMain = storageContract.isMainGameInProgress(msg.sender);
 
         storageContract.doubleBet(isMain, msg.sender);
@@ -447,7 +448,7 @@ contract BlackJack is owned {
 		token.transfer(player, storageContract.getBet(isMain, player));
 
         // set final state
-		gameOver(player, isMain);
+		// gameOver(player, isMain);
         storageContract.updateState(Types.GameState.Tie, isMain, player);
     }
 
@@ -458,7 +459,7 @@ contract BlackJack is owned {
     {
 		address player = seedContract.getSeedPlayer(idSeed);
         // set final state
-		gameOver(player, isMain);
+		// gameOver(player, isMain);
         storageContract.updateState(Types.GameState.HouseWon, isMain, player);
     }
 
@@ -472,7 +473,7 @@ contract BlackJack is owned {
             // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender) * 2)) throw;
             token.transfer(player, storageContract.getBet(isMain, player) * 2);
             // set final state
-			gameOver(player, isMain);
+			// gameOver(player, isMain);
             storageContract.updateState(Types.GameState.PlayerWon, isMain, player);
             return;
         }
@@ -486,7 +487,7 @@ contract BlackJack is owned {
         }
 
         // set final state
-		gameOver(player, isMain);
+		// gameOver(player, isMain);
         storageContract.updateState(Types.GameState.PlayerBlackJack, isMain, player);
         return;
     }
@@ -516,5 +517,4 @@ contract BlackJack is owned {
         // if (!msg.sender.send(amountInWei)) throw;
 		token.transfer(msg.sender, amountInWei);
     }
-
 }

@@ -36,10 +36,10 @@ var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca
 // var	addressTestStorage = "0x00972a3dc0b97a8247b41b43c6a3bdf2f2c32453";
 // var	addressTestContract = "0xe034d122e1b865078aec58d8a5b648691f8ee9a9";
 // new
-var addressTestDeck = "0x6d1c0b4428b6c01781f4f0316db73e21d56a73de";
-var	addressTestSeed = "0xce03d324194b07040f41d681b00890c6dd811117";
-var	addressTestStorage = "0x5ef5598bcb4e906218705d116973a7bcfa0823ca";
-var	addressTestContract = "0x50e41a743b5210247e7449860e684a079835b724";
+var addressTestDeck = "0xcc307dc9184eff6fdd46ba2ca903faa065cdd55c";
+var	addressTestSeed = "0x9ebfa37fe2f634ddb67627fd6fb0348dd709e082";
+var	addressTestStorage = "0xb92a58b6c71a5c37d4e9b61329c1973b79af8b1e";
+var	addressTestContract = "0xfab2c2e79a7373c2f14851389817d129d842b953";
 
 var addressCurErc = "";
 
@@ -56,8 +56,8 @@ var options_sound = true;
 var options_mobile = true;
 var options_pause = false;
 var options_fullscreen = false;
-var options_speedgame = true;
-var options_splitdouble = false;
+var options_speedgame = false;
+var options_splitdouble = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
