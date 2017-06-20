@@ -1522,7 +1522,7 @@ ScrGame.prototype.sendCard = function(obj){
 		}
 		_y = _H/2 + 70;
 		prnt.showPlayerCard(card);
-		if(betGame > 0 || options_speedgame){
+		if(betGame > 0 || options_speedgame || idGame < 2){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 		}
 	} else if(type == "split"){
