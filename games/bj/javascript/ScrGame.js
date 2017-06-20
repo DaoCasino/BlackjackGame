@@ -269,6 +269,7 @@ ScrGame.prototype.resetGame = function(){
 	this.bClear = true;
 	this.bWait = false;
 	this.clearBet();
+	console.log("clearBet 1");
 	this.clearGame();
 }
 
@@ -1522,7 +1523,7 @@ ScrGame.prototype.sendCard = function(obj){
 		}
 		_y = _H/2 + 70;
 		prnt.showPlayerCard(card);
-		if(betGame > 0 || options_speedgame || idGame < 2){
+		if(betGame > 0 || options_speedgame){
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 		}
 	} else if(type == "split"){
@@ -2236,6 +2237,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.bWait = false;
 			if(prnt.countPlayerCard == 0){
 				prnt.clearBet();
+				console.log("clearBet 2");
 				prnt.tfStatus.setText("");
 				prnt.bClickStart = false;
 				prnt.showChips(true);
@@ -2728,6 +2730,7 @@ ScrGame.prototype.clickCell = function(item_mc) {
 			} else {
 				obj_game["game"].showError(ERROR_BANKROLLER);
 			}
+			console.log("clearBet 3");
 			obj_game["game"].clearBet();
 			obj_game["game"].bWait = false;
 			obj_game["game"].showChips(true);
@@ -2755,6 +2758,7 @@ ScrGame.prototype.clickCell = function(item_mc) {
 		this.shareTwitter();
 	} else if(item_mc.name == "btnClearBets"){
 		this.clearBet();
+		console.log("clearBet 4");
 	} else if(item_mc.name == "btnKey" || item_mc.name == "icoKey"){
 		copyToClipboard(openkey);
 	} else if(item_mc.name == "btnFullscreen"){
