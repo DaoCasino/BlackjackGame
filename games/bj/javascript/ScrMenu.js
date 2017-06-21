@@ -22,32 +22,31 @@ ScrMenu.prototype.init = function() {
 	btnNormal.overSc = true;
 	this.addChild(btnNormal);
 	this._arButtons.push(btnNormal);
-	// var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
-	var tf = addText("START", 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnNormal.addChild(tf);
-	// var btnSpeed = addButton("btnDefault", _W/2, _H/2+235);
-	// btnSpeed.name = "btnSpeed";
-	// btnSpeed.interactive = true;
-	// btnSpeed.buttonMode=true;
-	// btnSpeed.overSc = true;
-	// this.addChild(btnSpeed);
-	// this._arButtons.push(btnSpeed);
-	// var tf = addText("Speed Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
-	// tf.x = 0;
-	// tf.y = -tf.height/2;
-	// btnSpeed.addChild(tf);
+	var btnSpeed = addButton("btnDefault", _W/2, _H/2+235);
+	btnSpeed.name = "btnSpeed";
+	btnSpeed.interactive = true;
+	btnSpeed.buttonMode=true;
+	btnSpeed.overSc = true;
+	this.addChild(btnSpeed);
+	this._arButtons.push(btnSpeed);
+	var tf = addText("Speed Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	tf.x = 0;
+	tf.y = -tf.height/2;
+	btnSpeed.addChild(tf);
 	
-	// var fontSize = 28;
-	// var tfNormal = addText("(Beta version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	// tfNormal.x = _W/2 + 180;
-	// tfNormal.y = btnNormal.y - tfNormal.height/2;
-	// this.addChild(tfNormal);
-	// var tfSpeed = addText("(Alpha version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	// tfSpeed.x = tfNormal.x;
-	// tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
-	// this.addChild(tfSpeed);
+	var fontSize = 28;
+	var tfNormal = addText("(Beta version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	tfNormal.x = _W/2 + 180;
+	tfNormal.y = btnNormal.y - tfNormal.height/2;
+	this.addChild(tfNormal);
+	var tfSpeed = addText("(Alpha version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	tfSpeed.x = tfNormal.x;
+	tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
+	this.addChild(tfSpeed);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -97,6 +96,7 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		addressTestContract = "0xfffcc6f148fc9bd3020798d64fe98bf6edc44ac7";
 		this.removeAllListener();
 		options_speedgame = true;
+		options_splitdouble = false;
 		showGame();
 	}
 }

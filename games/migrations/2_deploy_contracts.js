@@ -87,7 +87,7 @@ module.exports = function(deployer, network) {
 			return deployer.deploy(BlackJack, Deck.address, BlackJackStorage.address, BlackJackSeed.address, erc20);
 		}).then(function(tx) {
             console.log(" - Send 15 tokens to the BJ contract");
-			return tokenContract.transfer(BlackJack.address, 1500000000, { from: owner });
+			return tokenContract.transfer(BlackJack.address, 2500000000, { from: owner });
         });
         
     }
