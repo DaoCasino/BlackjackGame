@@ -789,6 +789,7 @@ ScrGame.prototype.createButton2 = function(name, title, x, y, sc) {
 ScrGame.prototype.showChips = function(value) {
 	var a = 0.5;
 	var alpha = a;
+	
 	if(value){
 		alpha = 1;
 	}
@@ -1906,8 +1907,8 @@ ScrGame.prototype.getBankrolls = function(){
 				break;
 			}
 		}
-        
-		// _countBankrollers = _arr.length;
+		
+		_countBankrollers = _arr.length;
 		// prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
         
 		if(_haveBankroll){
