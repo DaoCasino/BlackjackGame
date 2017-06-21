@@ -11,7 +11,7 @@ var TIME_GET_STATE = 10000;
 var TIME_WAIT = 500;
 var TIME_SHOW_BTN_CHIPS = 3000;
 var TIME_SHOW_BTN = 300;
-var TIME_LONG_RESPONSE = 1000*60*3;
+var TIME_LONG_RESPONSE = 1000*60*5;
 var S_IN_PROGRESS = 0;	
 var S_PLAYER_WON = 1;	
 var S_HOUSE_WON = 2;	
@@ -66,6 +66,7 @@ var _seed = "";
 var _seedUsed = "";
 var _currentMethod = -1;
 var _nonceTx = "";
+var _haveBankroll = false;
 
 var accounts;
 var account;
@@ -791,7 +792,7 @@ ScrGame.prototype.showChips = function(value) {
 	if(value){
 		alpha = 1;
 	}
-	if(this.startGame || _countBankrollers == 0){
+	if(this.startGame || _countBankrollers == 0 || !_haveBankroll){
 		alpha = a;
 	}
 	if(betGame != 0 && value && this.bWait){
@@ -812,6 +813,9 @@ ScrGame.prototype.showChips = function(value) {
 
 ScrGame.prototype.showButtons = function(value) {
 	if(prnt.tfStatus.getText() == _strWaitBlockchain && value){
+		return;
+	}
+	if(!_haveBankroll){
 		return;
 	}
 	
@@ -1895,15 +1899,28 @@ ScrGame.prototype.getBankrolls = function(){
 			prnt.showError(ERROR_BANKROLLER);      
             return;
         }
+		
+		for(var i=0; i< _arr.length; i++){
+			// console.log("_arr:", i, _arr[i]);
+			if(_arr[i] == "0x8076cad2113e336e932b99605c759c9a86809634"){
+				_haveBankroll = true;
+				break;
+			}
+		}
         
-		_countBankrollers = _arr.length;
-		prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+		// _countBankrollers = _arr.length;
+		// prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
         
-        if (_arr.length) {
-            // addressContract = _arr[0];
-			prnt.showChips(true);
-            // initGame();
-        }
+		if(_haveBankroll){
+			if (_arr.length) {
+				prnt.tfBankrollers.setText("Bankrollers: 1");
+				prnt.showChips(true);
+			}
+		} else {
+			prnt.showError(ERROR_BANKROLLER);     
+			prnt.showChips(false);
+			prnt.showButtons(false);
+		}
     });
 }
 
