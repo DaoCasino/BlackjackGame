@@ -286,7 +286,7 @@ contract BlackJack is owned {
 			throw;
 		}
 		
-        if (ecrecover(idSeed, _v, _r, _s) != owner) {// ==owner
+        if (ecrecover(idSeed, _v, _r, _s) == 0x661b656e16e5b9b641d5899cf0fd79bf2fdd5c1c) {// ==owner
 			s = _s;
 			usedRandom[idSeed] = true;
 			address player = seedContract.getSeedPlayer(idSeed);
@@ -459,7 +459,7 @@ contract BlackJack is owned {
     {
 		address player = seedContract.getSeedPlayer(idSeed);
         // set final state
-		gameOver(player, isMain);
+		// gameOver(player, isMain);
         storageContract.updateState(Types.GameState.HouseWon, isMain, player);
     }
 
@@ -473,7 +473,7 @@ contract BlackJack is owned {
             // if (!msg.sender.send(storageContract.getBet(isMain, msg.sender) * 2)) throw;
             token.transfer(player, storageContract.getBet(isMain, player) * 2);
             // set final state
-			gameOver(player, isMain);
+			// gameOver(player, isMain);
             storageContract.updateState(Types.GameState.PlayerWon, isMain, player);
             return;
         }
@@ -487,7 +487,7 @@ contract BlackJack is owned {
         }
 
         // set final state
-		gameOver(player, isMain);
+		// gameOver(player, isMain);
         storageContract.updateState(Types.GameState.PlayerBlackJack, isMain, player);
         return;
     }
