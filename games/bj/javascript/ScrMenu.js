@@ -15,15 +15,39 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
-	var btnDao = addButton("btnDefault", _W/2, _H/2+100);
-	btnDao.interactive = true;
-	btnDao.buttonMode=true;
-	this.addChild(btnDao);
-	this._arButtons.push(btnDao);
+	var btnNormal = addButton("btnDefault", _W/2, _H/2+100);
+	btnNormal.name = "btnNormal";
+	btnNormal.interactive = true;
+	btnNormal.buttonMode=true;
+	btnNormal.overSc = true;
+	this.addChild(btnNormal);
+	this._arButtons.push(btnNormal);
+	// var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
 	var tf = addText("START", 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
-	btnDao.addChild(tf);
+	btnNormal.addChild(tf);
+	// var btnSpeed = addButton("btnDefault", _W/2, _H/2+235);
+	// btnSpeed.name = "btnSpeed";
+	// btnSpeed.interactive = true;
+	// btnSpeed.buttonMode=true;
+	// btnSpeed.overSc = true;
+	// this.addChild(btnSpeed);
+	// this._arButtons.push(btnSpeed);
+	// var tf = addText("Speed Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	// tf.x = 0;
+	// tf.y = -tf.height/2;
+	// btnSpeed.addChild(tf);
+	
+	// var fontSize = 28;
+	// var tfNormal = addText("(Beta version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	// tfNormal.x = _W/2 + 180;
+	// tfNormal.y = btnNormal.y - tfNormal.height/2;
+	// this.addChild(tfNormal);
+	// var tfSpeed = addText("(Alpha version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	// tfSpeed.x = tfNormal.x;
+	// tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
+	// this.addChild(tfSpeed);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -59,11 +83,20 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		}
 	}
 	
-	if(item_mc.name == "btnDefault"){
+	if(item_mc.name == "btnNormal"){
 		if(!passwordUser){
 			passwordUser = prompt("enter your password");
 		}
 		this.removeAllListener();
+		options_speedgame = false;
+		showGame();
+	} else if(item_mc.name == "btnSpeed"){
+		addressTestDeck = "0x58dd4e96f6560b4339643e05e88d5785e6498c8d";
+		addressTestSeed = "0x1ef143f5eb6bb8413050f77de4b4880f388a9701";
+		addressTestStorage = "0x86d3c1620e866adefb8294f0138463d642451843";
+		addressTestContract = "0xfffcc6f148fc9bd3020798d64fe98bf6edc44ac7";
+		this.removeAllListener();
+		options_speedgame = true;
 		showGame();
 	}
 }
@@ -80,6 +113,9 @@ ScrMenu.prototype.checkButtons = function(evt){
 				item_mc._selected = true;
 				if(item_mc.over){
 					item_mc.over.visible = true;
+				} else if(item_mc.overSc){
+					item_mc.scale.x = 1.1*item_mc.sc;
+					item_mc.scale.y = 1.1*item_mc.sc;
 				}
 			}
 		} else {
@@ -87,6 +123,9 @@ ScrMenu.prototype.checkButtons = function(evt){
 				item_mc._selected = false;
 				if(item_mc.over){
 					item_mc.over.visible = false;
+				} else if(item_mc.overSc){
+					item_mc.scale.x = 1*item_mc.sc;
+					item_mc.scale.y = 1*item_mc.sc;
 				}
 			}
 		}
