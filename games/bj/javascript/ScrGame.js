@@ -1901,8 +1901,7 @@ ScrGame.prototype.getBankrolls = function(){
         }
 		
 		for(var i=0; i< _arr.length; i++){
-			// console.log("_arr:", i, _arr[i]);
-			if(_arr[i] == "0x8076cad2113e336e932b99605c759c9a86809634"){
+			if(_arr[i] == 0x8076cad2113e336e932b99605c759c9a86809634){
 				_haveBankroll = true;
 				break;
 			}
