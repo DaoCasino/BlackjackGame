@@ -793,7 +793,9 @@ ScrGame.prototype.showChips = function(value) {
 	if(value){
 		alpha = 1;
 	}
-	if(this.startGame || _countBankrollers == 0 || !_haveBankroll){
+	if(this.startGame || 
+	_countBankrollers == 0 || 
+	!_haveBankroll){
 		alpha = a;
 	}
 	if(betGame != 0 && value && this.bWait){
@@ -813,10 +815,10 @@ ScrGame.prototype.showChips = function(value) {
 }
 
 ScrGame.prototype.showButtons = function(value) {
-	if(prnt.tfStatus.getText() == _strWaitBlockchain && value){
+	if(this.tfStatus.getText() == _strWaitBlockchain && value){
 		return;
 	}
-	if(!_haveBankroll){
+	if(!_haveBankroll || this._arMyCards.length == 0){
 		return;
 	}
 	
