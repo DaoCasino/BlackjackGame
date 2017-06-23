@@ -1802,7 +1802,7 @@ ScrGame.prototype.showResult = function(_name, _x, _y) {
 	var delay = this._arNewCards.length+4;
 	var tf = prnt.createObj({x:_x, y:_y}, _name);
 	tf.alpha = 0;
-	if(options_debug){
+	if(options_speedgame){
 		delay = 1;
 	}
 	createjs.Tween.get(tf).wait(1000*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
