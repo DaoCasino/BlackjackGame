@@ -2,6 +2,12 @@ pragma solidity ^0.4.2;
 
 library Types {
 
+    enum DealMethod {
+        Main,
+        Split,
+        House
+    }
+	
     enum GameState {
         InProgress,
         PlayerWon,

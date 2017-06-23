@@ -103,6 +103,7 @@ var _oFichesDealerOffset;
 var _oRemoveCardsOffset;
 var _contract;
 var _countBankrollers = 0;
+var _balancePlSpeed = -1;
 
 var _strWaitBlockchain = "Wait response from blockchain.";
 
@@ -164,6 +165,8 @@ ScrGame.prototype.init = function() {
 	this.bClear = false;
 	this.bSplit = false;
 	this.bStandSplit = false;
+	this.bDouble = false;
+	this.bSplitDouble = false;
 	this.bEndTurnSplit = false;
 	this.bClickStart = false;
 	this.bApprove = false;
@@ -244,9 +247,9 @@ ScrGame.prototype.init = function() {
 		this.showError(ERROR_KEY, showHome);
 	}
 	
-	// for(var i=0; i<52; i++){
-		// this.getCard(i);
-	// }
+	for(var i=0; i<52; i++){
+		this.getCard(i);
+	}
 
 	this.interactive = true;
 	this.on('mousedown', this.touchHandler);
@@ -303,6 +306,8 @@ ScrGame.prototype.clearGame = function(){
 	this.bStand = false;
 	this.bSplit = false;
 	this.bStandSplit = false;
+	this.bDouble = false;
+	this.bSplitDouble = false;
 	this.bEndTurnSplit = false;
 	this.bWaitSplit = false;
 	this.bClickStart = false;
@@ -1300,13 +1305,21 @@ ScrGame.prototype.getBalancePlayer = function(){
 	var value = callERC20("balanceOf", openkey);
 	obj_game["balance"] = Number(value);
 	login_obj["balance"] = obj_game["balance"];
-	prnt.tfBalance.setText(convertToken(obj_game["balance"]) + " BET");
+	
+	if(prnt.oldBalance == -1 && obj_game["balance"] > 0){
+		_balancePlSpeed = obj_game["balance"];
+	}
 	if(obj_game["balance"] > 0){
 		prnt.tfGetEth.setText("");
 		if(prnt.oldBalance == -1){
 			prnt.oldBalance = Number(obj_game["balance"]);
 			prnt.timeShowButtons = TIME_SHOW_BTN + prnt._arNewCards.length*1000;
 		}
+	}
+	if(options_speedgame){
+		prnt.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+	} else {
+		prnt.tfBalance.setText(convertToken(obj_game["balance"]) + " BET");
 	}
 }
 
@@ -1367,6 +1380,30 @@ ScrGame.prototype.clickDouble = function(){
 	} else {
 		infura.sendRequest("double", openkey, _callback);
 	}
+	
+	if(options_speedgame){
+		console.log("clickDouble:", this.bSplit, betSplitGame);
+		if(this.bSplit){
+			_balancePlSpeed -= betSplitGame;
+			betSplitGame *= 2;
+			this.bSplitDouble = true;
+			this.fillChips(betSplitGame, "split");
+			var str = String(convertToken(betSplitGame));
+			this.tfSplitBet.setText(str);
+		} else {
+			_balancePlSpeed -= betGame;
+			betGame *= 2;
+			this.bDouble = true;
+			if(this._arMySplitCards.length > 0){
+				this.fillChips(betGame, "main");
+			} else {
+				this.fillChips(betGame);
+			}
+			var str = String(convertToken(betGame));
+			this.tfMyBet.setText(str);
+		}
+		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+	}
 }
 
 ScrGame.prototype.clickSplit = function(){
@@ -1409,6 +1446,12 @@ ScrGame.prototype.clickSplit = function(){
 	} else {
 		infura.sendRequest("split", openkey, _callback);
 	}
+	
+	if(options_speedgame){
+		_balancePlSpeed -= betGame;
+		betSplitGame = betGame;
+		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+	}
 }
 
 ScrGame.prototype.clickInsurance = function(){
@@ -1417,6 +1460,11 @@ ScrGame.prototype.clickInsurance = function(){
 	infura.sendRequest("requestInsurance", openkey, _callback);
 	prnt.bWait = true;
 	prnt.showButtons(false);
+	
+	if(options_speedgame){
+		_balancePlSpeed -= (0.5*betGame)/valToken;
+		prnt.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+	}
 }
 
 ScrGame.prototype.confirmSeed = function(){
@@ -1632,14 +1680,15 @@ ScrGame.prototype.loadBet = function(value){
 }
 
 ScrGame.prototype.clickChip = function(item_mc){
-	if(this.bApprove || options_rpc){}else{
-		this.showWndApprove();
+	var prnt = obj_game["game"];
+	if(prnt.bApprove || options_rpc){}else{
+		prnt.showWndApprove();
 		return false;
 	}
 	
 	if(betGame == 0){
-		this.clearChips();
-		this.clearSplitChips();
+		prnt.clearChips();
+		prnt.clearSplitChips();
 	}
 	
 	var name = item_mc.name;
@@ -1649,36 +1698,35 @@ ScrGame.prototype.clickChip = function(item_mc){
 	betGame = toFixed(betGame, 2);
 	
 	if(betGame > obj_game["balance"] || obj_game["balancePlEth"] == 0){
-		obj_game["game"].showError(ERROR_BALANCE);
+		prnt.showError(ERROR_BALANCE);
 		betGame = oldBet;
 	} else if(betGame > maxBet){
-		obj_game["game"].showError(ERROR_MAX_BET);
+		prnt.showError(ERROR_MAX_BET);
 		betGame = oldBet;
 	} else {
 		var str = "Your bet: " + String(convertToken(betGame));
-		this.tfYourBet.setText(str);
-		this.tfSplitBet.setText("");
-		this.tfMyBet.setText(convertToken(betGame));
-		this.tfMyBet.x = _W/2-50;
+		prnt.tfYourBet.setText(str);
+		prnt.tfSplitBet.setText("");
+		prnt.tfMyBet.setText(convertToken(betGame));
+		prnt.tfMyBet.x = _W/2-50;
 	}
-	
 	if(betGame > 0){
-		this.btnStart.alpha = 1;
-		this.btnClear.alpha = 1;
-		this.arrow.visible = false;
-		if(!this.bClear){
-			this.tfStatus.setText("");
-			this.tfMyPoints.setText("");
-			this.tfMySplitPoints.setText("");
-			this.tfHousePoints.setText("");
-			this._arMyPoints = [];
-			this._arMySplitPoints = [];
-			this._arHousePoints = [];
-			this._arMyCards = [];
-			this._arMySplitCards = [];
-			this._arHouseCards = [];
-			this.bClear = true;
-			this.clearGame();
+		prnt.btnStart.alpha = 1;
+		prnt.btnClear.alpha = 1;
+		prnt.arrow.visible = false;
+		if(!prnt.bClear){
+			prnt.tfStatus.setText("");
+			prnt.tfMyPoints.setText("");
+			prnt.tfMySplitPoints.setText("");
+			prnt.tfHousePoints.setText("");
+			prnt._arMyPoints = [];
+			prnt._arMySplitPoints = [];
+			prnt._arHousePoints = [];
+			prnt._arMyCards = [];
+			prnt._arMySplitCards = [];
+			prnt._arHouseCards = [];
+			prnt.bClear = true;
+			prnt.clearGame();
 		}
 	}
 	
@@ -1686,7 +1734,7 @@ ScrGame.prototype.clickChip = function(item_mc){
 		return false;
 	}
 	betGameOld = betGame;
-	this.sendChip(item_mc, betGame);
+	prnt.sendChip(item_mc, betGame);
 }
 
 ScrGame.prototype.showSmartContract = function() {
@@ -1754,6 +1802,9 @@ ScrGame.prototype.showResult = function(_name, _x, _y) {
 	var delay = this._arNewCards.length+4;
 	var tf = prnt.createObj({x:_x, y:_y}, _name);
 	tf.alpha = 0;
+	if(options_debug){
+		delay = 1;
+	}
 	createjs.Tween.get(tf).wait(1000*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
 }
 
@@ -1857,6 +1908,7 @@ ScrGame.prototype.makeID = function(count){
     for( var i=0; i < count; i++ ){
 		str += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
+	
 	if(!options_rpc){
 		str = "0x" + web3_sha3(numToHex(str));
 	}
@@ -1930,16 +1982,19 @@ ScrGame.prototype.checkResult = function(isMain){
 	if(!options_speedgame){
 		return;
 	}
+	
 	var prnt = obj_game["game"];
 	var points = prnt.mySplitPoints;
 	var bet = betSplitGame/valToken;
-	var countCard = prnt.countPlayerSplitCard;
+	var betWin = 0;
+	var countCard = prnt._arMySplitCards.length;
 	var strResult = "";
 	var str = "";
 	var _x = _W/2 + 200-75;
 	var _y = _H/2 - 35;
+	
 	if(isMain){
-		countCard = prnt.countPlayerCard;
+		countCard = prnt._arMyCards.length;
 		points = prnt.myPoints;
 		bet = betGame/valToken;
 		_x = _W/2 - 80-75;
@@ -1952,10 +2007,11 @@ ScrGame.prototype.checkResult = function(isMain){
 		}
 	}
 	
-	if(prnt._arNewCards.length == 1 && points > 0 && prnt.housePoints > 0){
+	if(prnt._arNewCards.length == 1 && points > 0 && prnt.housePoints > 0){		
 		if(points == BLACKJACK && prnt.housePoints == BLACKJACK && str==""){
 			str = "tfPush";
 			strResult = "+"+String(bet);
+			betWin = bet;
 			if(isMain){
 				prnt._gameEnd = true;
 			}
@@ -1967,25 +2023,28 @@ ScrGame.prototype.checkResult = function(isMain){
 				prnt._gameEnd = true;
 			}
         }
+		
         if (points == BLACKJACK && str=="" && countCard == 2) {
 			str = "tfBlackjack";
 			bet = bet * 2.5;
 			strResult = "+"+String(bet);
+			betWin = bet;
 			if(isMain){
 				prnt._gameEnd = true;
 			}
         }
         if (points > BLACKJACK && str=="") {
             str = "tfBust";
+			strResult = "-"+String(bet);
 			if(isMain){
 				prnt._gameEnd = true;
 				prnt._arHouseCards.push(Math.floor(Math.random(51)));
-				prnt.addCard("arHouseCards", loadHouseCard, 2, prnt._arHouseCards);
 			}
         }
 		if (points == prnt.housePoints && str=="") {
             str = "tfPush";
 			strResult = "+"+String(bet);
+			betWin = bet;
         }
         if (points < prnt.housePoints && prnt.housePoints <= BLACKJACK && str=="") {
 			str = "tfLose";
@@ -1995,6 +2054,7 @@ ScrGame.prototype.checkResult = function(isMain){
 			str = "tfWin";
 			bet = bet * 2;
 			strResult = "+"+String(bet);
+			betWin = bet;
 		}
 		
 		if(!prnt._gameEnd){
@@ -2036,20 +2096,25 @@ ScrGame.prototype.checkResult = function(isMain){
 				prnt.bWait = false;
 				prnt.bShowResult = true;
 				prnt.getBalanceBank();
-				prnt.showButtons(false);
-				prnt.tfStatus.setText(_strWaitBlockchain);
 				
-				prnt.tfMyBet.setText(strResult);
-				
-				if(options_debug){
+				// if(options_debug){
 					prnt.bWait = false;
 					betGame = 0;
+					betGameOld = 0;
 					prnt.startGame = false;
 					prnt.showChips(true);
-				}
+				// }
+				
+				prnt.showButtons(false);
+				// prnt.tfStatus.setText(_strWaitBlockchain);
+				
+				prnt.tfMyBet.setText(strResult);
 			} else {
+				betSplitGame = 0;
 				prnt.tfSplitBet.setText(strResult);
 			}
+			_balancePlSpeed += betWin*valToken;
+			prnt.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
 		}
 	}
 }
@@ -2068,6 +2133,10 @@ ScrGame.prototype.startGameEth = function(){
 		this.startGame = true;
 	} else {
 		infura.sendRequest("deal", openkey, _callback);
+	}
+	if(options_speedgame){
+		_balancePlSpeed -= betGame//valToken;
+		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
 	}
 }
 
@@ -2355,18 +2424,22 @@ ScrGame.prototype.response = function(command, value, error) {
 				prnt.showChips(true);
 			}
 		} else {
-			betGame = Number(hexToNum(value));
-			if(betGame > 0 && prnt._arMyCards.length > 0){
-				prnt.fillChips(betGame);
-				prnt.tfMyBet.setText(betGame/valToken);
+			if(!options_speedgame){
+				betGame = Number(hexToNum(value));
+				if(betGame > 0 && prnt._arMyCards.length > 0){
+					prnt.fillChips(betGame);
+					prnt.tfMyBet.setText(betGame/valToken);
+				}
 			}
 		}
 	} else if(command == "getSplitBet"){
-		betSplitGame = Number(hexToNum(value));
-		if(betGame > 0 && betSplitGame > 0 && 
-		(prnt._arMySplitCards.length > 0 || !prnt.bBetLoad)){
-			prnt.fillChips(betSplitGame, "split");
-			prnt.tfSplitBet.setText(betSplitGame/valToken);
+		if(!options_speedgame){
+			betSplitGame = Number(hexToNum(value));
+			if(betGame > 0 && betSplitGame > 0 && 
+			(prnt._arMySplitCards.length > 0 || !prnt.bBetLoad)){
+				prnt.fillChips(betSplitGame, "split");
+				prnt.tfSplitBet.setText(betSplitGame/valToken);
+			}
 		}
 	} else if(command == "isInsuranceAvailable"){
 		if((stateNow == S_IN_PROGRESS ||
@@ -2465,7 +2538,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			stateNow = hexToNum(value);
 		}
 		
-		if(!prnt.bApprove){
+		if(!prnt.bApprove || options_debug){
 			return false;
 		}
 		prnt.getGameId();

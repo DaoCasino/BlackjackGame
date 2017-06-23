@@ -137,7 +137,11 @@ Contract.prototype.deal = function(cardNumber){
 	var rand = bigInt(hash,16).divmod(52).remainder.value;
 	// rand = 29;
 	// rand = 21;
-	// rand = 40;
+	// if(Math.random()>0.5){
+		// rand = 40;
+	// } else {
+		// rand = 4;
+	// }
 	return rand;
 }
 
