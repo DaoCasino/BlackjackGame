@@ -36,10 +36,10 @@ var	addressTestSeed = "0xee4bf1e6c61b14ba8c63a5355214540f1a98fc46";
 var	addressTestStorage = "0x80a0ad3a98f18eddbff87206999ba6e927180afc";
 var	addressTestContract = "0x2959e238e59e15146a0218c982e34d719e64723b";
 // alpha (speed game)
-// addressTestDeck = "0x58dd4e96f6560b4339643e05e88d5785e6498c8d";
-// addressTestSeed = "0x1ef143f5eb6bb8413050f77de4b4880f388a9701";
-// addressTestStorage = "0x86d3c1620e866adefb8294f0138463d642451843";
-// addressTestContract = "0xfffcc6f148fc9bd3020798d64fe98bf6edc44ac7";
+// addressTestDeck = "0x10012549e5c93087599f605beb24ec98adb18d38";
+// addressTestSeed = "0xacfb08729f456d6955c82da3b58d51c080521706";
+// addressTestStorage = "0x2eec5a7bb54381e9c9c784f5e9b4b5e1cd4fc694";
+// addressTestContract = "0x48a861b4555db1cc7656eaa0fb98bcf873d92982";
 
 var addressCurErc = "";
 
