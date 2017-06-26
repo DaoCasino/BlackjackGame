@@ -584,6 +584,7 @@ ScrGame.prototype.createGUI = function() {
 	btnLog.hint2 = 'Show logs';
 	this.addChild(btnLog);
 	this._arButtons.push(btnLog);
+	btnLog.visible= false;
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -2389,7 +2390,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"player", id:cardIndex});
-			console.log("dealContract: Main", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract: Main", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getSplitCard"){
@@ -2398,7 +2399,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerSplitCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"split", id:cardIndex});
-			console.log("dealContract: Split", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract: Split", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getHouseCard"){
@@ -2407,7 +2408,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadHouseCard++
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"house", id:cardIndex});
-			console.log("dealContract: House", cardIndex, prnt.getNameCard(cardIndex));
+			// console.log("dealContract: House", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
