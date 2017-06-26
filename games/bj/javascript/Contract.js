@@ -32,7 +32,7 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 	this._arMyPoints = [this.myPoints];
 	this._arMySplitPoints = [this.splitPoints];
 	this._arHousePoints = [this.housePoints];
-	console.log("confirmSeed:", _s);
+	// console.log("confirmSeed:", _s);
 	var i = 0;
 	var point = 0;
 	for (i = 0; i < _objGame.arMyCards.length; i++) {
@@ -120,23 +120,24 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this._arMyPoints.push(point);
 			this.myPoints = this.getMyPoints();
 			this._arMyCards.push(newCard);
-			console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
+			// console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
 		} else {
 			this._arMySplitPoints.push(point);
 			this.splitPoints = this.getMySplitPoints();
 			this._arMySplitCards.push(newCard);
-			console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
+			// console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
 		}
 	} else {
 		this._arHousePoints.push(point);
 		this.housePoints = this.getHousePoints();;
 		this._arHouseCards.push(newCard);
-		console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
+		// console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
 	}
 }
 
 Contract.prototype.deal = function(cardNumber){	
 	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
+	hash = hash.substr(hash.length-2, hash.length)
 	var rand = bigInt(hash,16).divmod(52).remainder.value;
 	// rand = 29;
 	// rand = 21;

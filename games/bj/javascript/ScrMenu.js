@@ -37,7 +37,6 @@ ScrMenu.prototype.init = function() {
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
-	btnSpeed.visible = false;
 	
 	var fontSize = 28;
 	var tfNormal = addText("(Beta version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
@@ -48,7 +47,6 @@ ScrMenu.prototype.init = function() {
 	tfSpeed.x = tfNormal.x;
 	tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
 	this.addChild(tfSpeed);
-	tfSpeed.visible = false;
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
