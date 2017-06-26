@@ -837,7 +837,7 @@ ScrGame.prototype.showButtons = function(value) {
 	if(this.tfStatus.getText() == _strWaitBlockchain && value){
 		return;
 	}
-	if(!_haveBankroll || this._arMyCards.length == 0){
+	if(!_haveBankroll){
 		return;
 	}
 	
@@ -845,6 +845,14 @@ ScrGame.prototype.showButtons = function(value) {
 	var alpha = a;
 	if(value){
 		alpha = 1;
+	}
+	
+	if(this._arMyCards.length == 0 && betGame > 0){
+		this.btnStand.visible = true;
+		this.btnStand.alpha = 1;
+		this.btnStart.visible = false;
+		this.btnClear.visible = false;
+		return;
 	}
 	
 	if(this.startGame){
