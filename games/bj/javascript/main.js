@@ -25,21 +25,26 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x454dc306bf74ba864bef554118618b1ceedd1824";
-var	addressRpcStorage = "0xce9a7e79f6669f443cd3aeabefb8c33e77631cf5";
-var	addressRpcContract = "0x09720df949d447ed7669479786d4c7d19279bbb0";
+var	addressRpcErc = "0x4da4e49a39d70797a454a697ddb08fa6201cd145";
+var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
+var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
 // testnet
-var addressTestErc = "0x09720df949d447ed7669479786d4c7d19279bbb0"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
+var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
-var addressTestDeck = "0x0d82eb733ec062f7737f7dd0b5ea9462af724e76";
-var	addressTestSeed = "0xee4bf1e6c61b14ba8c63a5355214540f1a98fc46";
-var	addressTestStorage = "0x80a0ad3a98f18eddbff87206999ba6e927180afc";
-var	addressTestContract = "0x2959e238e59e15146a0218c982e34d719e64723b";
+var addressTestDeck = "0x130dd58131a75eba1ec0cc5f0741ae98ac751333";
+var	addressTestSeed = "0xa3cb351187aa2ffe8c5bf9da3a0943ecd3f62e33";
+var	addressTestStorage = "0x02f15d223b71234cf7ddec76e33bbe4f04031385";
+var	addressTestContract = "0x570d86f35b62d752b1066fc6eedaab7783bda740";
 // alpha (speed game)
-// addressTestDeck = "0x58dd4e96f6560b4339643e05e88d5785e6498c8d";
-// addressTestSeed = "0x1ef143f5eb6bb8413050f77de4b4880f388a9701";
-// addressTestStorage = "0x86d3c1620e866adefb8294f0138463d642451843";
-// addressTestContract = "0xfffcc6f148fc9bd3020798d64fe98bf6edc44ac7";
+// addressTestDeck = "0x10012549e5c93087599f605beb24ec98adb18d38";
+// addressTestSeed = "0xacfb08729f456d6955c82da3b58d51c080521706";
+// addressTestStorage = "0x2eec5a7bb54381e9c9c784f5e9b4b5e1cd4fc694";
+// addressTestContract = "0x48a861b4555db1cc7656eaa0fb98bcf873d92982";
+
+// addressTestDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
+// addressTestSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
+// addressTestStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
+// addressTestContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 

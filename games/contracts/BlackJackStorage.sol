@@ -88,65 +88,51 @@ contract BlackJackStorage {
         splitGames[player].houseBigScore = games[player].houseBigScore;
     }
 	
-    function dealSplitCard(address player, bytes32 seed)
+    function dealCard(Types.DealMethod typeDeal, address player, bytes32 seed)
         external
         returns (uint8)
     {
         uint8 card = uint8(deck.deal(seed));
-        splitGames[player].playerCards.push(card);
+		
+		if(typeDeal == Types.DealMethod.Main){
+			games[player].playerCards.push(card);
+		} else if(typeDeal == Types.DealMethod.Split){
+			splitGames[player].playerCards.push(card);
+		} else if(typeDeal == Types.DealMethod.House){
+			games[player].houseCards.push(card);
+		}
+		
         return card;
     }
-
-    function dealMainCard(address player, bytes32 seed)
-        external
-        returns (uint8)
-    {
-        uint8 card = uint8(deck.deal(seed));
-        games[player].playerCards.push(card);
-        return card;
-    }
-
-    function dealHouseCard(address player, bytes32 seed)
-        external
-        returns (uint8)
-    {
-        uint8 card = uint8(deck.deal(seed));
-        games[player].houseCards.push(card);
-        return card;
-    }
-
+	
     function deleteSplitGame(address player)
         external
     {
         delete splitGames[player];
     }
 	
-    function updatePlayerScore(uint8 score, uint8 bigScore, address player)
+    function updatePlayerScore(bool isMain, uint8 score, uint8 bigScore, address player)
         external
     {
-        games[player].playerScore = score;
-        games[player].playerBigScore = bigScore;
+		if(isMain){
+			games[player].playerScore = score;
+			games[player].playerBigScore = bigScore;
+		} else {
+			splitGames[player].playerScore = score;
+			splitGames[player].playerBigScore = bigScore;
+		}
     }
 
-    function updatePlayerSplitScore(uint8 score, uint8 bigScore, address player)
+    function updateHouseScore(bool isMain, uint8 score, uint8 bigScore, address player)
         external
     {
-        splitGames[player].playerScore = score;
-        splitGames[player].playerBigScore = bigScore;
-    }
-
-    function updateHouseScore(uint8 score, uint8 bigScore, address player)
-        external
-    {
-        games[player].houseScore = score;
-        games[player].houseBigScore = bigScore;
-    }
-
-    function updateHouseSplitScore(uint8 score, uint8 bigScore, address player)
-        external
-    {
-        splitGames[player].houseScore = score;
-        splitGames[player].houseBigScore = bigScore;
+		if(isMain){
+			games[player].houseScore = score;
+			games[player].houseBigScore = bigScore;
+		} else {
+			splitGames[player].houseScore = score;
+			splitGames[player].houseBigScore = bigScore;
+		}
     }
 
     function updateInsurance(uint insurance, bool isMain, address player)
@@ -168,7 +154,7 @@ contract BlackJackStorage {
             splitGames[player].state = state;
         }
     }
-
+	
     /*
         PUBLIC GETTERS
     */
@@ -251,28 +237,6 @@ contract BlackJackStorage {
         return getGamePlayerScore(splitGames[player]);
     }
 
-    function getPlayerBigScore(bool isMain, address player)
-        public
-        constant
-        returns (uint8)
-    {
-        if (isMain) {
-            return games[player].playerBigScore;
-        }
-        return splitGames[player].playerBigScore;
-    }
-
-    function getPlayerSmallScore(bool isMain, address player)
-        public
-        constant
-        returns (uint8)
-    {
-        if (isMain) {
-            return games[player].playerScore;
-        }
-        return splitGames[player].playerScore;
-    }
-
     function getHouseScore(address player)
         public
         constant
@@ -280,21 +244,23 @@ contract BlackJackStorage {
     {
         return getGameHouseScore(games[player]);
     }
-
-    function getHouseBigScore(address player)
+	
+	function getScoreGame(bool isMain, address player)
         public
         constant
-        returns (uint8)
+        returns (uint8, uint8, uint8, uint8)
     {
-        return games[player].houseBigScore;
-    }
-
-    function getHouseSmallScore(address player)
-        public
-        constant
-        returns (uint8)
-    {
-        return games[player].houseScore;
+		if(isMain){
+			return (games[player].playerScore, 
+					games[player].playerBigScore, 
+					games[player].houseScore, 
+					games[player].houseBigScore);
+		}
+				
+        return (splitGames[player].playerScore, 
+				splitGames[player].playerBigScore, 
+				splitGames[player].houseScore, 
+				splitGames[player].houseBigScore);
     }
 
     function getState(bool isMain, address player)
