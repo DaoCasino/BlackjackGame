@@ -48,6 +48,7 @@ ScrMenu.prototype.init = function() {
 	tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
 	this.addChild(tfSpeed);
 	
+	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
 	var str3 = "Players who access this game from other jurisdictions do so at their own volition and are responsible for compliance with local law.";
