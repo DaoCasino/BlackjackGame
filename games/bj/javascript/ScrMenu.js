@@ -90,11 +90,6 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		options_speedgame = false;
 		showGame();
 	} else if(item_mc.name == "btnSpeed"){
-		// addressTestDeck = "0x10012549e5c93087599f605beb24ec98adb18d38";
-		// addressTestSeed = "0xacfb08729f456d6955c82da3b58d51c080521706";
-		// addressTestStorage = "0x2eec5a7bb54381e9c9c784f5e9b4b5e1cd4fc694";
-		// addressTestContract = "0x48a861b4555db1cc7656eaa0fb98bcf873d92982";
-		
 		addressTestDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 		addressTestSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
 		addressTestStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
