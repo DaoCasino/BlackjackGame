@@ -359,17 +359,17 @@ contract BlackJack is owned {
 		
         if (isMain && bPlayer) {
             newCard = storageContract.dealCard(Types.DealMethod.Main, player, seed);
-            // Deal(0, newCard);
+            Deal(0, newCard);
         }
 
         if (!isMain && bPlayer) {
             newCard = storageContract.dealCard(Types.DealMethod.Split, player, seed);
-            // Deal(2, newCard);
+            Deal(2, newCard);
         }
 
         if (!bPlayer) {
             newCard = storageContract.dealCard(Types.DealMethod.House, player, seed);
-            // Deal(1, newCard);
+            Deal(1, newCard);
         }
 
         if (bPlayer) {

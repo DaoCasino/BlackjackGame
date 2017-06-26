@@ -77,6 +77,10 @@ var cardType = {0: 'King', 1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5',
 				6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
                 11: 'Jacket', 12: 'Queen'};
 
+var unit = [];
+unit[0] = "Main";
+unit[1] = "House";
+unit[2] = "Split";
 var chipVale = [];
 chipVale[1] = 0.05;
 chipVale[2] = 0.1;
@@ -571,6 +575,15 @@ ScrGame.prototype.createGUI = function() {
 		this.addChild(btnConfirm);
 		this._arButtons.push(btnConfirm);
 	}
+	
+	var btnLog = addButton("btnContract", 280, _H - 80);
+	btnLog.name = "btnLog";
+	btnLog.interactive = true;
+	btnLog.buttonMode=true;
+	btnLog.overSc = true;
+	btnLog.hint2 = 'Show logs';
+	this.addChild(btnLog);
+	this._arButtons.push(btnLog);
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -1919,6 +1932,7 @@ ScrGame.prototype.makeID = function(count){
 ScrGame.prototype.getLogs = function(){
 	var params = {
 		"fromBlock": blockNumber,
+		// "fromBlock": "0x"+numToHex(1190236),
 		"toBlock": "latest",
 		"address": addressContract,
 	}
@@ -1929,20 +1943,27 @@ ScrGame.prototype.showLogs = function(arLogs){
 	if(arLogs == undefined){
 		return false;
 	}
+	var prnt = obj_game["game"];
 	var len = arLogs.length;
 	var index = 0;
 	if(len > 10){
 		index = len-10;
 	}
 	console.log("showLogs: ---------------");
-	// for (var i = index; i < len; i ++) {
-		var obj = arLogs[len-1];
-		// var obj = arLogs[i];
+	for (var i = index; i < len; i ++) {
+		var obj = arLogs[i];
 		if(obj){
-			// console.log("count confirm:", hexToNum(obj.data));
-			console.log("log:", obj.data);
+			var hash = obj.data;
+			if(obj.data.length == 66){
+				// console.log("logId:", i, obj.data);
+			} else {
+				var typeUnit = unit[hexToNum(hash.substring(0,66))];
+				var typeCard = hexToNum(hash.substring(67,130));
+				var typeS = hash.substring(131,194);
+				console.log("dealContract:", typeUnit, typeCard, prnt.getNameCard(typeCard));
+			}
 		}
-	// }
+	}
 }
 
 ScrGame.prototype.getBankrolls = function(){
@@ -2265,6 +2286,9 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 		var s = prnt.makeID();
 		args = [_seed, v, r, s];
 		_seedUsed = _seed;
+		if(options_rpc){
+			console.log("confirmSeed:", s);
+		}
 	}
 	
 	if(name != "confirm"){
@@ -2365,7 +2389,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"player", id:cardIndex});
-			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: Main", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getSplitCard"){
@@ -2374,7 +2398,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerSplitCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"split", id:cardIndex});
-			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: Split", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getHouseCard"){
@@ -2383,7 +2407,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadHouseCard++
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"house", id:cardIndex});
-			// console.log("dealContract:", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: House", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
@@ -2549,7 +2573,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.getBet(false); // todo fixed load bet
 			return false;
 		}
-		console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
+		// console.log("state|idGame:", stateNow, idGame, idOldGame, prnt.startGame);
 		
 		prnt.getBalancePlayer();
 		
@@ -2859,6 +2883,8 @@ ScrGame.prototype.clickCell = function(item_mc) {
 		this.fullscreen();
 	} else if(item_mc.name == "btnConfirm"){
 		this.confirmSeed();
+	} else if(item_mc.name == "btnLog"){
+		this.getLogs();
 	}
 }
 

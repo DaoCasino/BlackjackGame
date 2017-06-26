@@ -32,7 +32,7 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 	this._arMyPoints = [this.myPoints];
 	this._arMySplitPoints = [this.splitPoints];
 	this._arHousePoints = [this.housePoints];
-	
+	console.log("confirmSeed:", _s);
 	var i = 0;
 	var point = 0;
 	for (i = 0; i < _objGame.arMyCards.length; i++) {
@@ -49,7 +49,7 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 	}
 
 	var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
-
+	
 	switch(method){
 		case DEAL:
 			this.dealCard(true, true, seedarr[15]);
@@ -120,15 +120,18 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this._arMyPoints.push(point);
 			this.myPoints = this.getMyPoints();
 			this._arMyCards.push(newCard);
+			console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
 		} else {
 			this._arMySplitPoints.push(point);
 			this.splitPoints = this.getMySplitPoints();
 			this._arMySplitCards.push(newCard);
+			console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
 		}
 	} else {
 		this._arHousePoints.push(point);
 		this.housePoints = this.getHousePoints();;
 		this._arHouseCards.push(newCard);
+		console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
 	}
 }
 
@@ -143,6 +146,24 @@ Contract.prototype.deal = function(cardNumber){
 		// rand = 4;
 	// }
 	return rand;
+}
+
+Contract.prototype.testSeed = function(_s, _method){
+	var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
+	if(_method == DEAL){
+		for(var i = 15; i < 18; i++){
+			var s = seedarr[i];
+			var newCard = this.deal(s);
+			if(i%2 == 0){
+				console.log("dealClient: House", s, newCard, prnt.getNameCard(newCard));
+			} else {
+				console.log("dealClient:Main", s, newCard, prnt.getNameCard(newCard));
+			}
+		}
+	} else if(_method == HIT){
+		var newCard = this.deal(_s);
+		console.log("dealClient: Main", _s, newCard, prnt.getNameCard(newCard));		
+	}
 }
 
 Contract.prototype.getMyPoints = function(){
