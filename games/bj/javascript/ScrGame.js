@@ -190,7 +190,6 @@ ScrGame.prototype.init = function() {
 	this.bg.scale.y = scaleBack;
 	this.addChild(this.bg);
 	
-	// console.log("numToHex:", numToHex(1000000));
 	if(options_rpc){
 		TIME_GET_STATE = 2000;
 		urlEtherscan = "https://ropsten.etherscan.io/";
@@ -198,11 +197,14 @@ ScrGame.prototype.init = function() {
 		addressStorage = addressRpcStorage;
 	}else if(options_testnet){
 		urlEtherscan = "https://ropsten.etherscan.io/";
-		addressContract = addressTestContract;
-		addressStorage = addressTestStorage;
+		if(options_speedgame){
+			addressContract = addressSpeedContract;
+			addressStorage = addressSpeedStorage;
+		} else {
+			addressContract = addressTestContract;
+			addressStorage = addressTestStorage;
+		}
 	}
-	// addressContract = addressBJ;
-	// addressStorage = addressBJStorage;
 	
 	obj_game["game"] = this;
 	obj_game["balance"] = 0;
@@ -245,7 +247,6 @@ ScrGame.prototype.init = function() {
 		this.acceptApprove();
 	}
 	this.getGameId();
-	// infura.ethCall("testNum", _callback, "latest");
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -825,6 +826,7 @@ ScrGame.prototype.showChips = function(value) {
 		var obj = this._arBtnChips[i];
 		obj.alpha = alpha;
 	}
+	
 	if(value && betGame == 0 && _countBankrollers > 0){
 		this.bClear = false;
 		this.bWait = false;
@@ -847,7 +849,7 @@ ScrGame.prototype.showButtons = function(value) {
 		alpha = 1;
 	}
 	
-	if(this._arMyCards.length == 0 && betGame > 0){
+	if(this._arMyCards.length == 0 && betGame > 0){ // TODO fixed first game
 		this.btnStand.visible = true;
 		this.btnStand.alpha = 1;
 		this.btnStart.visible = false;
@@ -1707,6 +1709,7 @@ ScrGame.prototype.clickChip = function(item_mc){
 		prnt.showWndApprove();
 		return false;
 	}
+	prnt.tfApprove.visible = false;
 	
 	if(betGame == 0){
 		prnt.clearChips();
@@ -1977,35 +1980,64 @@ ScrGame.prototype.showLogs = function(arLogs){
 
 ScrGame.prototype.getBankrolls = function(){
 	var prnt = obj_game["game"];
-	
-	$.ajax("https://platform.dao.casino/api/proxy.php?a=bankrolls").done(function (d) {
-        var _arr = JSON.parse(d);
-        if (!_arr) {
-			prnt.showError(ERROR_BANKROLLER);      
-            return;
-        }
+	if(options_speedgame){
+		var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game="+metaCode;
+		prnt.bWait = true;
 		
-		for(var i=0; i< _arr.length; i++){
-			if(_arr[i] == 0x8076cad2113e336e932b99605c759c9a86809634){
-				_haveBankroll = true;
-				break;
+		$.ajax(urlRequest).done(function (d) {
+			var _arr = JSON.parse(d);
+			if (!_arr) {
+				prnt.showError(ERROR_BANKROLLER);      
+				return;
 			}
-		}
-		
-		_countBankrollers = _arr.length;
-		// prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-        
-		if(_haveBankroll){
-			if (_arr.length) {
-				prnt.tfBankrollers.setText("Bankrollers: 1");
-				prnt.showChips(true);
+			
+			for(var i=0; i< _arr.length; i++){
+				if(_arr[i] == 0x570d86f35b62d752b1066fc6eedaab7783bda740 ||
+				_arr[i] == 0x201e9af94fdfd81cb5d387960cc270c5a8c0c698){
+					_haveBankroll = true;
+					break;
+				}
 			}
-		} else {
-			prnt.showError(ERROR_BANKROLLER);     
-			prnt.showChips(false);
+			
+			_countBankrollers = _arr.length;
+			
+			if(_haveBankroll){
+				if (_arr.length) {
+					prnt.showChips(true);
+				}
+			} else {
+				prnt.showError(ERROR_BANKROLLER);     
+				prnt.showChips(false);
+				prnt.showButtons(false);
+			}
+		}).fail(function() {
+			console.log("SERVER FAIL");
+			_haveBankroll = true;
+			_countBankrollers= 1;
+			prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+			addressContract = addressTestContract;
+			addressStorage = addressTestStorage;
+			options_speedgame = false;
+			prnt.bWait = true;
 			prnt.showButtons(false);
-		}
-    });
+			prnt.checkGameState(true);
+			prnt.bBetLoad = false;
+			prnt.getBet(true);
+			prnt.getBet(false);
+			prnt.getGameId();
+			if(stateNow != S_IN_PROGRESS && stateNow != S_IN_PROGRESS_SPLIT){
+				prnt.tfApprove.setText("Speed mode don't work. \n You switched to slow mode.");
+				prnt.tfApprove.visible = true;
+				idOldGame = idGame;
+			} else {
+				idOldGame = idGame - 1;
+			}
+		});
+	} else {
+		_haveBankroll = true;
+		_countBankrollers= 1;
+		prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+	}
 }
 
 ScrGame.prototype.checkResult = function(isMain){
@@ -2214,6 +2246,7 @@ ScrGame.prototype.sendSeed = function(seed) {
 ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
 	prnt.tfStatus.setText("");
+	login_obj["lastGame"] = value;
 	
 	for(var name in value){
 		var obj = value[name];
@@ -2443,21 +2476,22 @@ ScrGame.prototype.response = function(command, value, error) {
 			idOldGame = idGame;
 		}
 	} else if(command == "getPlayerBet"){
-		if(!prnt.bBetLoad){
-			prnt.bBetLoad = true;
-			prnt.bWait = false;
-			if((stateNow == S_IN_PROGRESS ||
-			stateNow == S_IN_PROGRESS_SPLIT)
-			&& prnt.tfStatus){
-				prnt.getSplitCardsNumber();
-				prnt.getPlayerCardsNumber();
-				prnt.getHouseCardsNumber();
-				prnt.loadBet(value);
+		if(!options_speedgame){
+			if(!prnt.bBetLoad){
+				prnt.bBetLoad = true;
+				prnt.bWait = false;
+				if((stateNow == S_IN_PROGRESS ||
+				stateNow == S_IN_PROGRESS_SPLIT) &&
+				Number(hexToNum(value)) > 0
+				&& prnt.tfStatus){
+					prnt.getSplitCardsNumber();
+					prnt.getPlayerCardsNumber();
+					prnt.getHouseCardsNumber();
+					prnt.loadBet(value);
+				} else {
+					prnt.showChips(true);
+				}
 			} else {
-				prnt.showChips(true);
-			}
-		} else {
-			if(!options_speedgame){
 				betGame = Number(hexToNum(value));
 				if(betGame > 0 && prnt._arMyCards.length > 0){
 					prnt.fillChips(betGame);
