@@ -289,7 +289,7 @@ contract BlackJack is owned {
 			// throw;
 		// }
 		
-		// 0x661b656e16e5b9b641d5899cf0fd79bf2fdd5c1c
+		// 0x57be54dd4f4d89cfbaef8cf44c154633ffd835b5
         if (ecrecover(idSeed, _v, _r, _s) != owner) {// ==owner
 			s = _s;
 			usedRandom[idSeed] = true;
