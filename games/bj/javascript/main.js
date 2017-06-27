@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.60";
+var version = "v. 1.0.61";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -31,15 +31,15 @@ var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
-var addressTestDeck = "0x130dd58131a75eba1ec0cc5f0741ae98ac751333";
-var	addressTestSeed = "0xa3cb351187aa2ffe8c5bf9da3a0943ecd3f62e33";
-var	addressTestStorage = "0x02f15d223b71234cf7ddec76e33bbe4f04031385";
-var	addressTestContract = "0x570d86f35b62d752b1066fc6eedaab7783bda740";
+var addressTestDeck = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
+var addressTestSeed = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
+var addressTestStorage = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
+var addressTestContract = "0xeb131eef1a58223802d1c572ee39ebfe2dcb2a67";
 // alpha (speed game)
-// addressTestDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
-// addressTestSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
-// addressTestStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
-// addressTestContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
+var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
+var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
+var	addressSpeedStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
+var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 

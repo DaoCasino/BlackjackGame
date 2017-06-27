@@ -22,7 +22,7 @@ ScrMenu.prototype.init = function() {
 	btnNormal.overSc = true;
 	this.addChild(btnNormal);
 	this._arButtons.push(btnNormal);
-	var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tf = addText("Slow Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnNormal.addChild(tf);
@@ -33,7 +33,7 @@ ScrMenu.prototype.init = function() {
 	btnSpeed.overSc = true;
 	this.addChild(btnSpeed);
 	this._arButtons.push(btnSpeed);
-	var tf = addText("Speed Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
@@ -93,11 +93,6 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		options_speedgame = false;
 		showGame();
 	} else if(item_mc.name == "btnSpeed"){
-		addressTestDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
-		addressTestSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
-		addressTestStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
-		addressTestContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
-		
 		this.removeAllListener();
 		options_speedgame = true;
 		// options_splitdouble = false;
