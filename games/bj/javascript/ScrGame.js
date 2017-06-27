@@ -849,13 +849,13 @@ ScrGame.prototype.showButtons = function(value) {
 		alpha = 1;
 	}
 	
-	if(this._arMyCards.length == 0 && betGame > 0){ // TODO fixed first game
-		this.btnStand.visible = true;
-		this.btnStand.alpha = 1;
-		this.btnStart.visible = false;
-		this.btnClear.visible = false;
-		return;
-	}
+	// if(this._arMyCards.length == 0 && betGame > 0){ // TODO fixed first game
+		// this.btnStand.visible = true;
+		// this.btnStand.alpha = 1;
+		// this.btnStart.visible = false;
+		// this.btnClear.visible = false;
+		// return;
+	// }
 	
 	if(this.startGame){
 		this.btnHit.visible = true;
@@ -1980,6 +1980,7 @@ ScrGame.prototype.showLogs = function(arLogs){
 
 ScrGame.prototype.getBankrolls = function(){
 	var prnt = obj_game["game"];
+	
 	if(options_speedgame){
 		var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game="+metaCode;
 		prnt.bWait = true;
@@ -2000,8 +2001,10 @@ ScrGame.prototype.getBankrolls = function(){
 			}
 			
 			_countBankrollers = _arr.length;
+			prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 			
 			if(_haveBankroll){
+				prnt.bWait = false;
 				if (_arr.length) {
 					prnt.showChips(true);
 				}
