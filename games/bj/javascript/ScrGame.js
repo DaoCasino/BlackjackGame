@@ -1986,6 +1986,7 @@ ScrGame.prototype.getBankrolls = function(){
 		prnt.bWait = true;
 		
 		$.ajax(urlRequest).done(function (d) {
+			prnt.bWait = false;
 			var _arr = JSON.parse(d);
 			if (!_arr) {
 				prnt.showError(ERROR_BANKROLLER);      
@@ -2004,7 +2005,6 @@ ScrGame.prototype.getBankrolls = function(){
 			prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 			
 			if(_haveBankroll){
-				prnt.bWait = false;
 				if (_arr.length) {
 					prnt.showChips(true);
 				}
@@ -2250,6 +2250,7 @@ ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
 	prnt.tfStatus.setText("");
 	login_obj["lastGame"] = value;
+	prnt.bWait = false;
 	
 	for(var name in value){
 		var obj = value[name];
@@ -2482,7 +2483,6 @@ ScrGame.prototype.response = function(command, value, error) {
 		if(!options_speedgame){
 			if(!prnt.bBetLoad){
 				prnt.bBetLoad = true;
-				prnt.bWait = false;
 				if((stateNow == S_IN_PROGRESS ||
 				stateNow == S_IN_PROGRESS_SPLIT) &&
 				Number(hexToNum(value)) > 0
@@ -2612,7 +2612,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			return false;
 		}
 		prnt.getGameId();
-		if(!prnt.bBetLoad){
+		if(!prnt.bBetLoad && !options_speedgame){
 			prnt.bWait = true;
 			prnt.showButtons(false);
 			prnt.getBet(true);
