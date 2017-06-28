@@ -52,6 +52,7 @@ var houseScore = 0;
 var minBet = 5000000;
 var maxBet = 500000000;
 var obj_game = {};
+var objSpeedGame = {result:false, idGame:-1, lastGame:{}, betGame:0, betSplitGame:0};
 var _callback;
 var _mouseX;
 var _mouseY;
@@ -1410,6 +1411,7 @@ ScrGame.prototype.clickDouble = function(){
 		if(this.bSplit){
 			_balancePlSpeed -= betSplitGame;
 			betSplitGame *= 2;
+			objSpeedGame.betSplitGame = betSplitGame;
 			this.bSplitDouble = true;
 			this.fillChips(betSplitGame, "split");
 			var str = String(convertToken(betSplitGame));
@@ -1417,6 +1419,7 @@ ScrGame.prototype.clickDouble = function(){
 		} else {
 			_balancePlSpeed -= betGame;
 			betGame *= 2;
+			objSpeedGame.betGame = betGame;
 			this.bDouble = true;
 			if(this._arMySplitCards.length > 0){
 				this.fillChips(betGame, "main");
@@ -1474,6 +1477,8 @@ ScrGame.prototype.clickSplit = function(){
 	if(options_speedgame){
 		_balancePlSpeed -= betGame;
 		betSplitGame = betGame;
+		objSpeedGame.betGame = betGame;
+		objSpeedGame.betSplitGame = betSplitGame;
 		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
 	}
 }
@@ -1993,25 +1998,35 @@ ScrGame.prototype.getBankrolls = function(){
 				return;
 			}
 			
-			for(var i=0; i< _arr.length; i++){
-				if(_arr[i] == 0x570d86f35b62d752b1066fc6eedaab7783bda740 ||
-				_arr[i] == 0x201e9af94fdfd81cb5d387960cc270c5a8c0c698){
-					_haveBankroll = true;
-					break;
-				}
-			}
+			_haveBankroll = true;
 			
 			_countBankrollers = _arr.length;
 			prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 			
-			if(_haveBankroll){
-				if (_arr.length) {
+			// load speed game
+			if(login_obj["objSpeedGame"]){
+				objSpeedGame = login_obj["objSpeedGame"];
+				if(objSpeedGame.result){
+					objSpeedGame = {result:false, idGame:idGame, lastGame:{}, betGame:0, betSplitGame:0};
 					prnt.showChips(true);
+				} else {
+					prnt.responseServer(objSpeedGame.lastGame);
+					idGame = objSpeedGame.idGame;
+					betGame = objSpeedGame.betGame;
+					betSplitGame = objSpeedGame.betSplitGame;
+					if(betGame > 0){
+						prnt.fillChips(betGame);
+						prnt.tfMyBet.setText(betGame/valToken);
+					}
+					if(betGame > 0 && betSplitGame > 0){
+						prnt.fillChips(betSplitGame, "split");
+						prnt.tfSplitBet.setText(betSplitGame/valToken);
+					}
+					prnt.startGame = true;
+					prnt.showButtons(true);
 				}
 			} else {
-				prnt.showError(ERROR_BANKROLLER);     
-				prnt.showChips(false);
-				prnt.showButtons(false);
+				prnt.showChips(true);
 			}
 		}).fail(function() {
 			console.log("SERVER FAIL");
@@ -2169,6 +2184,12 @@ ScrGame.prototype.checkResult = function(isMain){
 					prnt.startGame = false;
 					prnt.showChips(true);
 				// }
+				objSpeedGame.result = true;
+				objSpeedGame.betGame = 0;
+				objSpeedGame.betSplitGame = 0;
+				
+				login_obj["objSpeedGame"] = objSpeedGame;
+				saveData();
 				
 				prnt.showButtons(false);
 				// prnt.tfStatus.setText(_strWaitBlockchain);
@@ -2202,6 +2223,12 @@ ScrGame.prototype.startGameEth = function(){
 	if(options_speedgame){
 		_balancePlSpeed -= betGame//valToken;
 		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+		objSpeedGame.betGame = betGame;
+		if(objSpeedGame.idGame == -1){
+			objSpeedGame.idGame = idGame;
+		} else {
+			objSpeedGame.idGame ++;
+		}
 	}
 }
 
@@ -2249,8 +2276,12 @@ ScrGame.prototype.sendSeed = function(seed) {
 ScrGame.prototype.responseServer = function(value) {
 	var prnt = obj_game["game"];
 	prnt.tfStatus.setText("");
-	login_obj["lastGame"] = value;
+	// login_obj["lastGame"] = value;
 	prnt.bWait = false;
+	
+	objSpeedGame.lastGame = value;
+	login_obj["objSpeedGame"] = objSpeedGame;
+	saveData();
 	
 	for(var name in value){
 		var obj = value[name];
@@ -2574,7 +2605,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			prnt.tfMyBet.setText(strResult);
 		}
 	} else if(command == "getSplitState"){
-		if(value != "0x"){
+		if(value != "0x" && !options_speedgame){
 			stateSplit = hexToNum(value);
 			if(!prnt.bShowResult){
 				var _x = _W/2 + 200-75;
@@ -2608,7 +2639,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			stateNow = hexToNum(value);
 		}
 		
-		if(!prnt.bApprove || options_debug){
+		if(!prnt.bApprove || options_debug || options_speedgame){
 			return false;
 		}
 		prnt.getGameId();
