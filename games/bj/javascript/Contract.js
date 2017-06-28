@@ -120,18 +120,18 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this._arMyPoints.push(point);
 			this.myPoints = this.getMyPoints();
 			this._arMyCards.push(newCard);
-			console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
+			// console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
 		} else {
 			this._arMySplitPoints.push(point);
 			this.splitPoints = this.getMySplitPoints();
 			this._arMySplitCards.push(newCard);
-			console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
+			// console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
 		}
 	} else {
 		this._arHousePoints.push(point);
 		this.housePoints = this.getHousePoints();;
 		this._arHouseCards.push(newCard);
-		console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
+		// console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
 	}
 }
 
