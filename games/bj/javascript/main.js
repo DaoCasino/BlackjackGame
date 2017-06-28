@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.61";
+var version = "v. 1.0.62";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -911,3 +911,7 @@ function rndSHA3(cardNumber) {
 	
 	return rand;
 }
+
+window.onbeforeunload = function() {
+	return "Data may not be saved. Are you sure you want to reload the page?";
+};
