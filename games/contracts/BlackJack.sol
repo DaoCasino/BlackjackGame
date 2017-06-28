@@ -189,8 +189,8 @@ contract BlackJack is owned {
 	
     function requestInsurance(uint value)
         public
-        betIsInsurance(value) // return in mainet
-        insuranceAvailable // return in mainet
+        // betIsInsurance(value) // return in mainet
+        // insuranceAvailable // return in mainet
     {
 		if (!token.transferFrom(msg.sender, this, value)) {
             throw;
