@@ -586,7 +586,7 @@ ScrGame.prototype.createGUI = function() {
 	btnLog.hint2 = 'Show logs';
 	this.addChild(btnLog);
 	this._arButtons.push(btnLog);
-	// btnLog.visible= false;
+	btnLog.visible= false;
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
