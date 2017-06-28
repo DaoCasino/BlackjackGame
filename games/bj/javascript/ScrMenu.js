@@ -95,7 +95,7 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 	} else if(item_mc.name == "btnSpeed"){
 		this.removeAllListener();
 		options_speedgame = true;
-		// options_splitdouble = false;
+		options_splitdouble = false;
 		showGame();
 	}
 }
