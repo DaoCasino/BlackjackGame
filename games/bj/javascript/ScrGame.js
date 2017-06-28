@@ -31,12 +31,12 @@ var SPLIT = 3;
 var DOUBLE = 4;
 var BLACKJACK = 21;
 
-var C_DEAL = "c959c42b";
-var C_HIT = "2ae3594a";
-var C_SPLIT = "dbceb005";
-var C_STAND = "c2897b10";
+var C_DEAL = "e731240f";
+var C_HIT = "a45939bf";
+var C_SPLIT = "5fe71222";
+var C_STAND = "7018c942";
 var C_INSURANCE = "262b497d";
-var C_DOUBLE = "eee97206";
+var C_DOUBLE = "f086fbfd";
 var C_ALLOWANCE = "dd62ed3e";
 var C_CONFIRM = "b00606a5";
 
@@ -586,7 +586,7 @@ ScrGame.prototype.createGUI = function() {
 	btnLog.hint2 = 'Show logs';
 	this.addChild(btnLog);
 	this._arButtons.push(btnLog);
-	btnLog.visible= false;
+	// btnLog.visible= false;
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
@@ -1493,6 +1493,7 @@ ScrGame.prototype.clickInsurance = function(){
 	if(options_speedgame){
 		_balancePlSpeed -= (0.5*betGame)/valToken;
 		prnt.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
+		prnt.bInsurance = 2;
 	}
 }
 
@@ -1820,11 +1821,13 @@ ScrGame.prototype.showTestEther = function() {
 }
 
 ScrGame.prototype.showInsurance = function() {
-	var price = betGame/2;
-	price = toFixed((convertToken(price)), 4);
-	var str = "Do you want Insurance? \n " + price + " BET.";
-	this.showWndInsurance(str, this.clickInsurance);
-	this.bInsurance = 0;
+	if(!options_speedgame){
+		var price = betGame/2;
+		price = toFixed((convertToken(price)), 4);
+		var str = "Do you want Insurance? \n " + price + " BET.";
+		this.showWndInsurance(str, this.clickInsurance);
+		this.bInsurance = 0;
+	}
 }
 
 ScrGame.prototype.showResult = function(_name, _x, _y) {
@@ -2279,6 +2282,7 @@ ScrGame.prototype.responseServer = function(value) {
 	// login_obj["lastGame"] = value;
 	prnt.bWait = false;
 	
+	objSpeedGame.result = false;
 	objSpeedGame.lastGame = value;
 	login_obj["objSpeedGame"] = objSpeedGame;
 	saveData();
