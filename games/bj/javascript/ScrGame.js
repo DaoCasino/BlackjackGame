@@ -2121,7 +2121,7 @@ ScrGame.prototype.checkResult = function(isMain){
 			strResult = "-"+String(bet);
 			if(isMain){
 				prnt._gameEnd = true;
-				prnt._arHouseCards.push(Math.floor(Math.random(51)));
+				// prnt._arHouseCards.push(Math.floor(Math.random(51)));
 			}
         }
 		if (points == prnt.housePoints && str=="") {
@@ -2179,6 +2179,7 @@ ScrGame.prototype.checkResult = function(isMain){
 				prnt.bWait = false;
 				prnt.bShowResult = true;
 				prnt.getBalanceBank();
+				sessionIsOver = true;
 				
 				// if(options_debug){
 					prnt.bWait = false;
@@ -2224,6 +2225,7 @@ ScrGame.prototype.startGameEth = function(){
 		infura.sendRequest("deal", openkey, _callback);
 	}
 	if(options_speedgame){
+		sessionIsOver = false;
 		_balancePlSpeed -= betGame//valToken;
 		this.tfBalance.setText(convertToken(_balancePlSpeed) + " BET");
 		objSpeedGame.betGame = betGame;
