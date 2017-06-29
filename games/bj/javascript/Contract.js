@@ -29,23 +29,31 @@ Contract.prototype.confirmSeed = function(_s, method, _objGame, isMain){
 	this._arMyCards = [];
 	this._arMySplitCards = [];
 	this._arHouseCards = [];
-	this._arMyPoints = [this.myPoints];
-	this._arMySplitPoints = [this.splitPoints];
-	this._arHousePoints = [this.housePoints];
+	this._arMyPoints = [];
+	this._arMySplitPoints = [];
+	this._arHousePoints = [];
 	// console.log("confirmSeed:", _s);
+	
 	var i = 0;
+	var id = 0;
 	var point = 0;
 	for (i = 0; i < _objGame.arMyCards.length; i++) {
-		point = _objGame.arMyCards[i].id;
-		this._arMyCards.push(point);
+		id = _objGame.arMyCards[i].id;
+		point = _objGame.arMyCards[i].point;
+		this._arMyCards.push(id);
+		this._arMyPoints.push(point);
 	}
 	for (i = 0; i < _objGame.arMySplitCards.length; i++) {
-		point = _objGame.arMySplitCards[i].id;
-		this._arMySplitCards.push(point);
+		id = _objGame.arMySplitCards[i].id;
+		point = _objGame.arMySplitCards[i].point;
+		this._arMySplitCards.push(id);
+		this._arMySplitPoints.push(point);
 	}
 	for (i = 0; i < _objGame.arHouseCards.length; i++) {
-		point = _objGame.arHouseCards[i].id;
-		this._arHouseCards.push(point);
+		id = _objGame.arHouseCards[i].id;
+		point = _objGame.arHouseCards[i].point;
+		this._arHouseCards.push(id);
+		this._arHousePoints.push(point);
 	}
 
 	var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
@@ -85,7 +93,7 @@ Contract.prototype.stand = function(isMain, s){
 	}
 	
 	if(this.myPoints > BLACKJACK &&
-	(this._arMySplitCards.lenth == 0 ||
+	(this._arMySplitCards.length == 0 ||
 	this.splitPoints > BLACKJACK)){
 		this.dealCard(false, true, s[15]);
 	} else {
@@ -121,6 +129,10 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this.myPoints = this.getMyPoints();
 			this._arMyCards.push(newCard);
 			// console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
+			if(this.myPoints > BLACKJACK){
+				var seedarr = ABI.rawEncode([ "bytes32" ], [ seed ]);
+				this.stand(isMain, seedarr);
+			}
 		} else {
 			this._arMySplitPoints.push(point);
 			this.splitPoints = this.getMySplitPoints();
@@ -177,7 +189,6 @@ Contract.prototype.getMyPoints = function(){
 			countAce ++;
 		}
 	}
-	
 	while(myPoints > 21 && countAce > 0){
 		countAce --;
 		myPoints -= 10;

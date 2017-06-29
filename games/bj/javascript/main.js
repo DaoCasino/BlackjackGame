@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.62";
+var version = "v. 1.0.63";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -12,6 +12,7 @@ var LoadPercent = null;
 var startTime;
 var renderer, stage, preloader; // pixi;
 var sprites_loaded = false;
+var sessionIsOver = true;
 var infura, soundManager, ks, sendingAddr;
 var passwordUser = "1234";
 var fontMain = "Arial";
@@ -913,5 +914,7 @@ function rndSHA3(cardNumber) {
 }
 
 window.onbeforeunload = function() {
-	return "Data may not be saved. Are you sure you want to reload the page?";
+	if(!sessionIsOver){
+		return "Data may not be saved. Are you sure you want to reload the page?";
+	}
 };
