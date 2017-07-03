@@ -51,6 +51,10 @@ contract BlackJack is owned {
         uint8 _type, // 0 - player, 1 - house, 2 - split player
         uint8 _card
     );
+    event Result(
+		uint8 _type,
+        uint8 _res // 0 - lose, 1 - push, 2 - win
+    );
 	
 
     /*
@@ -404,21 +408,25 @@ contract BlackJack is owned {
 		
         if (storageContract.getHouseScore(player) == BLACKJACK && storageContract.getPlayerScore(isMain, player) == BLACKJACK) {
             onTie(isMain, finishGame, idSeed);
+			// Result(1,1);
             return;
         }
 
         if (storageContract.getHouseScore(player) == BLACKJACK && storageContract.getPlayerScore(isMain, player) != BLACKJACK) {
             onHouseWon(isMain, finishGame, idSeed);
+			// Result(0,0);
             return;
         }
 
         if (storageContract.getPlayerScore(isMain, player) == BLACKJACK) {
             onPlayerWon(isMain, finishGame, idSeed);
+			// Result(2,2);
             return;
         }
 
         if (storageContract.getPlayerScore(isMain, player) > BLACKJACK) {
             onHouseWon(isMain, finishGame, idSeed);
+			// Result(0,0);
             return;
         }
 
@@ -429,15 +437,18 @@ contract BlackJack is owned {
 
         if (playerShortage == houseShortage) {
             onTie(isMain, finishGame, idSeed);
+			// Result(1,1);
             return;
         }
 
         if (playerShortage > houseShortage) {
             onHouseWon(isMain, finishGame, idSeed);
+			// Result(0,0);
             return;
         }
 
         onPlayerWon(isMain, finishGame, idSeed);
+		// Result(2,2);
     }
 
     /*

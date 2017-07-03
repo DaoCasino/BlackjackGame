@@ -5,3 +5,7 @@ games/contractsNew/owned.sol
 games/contractsNew/Migrations.sol
 games/contractsNew/ERC20.sol
 games/contractsNew/Deck.sol
+games/raiden/ChannelManagerContract.sol
+games/raiden/ChannelManagerLibrary.sol
+games/raiden/_Channel.sol
+games/raiden/Token.sol

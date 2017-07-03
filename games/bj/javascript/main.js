@@ -26,9 +26,9 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x4da4e49a39d70797a454a697ddb08fa6201cd145";
-var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
-var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
+var	addressRpcErc = "0x084294104f8078b27e50f3292132f33d3fb8921b";
+var	addressRpcStorage = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
+var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
@@ -41,6 +41,11 @@ var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
 var	addressSpeedStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
 var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
+// TEST
+// addressSpeedDeck = "0x29f3c70331ad270f629ca7ace81f5b0e32874d8a";
+// addressSpeedSeed = "0xfe760a910b72db2cf57070f764aa2cb501435516";
+// addressSpeedStorage = "0xdcf7946b9a155f2db5974bd7eb0053f907c5e976";
+// addressSpeedContract = "0xa0232c175ab3d6ec47bd160cfd6634fa802438f5";
 
 var addressCurErc = "";
 
@@ -51,7 +56,7 @@ var options_mainet = false;
 var options_ropsten = true;
 var options_rinkeby = false;
 var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = false;
+var options_rpc = true;
 var options_music = true;
 var options_sound = true;
 var options_mobile = true;
@@ -407,7 +412,7 @@ function update() {
 }
 
 function saveData() {
-	if(isLocalStorageAvailable()){
+	if(isLocalStorageAvailable() && !options_rpc){
 		var login_str = JSON.stringify(login_obj);
 		localStorage.setItem('daocasino_blackjack', login_str);
 		localStorage.setItem('options_music', options_music);
