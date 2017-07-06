@@ -15,38 +15,28 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
-	var btnNormal = addButton("btnDefault", _W/2, _H/2+100);
-	btnNormal.name = "btnNormal";
-	btnNormal.interactive = true;
-	btnNormal.buttonMode=true;
-	btnNormal.overSc = true;
-	this.addChild(btnNormal);
-	this._arButtons.push(btnNormal);
-	var tf = addText("Slow Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
-	tf.x = 0;
-	tf.y = -tf.height/2;
-	btnNormal.addChild(tf);
-	var btnSpeed = addButton("btnDefault", _W/2, _H/2+235);
+	// var btnNormal = addButton("btnDefault", _W/2, _H/2+100);
+	// btnNormal.name = "btnNormal";
+	// btnNormal.interactive = true;
+	// btnNormal.buttonMode=true;
+	// btnNormal.overSc = true;
+	// this.addChild(btnNormal);
+	// this._arButtons.push(btnNormal);
+	// var tf = addText("Slow Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	// tf.x = 0;
+	// tf.y = -tf.height/2;
+	// btnNormal.addChild(tf);
+	var btnSpeed = addButton("btnDefault", _W/2, _H/2+100);
 	btnSpeed.name = "btnSpeed";
 	btnSpeed.interactive = true;
 	btnSpeed.buttonMode=true;
 	btnSpeed.overSc = true;
 	this.addChild(btnSpeed);
 	this._arButtons.push(btnSpeed);
-	var tf = addText("Normal Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tf = addText("START", 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
-	
-	var fontSize = 28;
-	var tfNormal = addText("(Beta version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	tfNormal.x = _W/2 + 180;
-	tfNormal.y = btnNormal.y - tfNormal.height/2;
-	this.addChild(tfNormal);
-	var tfSpeed = addText("(Alpha version)", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	tfSpeed.x = tfNormal.x;
-	tfSpeed.y = btnSpeed.y - tfSpeed.height/2;
-	this.addChild(tfSpeed);
 	
 	// btnSpeed.visible = false;
 	// btnSpeed.visible = false;
@@ -97,6 +87,7 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		options_speedgame = true;
 		options_splitdouble = false;
 		showGame();
+		// showSpeedGame();
 	}
 }
 

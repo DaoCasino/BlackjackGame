@@ -7,6 +7,7 @@ var urlInfura = "https://mainnet.infura.io/JCnK5ifEPH9qcQkX0Ahl";
 var gThis;
 var repeatRequest = 0;
 var INSURANCE = -1;
+var CONFIRM = 5;
 
 var nameCall = {getPlayerBet:"f8aec9f5",
 				getSplitBet:"f8aec9f5",
@@ -84,7 +85,8 @@ Infura.prototype.sendRequest = function(name, params, callback, seed, currentMet
 									"params":arParams,
 									"id":1}),
 			success: function (d) {
-				if(method == "eth_sendRawTransaction" && d.result && currentMethod != INSURANCE){
+				if(method == "eth_sendRawTransaction" && d.result && 
+				currentMethod != INSURANCE && currentMethod != CONFIRM){
 					gThis.sendRequestServer("responseServer", d.result, callback, seed);
 				}
 				callback(name, d.result, d.error);
@@ -147,12 +149,17 @@ Infura.prototype.sendRequestServer = function(name, txid, callback, seed){
 		return false;
 	}
 	repeatRequest = 0;
-	var url = "https://platform.dao.casino/api/proxy.php?a=roll&";
-	$.get(url+"txid="+txid+"&vconcat="+seed+"&address="+addressContract, 
-		function(d){
-			gThis.speedGame(name, seed, callback);
-		}
-	);
+	if(options_rpc){
+		console.log(name, seed);
+		callback(name, seed);
+	} else {
+		var url = "https://platform.dao.casino/api/proxy.php?a=roll&";
+		$.get(url+"txid="+txid+"&vconcat="+seed+"&address="+addressContract, 
+			function(d){
+				gThis.speedGame(name, seed, callback);
+			}
+		);
+	}
 }
 
 Infura.prototype.speedGame = function(name, seed, callback){

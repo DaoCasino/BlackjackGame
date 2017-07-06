@@ -128,7 +128,7 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this._arMyPoints.push(point);
 			this.myPoints = this.getMyPoints();
 			this._arMyCards.push(newCard);
-			// console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
+			console.log("dealClient: Main", newCard, prnt.getNameCard(newCard));
 			if(this.myPoints > BLACKJACK){
 				var seedarr = ABI.rawEncode([ "bytes32" ], [ seed ]);
 				this.stand(isMain, seedarr);
@@ -137,19 +137,21 @@ Contract.prototype.dealCard = function(player, isMain, seed){
 			this._arMySplitPoints.push(point);
 			this.splitPoints = this.getMySplitPoints();
 			this._arMySplitCards.push(newCard);
-			// console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
+			console.log("dealClient: Split", newCard, prnt.getNameCard(newCard));
 		}
 	} else {
 		this._arHousePoints.push(point);
 		this.housePoints = this.getHousePoints();;
 		this._arHouseCards.push(newCard);
-		// console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
+		console.log("dealClient: House", newCard, prnt.getNameCard(newCard));
 	}
 }
 
 Contract.prototype.deal = function(cardNumber){	
 	var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
-	hash = hash.substr(hash.length-2, hash.length)
+	if(!options_rpc){
+		hash = hash.substr(hash.length-2, hash.length) // uint8
+	}
 	var rand = bigInt(hash,16).divmod(52).remainder.value;
 	// rand = 29;
 	// rand = 21;

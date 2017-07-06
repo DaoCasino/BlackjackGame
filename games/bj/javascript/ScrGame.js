@@ -29,6 +29,7 @@ var HIT = 1;
 var STAND = 2;
 var SPLIT = 3;
 var DOUBLE = 4;
+var CONFIRM = 5;
 var BLACKJACK = 21;
 
 var C_DEAL = "e731240f";
@@ -253,9 +254,9 @@ ScrGame.prototype.init = function() {
 		this.showError(ERROR_KEY, showHome);
 	}
 	
-	for(var i=0; i<52; i++){
-		this.getCard(i);
-	}
+	// for(var i=0; i<52; i++){
+		// this.getCard(i);
+	// }
 
 	this.interactive = true;
 	this.on('mousedown', this.touchHandler);
@@ -1501,6 +1502,7 @@ ScrGame.prototype.confirmSeed = function(){
 	if(options_rpc && _seed == _seedUsed){
 		return false;
 	}
+	
 	if(_seed != ""){
 		infura.sendRequest("confirm", openkey, _callback);
 	}
@@ -1981,6 +1983,7 @@ ScrGame.prototype.showLogs = function(arLogs){
 				var typeCard = hexToNum(hash.substring(67,130));
 				var typeS = hash.substring(131,194);
 				console.log("dealContract:", typeUnit, typeCard, prnt.getNameCard(typeCard));
+				// console.log("Result:", hexToNum(hash.substring(0,66)));
 			}
 		}
 	}
@@ -2363,15 +2366,18 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 			}
 		}
 	} else if(name == "confirm"){
+		_currentMethod = CONFIRM;
 		data = "0x"+C_CONFIRM;
 		var v = 27;
 		var r = prnt.makeID();
 		var s = prnt.makeID();
-		args = [_seed, v, r, s];
-		_seedUsed = _seed;
 		if(options_rpc){
-			console.log("confirmSeed:", s);
+			args = [_seed, v, r, _seed];
+			console.log("confirm", _seed);
+		} else {
+			args = [_seed, v, r, s];
 		}
+		_seedUsed = _seed;
 	}
 	
 	if(name != "confirm"){
@@ -2404,6 +2410,7 @@ ScrGame.prototype.responseTransaction = function(name, value) {
 					prnt.showError(ERROR_BUF);
 					return false;
 				}
+				
 				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
 				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
 				infura.sendRequest(nameRequest, params, _callback, seed, _currentMethod);
@@ -2472,7 +2479,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"player", id:cardIndex});
-			// console.log("dealContract: Main", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: Main", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getSplitCard"){
@@ -2481,7 +2488,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadPlayerSplitCard++;
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"split", id:cardIndex});
-			// console.log("dealContract: Split", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: Split", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getHouseCard"){
@@ -2490,7 +2497,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			loadHouseCard++
 			prnt.timeNewCard = 1000;
 			prnt._arNewCards.push({type:"house", id:cardIndex});
-			// console.log("dealContract: House", cardIndex, prnt.getNameCard(cardIndex));
+			console.log("dealContract: House", cardIndex, prnt.getNameCard(cardIndex));
 			prnt.bWait = false;
 		}
 	} else if(command == "getPlayerCardsNumber"){
@@ -2645,7 +2652,7 @@ ScrGame.prototype.response = function(command, value, error) {
 			stateNow = hexToNum(value);
 		}
 		
-		if(!prnt.bApprove || options_debug || options_speedgame){
+		if(!prnt.bApprove || options_debug || (options_speedgame/*&& !options_rpc*/)){
 			return false;
 		}
 		prnt.getGameId();

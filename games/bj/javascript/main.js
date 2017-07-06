@@ -1,13 +1,13 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.63";
+var version = "v. 1.0.64";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
 var dataMovie = [];
 var openkey, privkey, mainet;
 var currentScreen, scrContainer;
-var ScreenMenu, ScreenGame, ScreenLevels, ScreenTest;
+var ScreenMenu, ScreenGame, ScreenSpeedGame, ScreenTest;
 var LoadPercent = null;
 var startTime;
 var renderer, stage, preloader; // pixi;
@@ -26,9 +26,9 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x4da4e49a39d70797a454a697ddb08fa6201cd145";
-var	addressRpcStorage = "0x9e959b7e5bc0c75f2c9597b2bcfc2f27325bdd11";
-var	addressRpcContract = "0xd33ab9acbec1c16ef20d1526e7525231db679b12";
+var	addressRpcErc = "0x084294104f8078b27e50f3292132f33d3fb8921b";
+var	addressRpcStorage = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
+var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
@@ -41,6 +41,11 @@ var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
 var	addressSpeedStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
 var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
+// TEST
+// addressSpeedDeck = "0x29f3c70331ad270f629ca7ace81f5b0e32874d8a";
+// addressSpeedSeed = "0xfe760a910b72db2cf57070f764aa2cb501435516";
+// addressSpeedStorage = "0xdcf7946b9a155f2db5974bd7eb0053f907c5e976";
+// addressSpeedContract = "0xa0232c175ab3d6ec47bd160cfd6634fa802438f5";
 
 var addressCurErc = "";
 
@@ -285,7 +290,9 @@ function handleComplete(evt) {
 		options_mainet = false;
 	}
 	options_testnet = !options_mainet;
-	if(options_rpc){
+	if(options_debug){
+		version = version + " debug"
+	} else if(options_rpc){
 		version = version + " testrpc"
 	} else if(options_testnet){
 		version = version + " testnet"
@@ -371,14 +378,37 @@ function copyToClipboard(value) {
   window.prompt("Copy to clipboard: Ctrl+C", value);
 }
 
+function makeID(){
+	var count = 64;
+	var str = "0x";
+	var possible = "abcdef0123456789";
+	var t = String(getTimer());
+	count -= t.length;
+	str += t;
+
+	for( var i=0; i < count; i++ ){
+		str += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	
+	if(!options_rpc){
+		str = "0x" + web3_sha3(numToHex(str));
+	}
+	
+	return str;
+}
+
+function msgID(){
+	return new Date().getTime()
+}
+
 function removeAllScreens() {
 	if(ScreenGame){
 		scrContainer.removeChild(ScreenGame);
 		ScreenGame = null;
 	}
-	if(ScreenLevels){
-		scrContainer.removeChild(ScreenLevels);
-		ScreenLevels = null;
+	if(ScreenSpeedGame){
+		scrContainer.removeChild(ScreenSpeedGame);
+		ScreenSpeedGame = null;
 	}
 	if(ScreenMenu){
 		scrContainer.removeChild(ScreenMenu);
@@ -401,13 +431,16 @@ function update() {
 		if (ScreenGame) {
 			ScreenGame.update(diffTime);
 		}
+		if (ScreenSpeedGame) {
+			ScreenSpeedGame.update(diffTime);
+		}
 		
 		startTime = getTimer();
 	}
 }
 
 function saveData() {
-	if(isLocalStorageAvailable()){
+	if(isLocalStorageAvailable() && !options_rpc){
 		var login_str = JSON.stringify(login_obj);
 		localStorage.setItem('daocasino_blackjack', login_str);
 		localStorage.setItem('options_music', options_music);
@@ -520,6 +553,7 @@ function start() {
 		stage.removeChild(LoadBack);
 	}
 	addScreen("menu");
+	// addScreen("speedgame");
 }
 
 function showMenu() {
@@ -527,6 +561,9 @@ function showMenu() {
 }
 function showGame() {
 	addScreen("game");
+}
+function showSpeedGame() {
+	addScreen("speedgame");
 }
 function showLevels() {
 	addScreen("levels");
@@ -546,14 +583,14 @@ function addScreen(name) {
 		ScreenGame = new ScrGame();
 		scrContainer.addChild(ScreenGame);
 		currentScreen = ScreenGame;
+	} else if(name == "speedgame"){
+		ScreenSpeedGame = new ScrSpeedGame();
+		scrContainer.addChild(ScreenSpeedGame);
+		currentScreen = ScreenSpeedGame;
 	} else if(name == "menu"){
 		ScreenMenu = new ScrMenu();
 		scrContainer.addChild(ScreenMenu);
 		currentScreen = ScreenMenu;
-	} else if(name == "levels"){
-		ScreenLevels = new ScrLevels();
-		scrContainer.addChild(ScreenLevels);
-		currentScreen = ScreenLevels;
 	} else if(name == "test"){
 		ScreenTest = new ScrTest();
 		scrContainer.addChild(ScreenTest);
