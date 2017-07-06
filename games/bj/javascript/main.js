@@ -1,13 +1,13 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.63";
+var version = "v. 1.0.64";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
 var dataMovie = [];
 var openkey, privkey, mainet;
 var currentScreen, scrContainer;
-var ScreenMenu, ScreenGame, ScreenLevels, ScreenTest;
+var ScreenMenu, ScreenGame, ScreenSpeedGame, ScreenTest;
 var LoadPercent = null;
 var startTime;
 var renderer, stage, preloader; // pixi;
@@ -56,7 +56,7 @@ var options_mainet = false;
 var options_ropsten = true;
 var options_rinkeby = false;
 var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = true;
+var options_rpc = false;
 var options_music = true;
 var options_sound = true;
 var options_mobile = true;
@@ -290,7 +290,9 @@ function handleComplete(evt) {
 		options_mainet = false;
 	}
 	options_testnet = !options_mainet;
-	if(options_rpc){
+	if(options_debug){
+		version = version + " debug"
+	} else if(options_rpc){
 		version = version + " testrpc"
 	} else if(options_testnet){
 		version = version + " testnet"
@@ -376,14 +378,37 @@ function copyToClipboard(value) {
   window.prompt("Copy to clipboard: Ctrl+C", value);
 }
 
+function makeID(){
+	var count = 64;
+	var str = "0x";
+	var possible = "abcdef0123456789";
+	var t = String(getTimer());
+	count -= t.length;
+	str += t;
+
+	for( var i=0; i < count; i++ ){
+		str += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	
+	if(!options_rpc){
+		str = "0x" + web3_sha3(numToHex(str));
+	}
+	
+	return str;
+}
+
+function msgID(){
+	return new Date().getTime()
+}
+
 function removeAllScreens() {
 	if(ScreenGame){
 		scrContainer.removeChild(ScreenGame);
 		ScreenGame = null;
 	}
-	if(ScreenLevels){
-		scrContainer.removeChild(ScreenLevels);
-		ScreenLevels = null;
+	if(ScreenSpeedGame){
+		scrContainer.removeChild(ScreenSpeedGame);
+		ScreenSpeedGame = null;
 	}
 	if(ScreenMenu){
 		scrContainer.removeChild(ScreenMenu);
@@ -405,6 +430,9 @@ function update() {
 	if(diffTime > 29){
 		if (ScreenGame) {
 			ScreenGame.update(diffTime);
+		}
+		if (ScreenSpeedGame) {
+			ScreenSpeedGame.update(diffTime);
 		}
 		
 		startTime = getTimer();
@@ -525,6 +553,7 @@ function start() {
 		stage.removeChild(LoadBack);
 	}
 	addScreen("menu");
+	// addScreen("speedgame");
 }
 
 function showMenu() {
@@ -532,6 +561,9 @@ function showMenu() {
 }
 function showGame() {
 	addScreen("game");
+}
+function showSpeedGame() {
+	addScreen("speedgame");
 }
 function showLevels() {
 	addScreen("levels");
@@ -551,14 +583,14 @@ function addScreen(name) {
 		ScreenGame = new ScrGame();
 		scrContainer.addChild(ScreenGame);
 		currentScreen = ScreenGame;
+	} else if(name == "speedgame"){
+		ScreenSpeedGame = new ScrSpeedGame();
+		scrContainer.addChild(ScreenSpeedGame);
+		currentScreen = ScreenSpeedGame;
 	} else if(name == "menu"){
 		ScreenMenu = new ScrMenu();
 		scrContainer.addChild(ScreenMenu);
 		currentScreen = ScreenMenu;
-	} else if(name == "levels"){
-		ScreenLevels = new ScrLevels();
-		scrContainer.addChild(ScreenLevels);
-		currentScreen = ScreenLevels;
 	} else if(name == "test"){
 		ScreenTest = new ScrTest();
 		scrContainer.addChild(ScreenTest);

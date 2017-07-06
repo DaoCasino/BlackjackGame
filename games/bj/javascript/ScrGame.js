@@ -254,9 +254,9 @@ ScrGame.prototype.init = function() {
 		this.showError(ERROR_KEY, showHome);
 	}
 	
-	for(var i=0; i<52; i++){
-		this.getCard(i);
-	}
+	// for(var i=0; i<52; i++){
+		// this.getCard(i);
+	// }
 
 	this.interactive = true;
 	this.on('mousedown', this.touchHandler);
@@ -587,7 +587,7 @@ ScrGame.prototype.createGUI = function() {
 	btnLog.hint2 = 'Show logs';
 	this.addChild(btnLog);
 	this._arButtons.push(btnLog);
-	// btnLog.visible= false;
+	btnLog.visible= false;
 	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
