@@ -13,7 +13,6 @@ contract DaoChannel is owned {
 	
 	struct Channel {
         address player;
-        address partner;
 		
         uint balance;
         
@@ -30,22 +29,18 @@ contract DaoChannel is owned {
         token = ERC20(tokenAddress);
     }
 	
-	function newChannel(address partner, uint deposit) {
-		token.transfer(this, deposit);
-		
+	function newChannel(uint deposit) {
 		allChannels[msg.sender] = Channel({
-            player: msg.sender,
-            partner: partner,
+            player:  msg.sender,
             balance: deposit,
-            open: true
+            open:    true
         });
+		
+		token.transferFrom(msg.sender, this, deposit); 
 	}
 	
 	function closeChannel(address player, uint value, bool add) {
 	    if(!allChannels[player].open){
-	        throw;
-	    }
-	    if(value > allChannels[player].balance){
 	        throw;
 	    }
 		uint profit;
@@ -54,8 +49,10 @@ contract DaoChannel is owned {
 		} else {
 			profit = allChannels[player].balance - value;
 		}
-		token.transfer(player, profit);
+		
 		allChannels[player].open = false;
+		
+		token.transfer(player, profit);
 	}
 	
 	function getOpenChannel(address player)
@@ -63,6 +60,7 @@ contract DaoChannel is owned {
         constant
         returns (bool)
     {
-	    return allChannels[player].open;
-	}
+        if(player==0){ player = msg.sender; }
+        return allChannels[player].open;
+    }
 }

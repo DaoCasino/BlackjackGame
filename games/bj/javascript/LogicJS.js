@@ -342,11 +342,11 @@ var LogicJS = function(params){
 			if(isMain){
 				_objResult.main = state;
 				_objResult.betMain = betWin;
-				console.log("result: Main", state, "_money = "+betWin);
+				// console.log("result: Main", state, "_money = "+betWin);
 			} else {
 				_objResult.split = state;
 				_objResult.betSplit = betWin;
-				console.log("result: Split", state, "_money = "+betWin);
+				// console.log("result: Split", state, "_money = "+betWin);
 			}
 		}
 	}

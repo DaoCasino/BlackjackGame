@@ -36,16 +36,12 @@ var addressTestDeck = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
 var addressTestSeed = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
 var addressTestStorage = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
 var addressTestContract = "0xeb131eef1a58223802d1c572ee39ebfe2dcb2a67";
+addressTestContract = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
 // alpha (speed game)
 var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
 var	addressSpeedStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
 var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
-// TEST
-// addressSpeedDeck = "0x29f3c70331ad270f629ca7ace81f5b0e32874d8a";
-// addressSpeedSeed = "0xfe760a910b72db2cf57070f764aa2cb501435516";
-// addressSpeedStorage = "0xdcf7946b9a155f2db5974bd7eb0053f907c5e976";
-// addressSpeedContract = "0xa0232c175ab3d6ec47bd160cfd6634fa802438f5";
 
 var addressCurErc = "";
 
@@ -350,7 +346,7 @@ function get_normal_time(ms){
 */
 function toFixed(value, precision){
 	precision = Math.pow(10, precision);
-	return Math.round(value * precision) / precision;
+	return Math.floor(value * precision) / precision;
 }
 
 function numToHex(num) {
