@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.0.64";
+var version = "v. 1.0.65";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -869,6 +869,12 @@ function jiggle(t){
 function convertToken(value){
 	var val = value/valToken;
 	return val;
+}
+function roundBet(a){
+	var b = a % 5;
+	b && (a = a - b + 5);
+
+	return (a/100).toFixed(2)
 }
 function rad(qdeg){
 	return qdeg * (Math.PI / 180);

@@ -130,6 +130,7 @@ WndBank.prototype.scrollHead = function(evt){
 	var minBet = 0;
 	this._curBet = sc*this._maxBet;
 	var value = toFixed(convertToken(this._curBet), 2);
+	value = roundBet(value*100)
 	this._curBet = value*valToken;
 	this.tfBet.setText(String(value) + " BET");
 }
