@@ -152,12 +152,12 @@ ScrSpeedGame.prototype.init = function() {
 	// this.callback = this.responseServer;
 	// _logic = new LogicJS(this);
 	
-	this.getAllowance();
-	if(_bApprove){
+	// this.getAllowance();
+	// if(_bApprove){
 		this.getBankrolls();
-	} else {
-		this.acceptApprove();
-	}
+	// } else {
+		// this.acceptApprove();
+	// }
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -183,7 +183,8 @@ ScrSpeedGame.prototype.createGUI = function() {
 	var icoEthereum = addObj("icoEthereum", 40, 40+stepY*1, scGui);
 	icoEthereum.interactive = true;
 	icoEthereum._selected=false;
-	icoEthereum.hint = '';
+	icoEthereum.disabled=false;
+	icoEthereum.hint2 = '0 BET';
 	this.icoEthereum = icoEthereum;
 	this._arButtons.push(icoEthereum);
 	this.face_mc.addChild(icoEthereum);
@@ -285,7 +286,7 @@ ScrSpeedGame.prototype.createText = function() {
 	this.tfHousePoints.x = this.tfMyPoints.x;
 	this.tfHousePoints.y = _H/2-285;
 	this.face_mc.addChild(this.tfHousePoints);
-	this.tfApprove = addText("Wait. Approve contract.", 50, "#FCB70F", "#4F3904", "center", 600, 4);
+	this.tfApprove = addText("", 50, "#FCB70F", "#4F3904", "center", 600, 4);
 	this.tfApprove.x = _W/2;
 	this.tfApprove.y = _H/2 - 35;
 	this.face_mc.addChild(this.tfApprove);
@@ -432,17 +433,28 @@ ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 	_curWindow = _wndInsurance;
 }
 
-ScrSpeedGame.prototype.showWndBank = function(callback) {
+ScrSpeedGame.prototype.showWndBank = function() {
 	if(_wndBank == undefined){
-		_wndBank = new WndBank(this, _balance);
+		_wndBank = new WndBank(_prnt, _balance);
 		_wndBank.x = _W/2;
 		_wndBank.y = _H/2;
-		this.face_mc.addChild(_wndBank);
+		_prnt.face_mc.addChild(_wndBank);
 	}
 	
 	var str = "Select the amount of BET \n you are ready to play.";
 	_bWindow = true;
-	_wndBank.show(str, callback)
+	_wndBank.show(str, function(value){
+				_balanceSession = value;
+				_balance -= _balanceSession;
+				_prnt.refreshBalance();
+				// init logic
+				_prnt.prnt = _prnt;
+				_prnt.balance = _balanceSession;
+				_prnt.callback = _prnt.responseServer;
+				_logic = new LogicJS(_prnt);
+				
+				_prnt.openChannel();
+			}, _balance)
 	_wndBank.visible = true;
 	_curWindow = _wndBank;
 }
@@ -529,19 +541,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 				_prnt.showButtons(true);
 			}
 		} else {*/
-			_prnt.showWndBank(function(value){
-				_balanceSession = value;
-				_balance -= _balanceSession;
-				_prnt.refreshBalance();
-				_prnt.showChips(true);
-				// init logic
-				_prnt.prnt = _prnt;
-				_prnt.balance = _balanceSession;
-				_prnt.callback = _prnt.responseServer;
-				_logic = new LogicJS(_prnt);
-				
-				_prnt.openChannel();
-			});
+			_prnt.showWndBank();
 		// }
 	}).fail(function() {
 		_prnt.tfApprove.setText("Speed mode don't work. \n Try later.");
@@ -553,10 +553,13 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 
 ScrSpeedGame.prototype.openChannel = function(){
 	if(!options_debug){
-		console.log('openChannel:', convertToken(_balanceSession));
-		Casino.startGame(addressContract, convertToken(_balanceSession), function(result){
+		_prnt.tfApprove.setText("Please wait. \n Send BETs into the game");
+		_prnt.tfApprove.visible = true;
+		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(result){
 			_bOpenChannel = true;
-			this.isCashoutAvailable();
+			_prnt.isCashoutAvailable();
+			_prnt.showChips(true);
+			_prnt.tfApprove.visible = false;
 		});
 	}
 }
@@ -565,10 +568,20 @@ ScrSpeedGame.prototype.closeChannel = function() {
 	if(_bOpenChannel && _objSpeedGame.result && !options_debug){
 		if(_logic.getResult()){
 			var deposit = convertToken(_objSpeedGame.money);
-			console.log('closeChannel:', deposit);
-			Casino.endGame(addressContract, deposit, function(result){
+			_prnt.showButtons(false);
+			_prnt.showChips(false);
+			_prnt.tfApprove.setText("Please wait. \n Soon will your BETs.");
+			_prnt.tfApprove.visible = true;
+			_prnt.btnExit.alpha = 0.5;
+			_prnt.resetGame();
+			Casino.endGame(deposit, function(result){
 				_bOpenChannel = false;
-				this.isCashoutAvailable();
+				_prnt.tfApprove.visible = false;
+				_prnt.isCashoutAvailable();
+				_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
+				_prnt.showChips(true);
+				_prnt.getBalancePlayer();
+				infura.sendRequest("getBalance", openkey, _callback);
 			})
 		} else {
 			_prnt.showError("Profit is undefined.");
@@ -591,6 +604,7 @@ ScrSpeedGame.prototype.resetGame = function(){
 	this._arNewCards = [];
 	_bClear = true;
 	_bWait = false;
+	_balanceSession = 0;
 	this.clearBet();
 	this.clearGame();
 }
@@ -672,10 +686,10 @@ ScrSpeedGame.prototype.clearText = function(){
 }
 
 ScrSpeedGame.prototype.clickChip = function(item_mc){
-	if(_bApprove){}else{
+	if(!_bOpenChannel){
+		_prnt.showWndBank();
 		return false;
 	}
-	_prnt.tfApprove.visible = false;
 	
 	if(_betGame == 0){
 		_prnt.clearChips();
@@ -687,8 +701,12 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 	var oldBet = _betGame;
 	_betGame += value;
 	_betGame = toFixed(_betGame, 2);
-	
-	if(_betGame > _balance || _balancePlEth == 0){
+	console.log("!!!!", _betGame, _balanceSession);
+	if(_balanceSession == 0){
+		_prnt.showWndBank();
+		_betGame = oldBet;
+		return false;
+	} else if(_betGame > _balanceSession || _balancePlEth == 0){
 		_prnt.showError(ERROR_BALANCE);
 		_betGame = oldBet;
 	} else if(_betGame > maxBet){
@@ -793,6 +811,9 @@ ScrSpeedGame.prototype.showResult = function(_name, _x, _y) {
 }
 
 ScrSpeedGame.prototype.createWndInfo = function(str, callback, addStr) {
+	if(_bWindow){
+		return false;
+	}
 	if(_wndInfo == undefined){
 		_wndInfo = new WndInfo(this);
 		_wndInfo.x = _W/2;
@@ -1177,7 +1198,7 @@ ScrSpeedGame.prototype.makeID = function(count){
 }
 
 ScrSpeedGame.prototype.signSeed = function(seed, callback){
-	Casino.getFastRandom('daochannel_v1', addressContract, seed, function (res) {
+	Casino.getFastRandom(seed, function (res) {
 		callback(res.random)
 	})
 }
@@ -1473,7 +1494,7 @@ ScrSpeedGame.prototype.clickDeal = function(){
 			if(options_debug){
 				_logic.bjDeal(seed, _betGame);
 			} else {
-				Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+				Casino.callGameFunction(_idGame, msgID(), 
 					'bjDeal', ['confirm('+seed+')', _betGame]
 				);
 				this.signSeed(seed, function(result){_logic.bjDeal(result, _betGame);});
@@ -1500,7 +1521,7 @@ ScrSpeedGame.prototype.clickHit = function(){
 	if(options_debug){
 		_logic.bjHit(seed, !_bSplit);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjHit', ['confirm('+seed+')', !_bSplit]
 		);
 		this.signSeed(seed, function(result){_logic.bjHit(result, !_bSplit);});
@@ -1519,7 +1540,7 @@ ScrSpeedGame.prototype.clickStand = function(){
 		if(options_debug){
 			_logic.bjStand(seed, !_bSplit);
 		} else {
-			Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+			Casino.callGameFunction(_idGame, msgID(), 
 				'bjStand', ['confirm('+seed+')', !_bSplit]
 			);
 			this.signSeed(seed, function(result){_logic.bjStand(result, !_bSplit);});	
@@ -1534,7 +1555,7 @@ ScrSpeedGame.prototype.clickDouble = function(){
 	if(options_debug){
 		_logic.bjDouble(seed, !_bSplit);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjDouble', ['confirm('+seed+')', !_bSplit]
 		);
 		this.signSeed(seed, function(result){_logic.bjDouble(result, !_bSplit);});	
@@ -1574,7 +1595,7 @@ ScrSpeedGame.prototype.clickSplit = function(){
 	if(options_debug){
 		_logic.bjSplit(seed);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjSplit', ['confirm('+seed+')']
 		);
 		this.signSeed(seed, function(result){_logic.bjSplit(result);});	
@@ -1645,6 +1666,12 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	}
 	
 	_prnt.showChips(true);
+	_prnt.isCashoutAvailable();
+	
+	if(_balanceSession == 0){
+		_prnt.closeChannel();
+		_prnt.showChips(false);
+	}
 }
 
 // BLOCKCHAIN
@@ -1751,32 +1778,30 @@ ScrSpeedGame.prototype.responseTransaction = function(name, value) {
 	options.gasPrice = gasPrice;
 	options.gasLimit = gasLimit;
 	
-	if(privkey){
-		console.log("The transaction was signed:", name);
-		// The transaction was signed
-		
-		if(ks){
-			ks.keyFromPassword(passwordUser, function (err, pwDerivedKey) {
-				if (err) {
-					console.log("err:", err);
-					_prnt.showError(ERROR_BUF);
-					return false;
-				}
-				
-				var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
-				var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
-				infura.sendRequest(nameRequest, params, _callback, undefined, _currentMethod);
-			})
-		} else {
-			prnt.showError(ERROR_BUF);
-			if(prnt.countPlayerCard == 0){
-				prnt.clearBet();
-				prnt.tfStatus.setText("");
-				prnt.showChips(true);
-				prnt.bClickStart = false;
+	console.log("The transaction was signed:", name);
+	// The transaction was signed
+	
+	if(ks){
+		ks.keyFromPassword(passwordUser, function (err, pwDerivedKey) {
+			if (err) {
+				console.log("err:", err);
+				_prnt.showError(ERROR_BUF);
+				return false;
 			}
-			prnt.bWait = false;
+			
+			var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
+			var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
+			infura.sendRequest(nameRequest, params, _callback, undefined, _currentMethod);
+		})
+	} else {
+		_prnt.showError(ERROR_BUF);
+		if(_prnt.countPlayerCard == 0){
+			_prnt.clearBet();
+			_prnt.tfStatus.setText("");
+			_prnt.showChips(true);
+			_prnt.bClickStart = false;
 		}
+		_prnt.bWait = false;
 	}
 }
 
@@ -1842,13 +1867,6 @@ ScrSpeedGame.prototype.update = function(diffTime){
 		_timeShowButtons -= diffTime;
 		if(_timeShowButtons <= 0){
 			this.showButtons(true);
-		}
-	}
-	_timeGetState += diffTime;
-	if(_timeGetState >= TIME_GET_STATE){
-		_timeGetState = 0;
-		if(login_obj["allowance"] && !_bApprove){
-			this.getAllowance();
 		}
 	}
 }

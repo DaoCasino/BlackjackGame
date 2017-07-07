@@ -83,9 +83,10 @@ function convertToken(value){
 	return val;
 }
 
-WndBank.prototype.show = function(str, callback, addStr) {
+WndBank.prototype.show = function(str, callback, maxBet) {
 	this._callback = callback;
 	this.tf.setText(str);
+	this._maxBet = maxBet;
 }
 
 WndBank.prototype.clickObj = function(item_mc) {

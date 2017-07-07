@@ -453,8 +453,8 @@ function loadData() {
 			openkey = "0x39b3da1a4343d68f7e2b2bf69e2cd2652256b942"; // LW
 			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
-			openkey = localStorage.getItem('openkey')
-			privkey = localStorage.getItem('privkey')
+			openkey = Casino.Account.get().openkey;
+			// privkey = localStorage.getItem('privkey')
 		}
 		mainet = localStorage.getItem('mainnet')
 		if(openkey){
