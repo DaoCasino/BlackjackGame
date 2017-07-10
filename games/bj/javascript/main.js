@@ -455,8 +455,8 @@ function loadData() {
 			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
 			// openkey = Casino.Account.get().openkey;
-			privkey = localStorage.getItem('openkey')
-			openkey = localStorage.getItem('privkey')
+			privkey = localStorage.getItem('privkey')
+			openkey = localStorage.getItem('openkey')
 		}
 		mainet = localStorage.getItem('mainnet')
 		if(openkey){
