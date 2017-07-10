@@ -8,6 +8,8 @@ var gThis;
 var repeatRequest = 0;
 var INSURANCE = -1;
 var CONFIRM = 5;
+var NEWCHANNEL = 6;
+var CLOSECHANNEL = 7;
 
 var nameCall = {getPlayerBet:"f8aec9f5",
 				getSplitBet:"f8aec9f5",
@@ -51,6 +53,8 @@ Infura.prototype.sendRequest = function(name, params, callback, seed, currentMet
 			case "requestInsurance":
 			case "double":
 			case "confirm":
+			case "newChannel":
+			case "closeChannel":
 				method = "eth_getTransactionCount";
 				break;
 			case "gameTxHash":
@@ -86,7 +90,10 @@ Infura.prototype.sendRequest = function(name, params, callback, seed, currentMet
 									"id":1}),
 			success: function (d) {
 				if(method == "eth_sendRawTransaction" && d.result && 
-				currentMethod != INSURANCE && currentMethod != CONFIRM){
+				currentMethod != INSURANCE && 
+				currentMethod != CONFIRM && 
+				currentMethod != NEWCHANNEL && 
+				currentMethod != CLOSECHANNEL){
 					gThis.sendRequestServer("responseServer", d.result, callback, seed);
 				}
 				callback(name, d.result, d.error);

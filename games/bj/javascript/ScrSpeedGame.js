@@ -1,4 +1,3 @@
-
 function ScrSpeedGame() {
 	PIXI.Container.call( this );
 	this.init();
@@ -8,6 +7,7 @@ ScrSpeedGame.prototype = Object.create(PIXI.Container.prototype);
 ScrSpeedGame.prototype.constructor = ScrSpeedGame;
 
 var TIME_SHOW_BTN = 300;
+var TIME_GET_STATE = 5000;
 var C_DEAL = "e731240f";
 var C_HIT = "a45939bf";
 var C_SPLIT = "5fe71222";
@@ -28,15 +28,20 @@ var STAND = 2;
 var SPLIT = 3;
 var DOUBLE = 4;
 var CONFIRM = 5;
+var NEWCHANNEL = 6;
+var CLOSECHANNEL = 7;
 var BLACKJACK = 21;
 
 var _prnt;
 var _logic;
-var _wndInfo;
 var _curWindow;
+var _wndInfo;
 var _wndInsurance;
+var _wndBank;
+var _wndWarning;
 var _callback;
 var _cardSuit;
+var _mixingCard;
 var _objSpeedGame = {result:true, idGame:-1, curGame:{}, betGame:0, betSplitGame:0, money:0};
 
 var urlEtherscan = "https://api.etherscan.io/";
@@ -47,15 +52,16 @@ var _bClear = false;
 var _bStand = false;
 var _bSplit = false;
 var _bWindow = false;
-var _bApprove = false;
 var _bClickApprove = false;
 var _bStandSplit = false;
 var _bEndTurnSplit = false;
+var _bOpenChannel = false;
 
 var _minBet = 5000000;
 var _maxBet = 500000000;
 var _countBankrollers = 0;
 var _balance = 0;
+var _balanceSession = 0;
 var _balancePlEth = 0;
 var _balanceBank = 0;
 var _betGame = 0;
@@ -79,6 +85,8 @@ var _lastSplitCard = 0;
 var _lastHouseCard = 0;
 var _timeNewCard = 0;
 var _timeShowButtons = 0;
+var _timeGetState = 0;
+var _timeMixing = 0;
 var _currentMethod = -1;
 var _idGame = localStorage._idGame || 0;
 
@@ -88,6 +96,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.face_mc = new PIXI.Container();
 	this.back_mc = new PIXI.Container();
 	this.game_mc = new PIXI.Container();
+	this.chips_mc = new PIXI.Container();
 	this.cards_mc = new PIXI.Container();
 	this.gfx_mc = new PIXI.Container();
 	
@@ -98,6 +107,8 @@ ScrSpeedGame.prototype.init = function() {
 	this._arBtnChips = [];
 	this._arChips = [];
 	this._arSplitChips = [];
+	this._arWinChips = [];
+	this._arWinSplitChips = [];
 	this._arMyCards = [];
 	this._arMySplitCards = [];
 	this._arHouseCards = [];
@@ -113,6 +124,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.bg.scale.y = scaleBack;
 	this.addChild(this.bg);
 	
+	this.game_mc.addChild(this.chips_mc);
 	this.game_mc.addChild(this.cards_mc);
 	this.addChild(this.back_mc);
 	this.addChild(this.game_mc);
@@ -139,19 +151,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.getBalancePlayer();
 	this.getBalanceBank();
 	this.getBalanceErc();
-	
-	// init logic
-	this.prnt = this;
-	this.balance = _balance;
-	this.callback = this.responseServer;
-	_logic = new LogicJS(this);
-	
-	this.getAllowance();
-	if(_bApprove){
-		this.getBankrolls();
-	} else {
-		this.acceptApprove();
-	}
+	this.getBankrolls();
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -175,6 +175,12 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.face_mc.addChild(icoKey);
 	this._arButtons.push(icoKey);
 	var icoEthereum = addObj("icoEthereum", 40, 40+stepY*1, scGui);
+	icoEthereum.interactive = true;
+	icoEthereum._selected=false;
+	icoEthereum.disabled=false;
+	icoEthereum.hint2 = '0 BET';
+	this.icoEthereum = icoEthereum;
+	this._arButtons.push(icoEthereum);
 	this.face_mc.addChild(icoEthereum);
 	var icoTime = addObj("icoTime", 40, 40+stepY*2, scGui);
 	this.face_mc.addChild(icoTime);
@@ -198,13 +204,20 @@ ScrSpeedGame.prototype.createGUI = function() {
 	var cardsRight = addObj("cardsRight", 1650, 205, scaleBack);
 	this.back_mc.addChild(cardsRight);
 	
+	_mixingCard = new ItemMixing(this);
+	_mixingCard.x = _W/2 + 400;
+	_mixingCard.y = _H/2 - 150;
+	_mixingCard.visible = false;
+	this.gfx_mc.addChild(_mixingCard);
+	
 	var strUser = 'id'
 	var fontSize = 24;
 	this.tfIdUser = addText(strUser, fontSize, "#ffffff", "#000000", "left", 1000, 4)
 	this.tfIdUser.x = icoKey.x + 30;
 	this.tfIdUser.y = icoKey.y - 12;
 	this.face_mc.addChild(this.tfIdUser);
-	this.tfBalance = addText(String(_balance) + " BET", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	this.tfBalance = addText(String(_balanceSession) + " (" + String(_balance) + ")" + " BET", 
+					fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfBalance.x = icoEthereum.x + 30;
 	this.tfBalance.y = icoEthereum.y - 12;
 	this.face_mc.addChild(this.tfBalance);
@@ -273,10 +286,6 @@ ScrSpeedGame.prototype.createText = function() {
 	this.tfHousePoints.x = this.tfMyPoints.x;
 	this.tfHousePoints.y = _H/2-285;
 	this.face_mc.addChild(this.tfHousePoints);
-	this.tfApprove = addText("Wait. Approve contract.", 50, "#FCB70F", "#4F3904", "center", 600, 4);
-	this.tfApprove.x = _W/2;
-	this.tfApprove.y = _H/2 - 35;
-	this.face_mc.addChild(this.tfApprove);
 }
 
 ScrSpeedGame.prototype.createBtn = function() {
@@ -333,6 +342,7 @@ ScrSpeedGame.prototype.createBtn = function() {
 		this._arButtons.push(btnContract);
 	}
 	
+	
 	var btnDao = addButton("btnDao", _W - 80, _H - 80);
 	btnDao.interactive = true;
 	btnDao.buttonMode=true;
@@ -345,6 +355,13 @@ ScrSpeedGame.prototype.createBtn = function() {
 	btnFullscreen.overSc = true;
 	this.addChild(btnFullscreen);
 	this._arButtons.push(btnFullscreen);
+	var btnExit = addButton("btnCashout", _W - 80, _H - 300);
+	btnExit.interactive = true;
+	btnExit.buttonMode=true;
+	btnExit.overSc = true;
+	this.btnExit = btnExit;
+	this.addChild(btnExit);
+	this._arButtons.push(btnExit);
 	var btnFB = addButton("btnFacebookShare", _W - 80, 70, 0.35);
 	btnFB.name = "btnShare";
 	btnFB.interactive = true;
@@ -364,6 +381,7 @@ ScrSpeedGame.prototype.createBtn = function() {
 	btnTweet.hint2 = 'Tweet';
 	btnDao.hint2 = 'Home';
 	btnFullscreen.hint2 = 'Fullscreen';
+	btnExit.hint2 = 'Cash out';
 	
 	var posX = _W/2-680;
 	var posY = _H/2+180+offsetY;
@@ -382,18 +400,7 @@ ScrSpeedGame.prototype.createBtn = function() {
 		}
 	}
 	this.showChips(false);
-}
-
-ScrSpeedGame.prototype.acceptApprove = function() {
-	if(_balancePlEth > 0 && _allowance < _maxBet){
-		login_obj["allowance"] = true;
-		approve(100000000000); // 1000 tokens
-		_bClickApprove = true;
-		_bWait = true;
-		_prnt.showChips(false);
-	} else {
-		_prnt.showError(ERROR_BALANCE);
-	}
+	this.isCashoutAvailable();
 }
 
 ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
@@ -410,6 +417,56 @@ ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 	_curWindow = _wndInsurance;
 }
 
+ScrSpeedGame.prototype.showWndBank = function() {
+	if(_wndBank == undefined){
+		_wndBank = new WndBank(_prnt);
+		_wndBank.x = _W/2;
+		_wndBank.y = _H/2;
+		_prnt.face_mc.addChild(_wndBank);
+	}
+	
+	var str = "Select the amount of BET \n you are ready to play.";
+	_bWindow = true;
+	_wndBank.show(str, function(value){
+				_balanceSession = value;
+				_balance -= _balanceSession;
+				_prnt.refreshBalance();
+				// init logic
+				_prnt.prnt = _prnt;
+				_prnt.balance = _balanceSession;
+				_prnt.callback = _prnt.responseServer;
+				_logic = new LogicJS(_prnt);
+				_prnt.openChannel();
+				if(options_debug){
+					_bOpenChannel = true;
+					_prnt.showChips(true);
+				}
+			}, _balance)
+	_wndBank.visible = true;
+	_curWindow = _wndBank;
+}
+
+ScrSpeedGame.prototype.showWndWarning = function(str) {
+	if(_wndWarning == undefined){
+		_wndWarning = new PIXI.Container();
+		_wndWarning.x = _W/2;
+		_wndWarning.y = _H/2;
+		_prnt.face_mc.addChild(_wndWarning);
+		
+		var bg = addObj("wndInfo",0,0,1, 0.3, 0.15);
+		_wndWarning.addChild(bg);
+		var tf = addText("", 26, "#FFCC00", "#000000", "center", 500, 3)
+		_wndWarning.addChild(tf);
+		
+		_wndWarning.tf = tf;
+	}
+	
+	
+	_wndWarning.tf.setText(str);
+	_wndWarning.tf.y = -_wndWarning.tf.height/2;
+	_wndWarning.visible = true;
+}
+
 ScrSpeedGame.prototype.closeWindow = function(wnd) {
 	_curWindow = wnd;
 	_timeCloseWnd = 200;
@@ -419,9 +476,13 @@ ScrSpeedGame.prototype.addChip = function(name, x, y, type) {
 	var array = this._arChips;
 	if(type == "split"){
 		array = this._arSplitChips;
+	} else if(type == "mainWin"){
+		array = this._arWinChips;
+	} else if(type == "splitWin"){
+		array = this._arWinSplitChips;
 	}
 	var chip = addObj(name, x, y, _scaleChip);
-	this.game_mc.addChild(chip);
+	this.chips_mc.addChild(chip);
 	array.push(chip);
 }
 
@@ -455,6 +516,13 @@ ScrSpeedGame.prototype.createButton2 = function(name, title, x, y, sc) {
 }
 
 ScrSpeedGame.prototype.getBankrolls = function(){
+	if(options_debug){
+		_countBankrollers = 1;
+		_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+		_prnt.showWndBank();
+		return false;
+	}
+	
 	var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game="+metaCode;
 	_bWait= true;
 	
@@ -492,14 +560,57 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 				_prnt.showButtons(true);
 			}
 		} else {*/
-			_prnt.showChips(true);
+			_prnt.showWndBank();
 		// }
 	}).fail(function() {
-		_prnt.tfApprove.setText("Speed mode don't work. \n Try later.");
+		_prnt.showWndWarning("Speed mode don't work. \n Try later.");
 		_prnt.showButtons(false);
 		_prnt.showChips(false);
 	});
 	
+}
+
+ScrSpeedGame.prototype.openChannel = function(){
+	if(!options_debug){
+		_prnt.showWndWarning("Please wait. \n Send BETs into the game");
+		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(result){
+			_bOpenChannel = true;
+			_prnt.isCashoutAvailable();
+			_prnt.showChips(true);
+			_wndWarning.visible = false;
+		});
+	}
+}
+
+ScrSpeedGame.prototype.closeChannel = function() {
+	if(_bOpenChannel && _objSpeedGame.result && !options_debug){
+		if(_logic.getResult()){
+			var deposit = _objSpeedGame.money;
+			_prnt.showButtons(false);
+			_prnt.showChips(false);
+			_prnt.btnExit.alpha = 0.5;
+			_prnt.resetGame();
+			_prnt.showWndWarning("Please wait. \n Soon will your BETs.");
+			Casino.endGame(deposit, function(obj){
+				_wndWarning.visible = false;
+				if(obj == true){
+					_bOpenChannel = false;
+					_prnt.isCashoutAvailable();
+					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
+					_prnt.showChips(true);
+					_prnt.getBalancePlayer();
+					infura.sendRequest("getBalance", openkey, _callback);
+				} else {
+					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
+					_prnt.showError(str);
+					_prnt.btnExit.alpha = 1;
+				}
+			})
+		} else {
+			_prnt.showError("Profit is undefined.");
+			return false;
+		}
+	}
 }
 
 ScrSpeedGame.prototype.resetGame = function(){
@@ -516,6 +627,7 @@ ScrSpeedGame.prototype.resetGame = function(){
 	this._arNewCards = [];
 	_bClear = true;
 	_bWait = false;
+	_balanceSession = 0;
 	this.clearBet();
 	this.clearGame();
 }
@@ -572,17 +684,27 @@ ScrSpeedGame.prototype.clearBet = function(){
 ScrSpeedGame.prototype.clearChips = function(){	
 	for (var i = 0; i < this._arChips.length; i++) {
 		var chip = this._arChips[i];
-		this.game_mc.removeChild(chip);
+		this.chips_mc.removeChild(chip);
 	}
 	this._arChips = [];
+	for (var i = 0; i < this._arWinChips.length; i++) {
+		var chip = this._arWinChips[i];
+		this.chips_mc.removeChild(chip);
+	}
+	this._arWinChips = [];
 }
 
 ScrSpeedGame.prototype.clearSplitChips = function(){	
 	for (var i = 0; i < this._arSplitChips.length; i++) {
 		var chip = this._arSplitChips[i];
-		this.game_mc.removeChild(chip);
+		this.chips_mc.removeChild(chip);
 	}
 	this._arSplitChips = [];
+	for (var i = 0; i < this._arWinSplitChips.length; i++) {
+		var chip = this._arWinSplitChips[i];
+		this.chips_mc.removeChild(chip);
+	}
+	this._arWinSplitChips = [];
 }
 
 ScrSpeedGame.prototype.clearText = function(){
@@ -597,10 +719,10 @@ ScrSpeedGame.prototype.clearText = function(){
 }
 
 ScrSpeedGame.prototype.clickChip = function(item_mc){
-	if(_bApprove){}else{
+	if(!_bOpenChannel){
+		_prnt.showWndBank();
 		return false;
 	}
-	_prnt.tfApprove.visible = false;
 	
 	if(_betGame == 0){
 		_prnt.clearChips();
@@ -613,7 +735,11 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 	_betGame += value;
 	_betGame = toFixed(_betGame, 2);
 	
-	if(_betGame > _balance || _balancePlEth == 0){
+	if(_balanceSession == 0){
+		_prnt.showWndBank();
+		_betGame = oldBet;
+		return false;
+	} else if(_betGame > _balanceSession || _balancePlEth == 0){
 		_prnt.showError(ERROR_BALANCE);
 		_betGame = oldBet;
 	} else if(_betGame > maxBet){
@@ -710,14 +836,55 @@ ScrSpeedGame.prototype.showInsurance = function() {
 	_bInsurance = 0;
 }
 
-ScrSpeedGame.prototype.showResult = function(_name, _x, _y) {
-	var delay = this._arNewCards.length+1;
+ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
+	var delay = _prnt._arNewCards.length+1;
 	var tf = _prnt.createObj({x:_x, y:_y}, _name);
 	tf.alpha = 0;
 	createjs.Tween.get(tf).wait(1000*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
+	
+	
+	var array = _prnt._arChips;
+	if(type == "split"){
+		array = _prnt._arSplitChips;
+	}
+	
+	var _x = 0;
+	var _y = 0;
+	var speed = 500;
+	if(_name == "win" || _name == "blackjack"){
+		_prnt.fillChips(bet/2, type+"Win", 150);
+		var array2 = _prnt._arWinChips;
+		if(type == "split"){
+			array2 = _prnt._arWinSplitChips;
+		}
+		
+		for (var i = 0; i < array2.length; i++) {
+			var chip = array2[i];
+			_x = chip.x;
+			_y = _H+100+i*12;
+			createjs.Tween.get(chip).to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
+		}
+	}
+	
+	for (var i = 0; i < array.length; i++) {
+		var chip = array[i];
+		_x = chip.x;
+		_y = _H + 100+i*12;
+		if(_name == "lose" || _name == "bust"){
+			_y = 150;
+			createjs.Tween.get(chip).to({x:_x, y:_y, alpha:0},speed*2);
+		} else if(_name == "push"){
+			createjs.Tween.get(chip).to({x:_x, y:_y},speed*2);
+		} else {
+			createjs.Tween.get(chip).wait(speed).to({x:_x, y:_y},speed);
+		}
+	}
 }
 
 ScrSpeedGame.prototype.createWndInfo = function(str, callback, addStr) {
+	if(_bWindow){
+		return false;
+	}
 	if(_wndInfo == undefined){
 		_wndInfo = new WndInfo(this);
 		_wndInfo.x = _W/2;
@@ -819,6 +986,7 @@ ScrSpeedGame.prototype.showButtons = function(value) {
 			this.btnDouble.alpha = a;
 		}
 	}
+	this.isCashoutAvailable();
 }
 
 ScrSpeedGame.prototype.showPlayerCard = function(card){
@@ -881,11 +1049,18 @@ ScrSpeedGame.prototype.showHouseCard = function(card){
 	return {x:0, y:0}
 }
 
+ScrSpeedGame.prototype.isCashoutAvailable = function() {
+	if(_bOpenChannel && _objSpeedGame.result){
+		this.btnExit.alpha = 1;
+	} else {
+		this.btnExit.alpha = 0.5;
+	}
+}
+
 ScrSpeedGame.prototype.isSplitAvailable = function() {
 	var value = false;
-	
 	if(this._arMyCards.length == 2 &&
-	_balance >= _betGame &&
+	_balanceSession >= _betGame &&
 	_bSplit == false &&
 	_betGame > 0 &&
 	this._arMySplitCards.length == 0 &&
@@ -902,7 +1077,7 @@ ScrSpeedGame.prototype.isDoubleAvailable = function() {
 	_myPoints > 8 && _myPoints < 12) ||
 	(_bSplit && this._arMySplitCards.length == 2 &&
 	_mySplitPoints > 8 && _mySplitPoints < 12)) &&
-	_balance >= _betGame){
+	_balanceSession >= _betGame){
 		return true;
 	}
 	
@@ -937,13 +1112,20 @@ ScrSpeedGame.prototype.fullscreen = function() {
 	}
 }
 
-ScrSpeedGame.prototype.fillChips = function(value, type){
+ScrSpeedGame.prototype.fillChips = function(value, type, _y){
+	if(_y == undefined){_y = this.seat.y}
 	var setBet = value;
 	var countChip = 0;
 	var posX = this.seat.x;
 	
 	if(type == "split"){
 		this.clearSplitChips();
+		posX += 200;
+	} else if(type == "mainWin"){
+		if(_bSplit || this.countPlayerSplitCard > 0){
+			posX -= 200;
+		}
+	} else if(type == "splitWin"){
 		posX += 200;
 	} else if(_bSplit || 
 	this.countPlayerSplitCard > 0 || 
@@ -954,7 +1136,7 @@ ScrSpeedGame.prototype.fillChips = function(value, type){
 		this.clearChips();
 	}
 	while(setBet > 0){
-		var posY = this.seat.y-countChip*6;
+		var posY = _y-countChip*6;
 		if(setBet >= 5*valToken){
 			setBet -= 5*valToken;
 			this.addChip("chip_6", posX, posY, type);
@@ -1093,10 +1275,13 @@ ScrSpeedGame.prototype.makeID = function(count){
 }
 
 ScrSpeedGame.prototype.signSeed = function(seed, callback){
-	console.log("signSeed:", seed);
-	Casino.getFastRandom('daochannel_v1', addressContract, seed, function (res) {
-		console.log("res.random:", res.random);
-		callback(res.random)
+	Casino.getFastRandom(seed, function (res) {
+		if(res.error){
+			_prnt.showError(res.error);
+			_prnt.closeChannel();
+		} else {
+			callback(res.random)
+		}
 	})
 }
 
@@ -1391,7 +1576,7 @@ ScrSpeedGame.prototype.clickDeal = function(){
 			if(options_debug){
 				_logic.bjDeal(seed, _betGame);
 			} else {
-				Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+				Casino.callGameFunction(_idGame, msgID(), 
 					'bjDeal', ['confirm('+seed+')', _betGame]
 				);
 				this.signSeed(seed, function(result){_logic.bjDeal(result, _betGame);});
@@ -1418,7 +1603,7 @@ ScrSpeedGame.prototype.clickHit = function(){
 	if(options_debug){
 		_logic.bjHit(seed, !_bSplit);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjHit', ['confirm('+seed+')', !_bSplit]
 		);
 		this.signSeed(seed, function(result){_logic.bjHit(result, !_bSplit);});
@@ -1437,7 +1622,7 @@ ScrSpeedGame.prototype.clickStand = function(){
 		if(options_debug){
 			_logic.bjStand(seed, !_bSplit);
 		} else {
-			Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+			Casino.callGameFunction(_idGame, msgID(), 
 				'bjStand', ['confirm('+seed+')', !_bSplit]
 			);
 			this.signSeed(seed, function(result){_logic.bjStand(result, !_bSplit);});	
@@ -1452,7 +1637,7 @@ ScrSpeedGame.prototype.clickDouble = function(){
 	if(options_debug){
 		_logic.bjDouble(seed, !_bSplit);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjDouble', ['confirm('+seed+')', !_bSplit]
 		);
 		this.signSeed(seed, function(result){_logic.bjDouble(result, !_bSplit);});	
@@ -1477,7 +1662,7 @@ ScrSpeedGame.prototype.clickDouble = function(){
 }
 
 ScrSpeedGame.prototype.clickSplit = function(){
-	if(_balance < _betGame){
+	if(_balanceSession < _betGame){
 		_prnt.showError(ERROR_BALANCE);
 		return false;
 	}
@@ -1492,7 +1677,7 @@ ScrSpeedGame.prototype.clickSplit = function(){
 	if(options_debug){
 		_logic.bjSplit(seed);
 	} else {
-		Casino.callGameFunction('daochannel_v1', addressContract, _idGame, msgID(), 
+		Casino.callGameFunction(_idGame, msgID(), 
 			'bjSplit', ['confirm('+seed+')']
 		);
 		this.signSeed(seed, function(result){_logic.bjSplit(result);});	
@@ -1544,42 +1729,54 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	_bClear = false;
 	_betGame = 0;
 	_betGameOld = 0;
+	var betMain = objResult.betMain/valToken;
+	var betSplit = objResult.betSplit/valToken;
 	
-	if(objResult.betMain > 0){
-		strResultM = "+"+String(objResult.betMain/valToken)
+	if(betMain > 0){
+		strResultM = "+"+String(betMain)
 	}
-	if(objResult.betSplit > 0){
-		strResultS = "+"+String(objResult.betSplit/valToken)
+	if(betSplit > 0){
+		strResultS = "+"+String(betSplit)
 	}
 	
 	if(_mySplitPoints > 0){
 		_xM = _W/2 - 200-75;
 	}
-	_prnt.showResult(objResult.main, _xM, _y);
+	_prnt.showResult(objResult.main, _xM, _y, "main", objResult.betMain);
 	_prnt.tfMyBet.setText(strResultM);
 	if(_mySplitPoints > 0){
-		_prnt.showResult(objResult.split, _xS, _y);
+		_prnt.showResult(objResult.split, _xS, _y, "split", objResult.betSplit);
 		_prnt.tfSplitBet.setText(strResultS);
 	}
 	
 	_prnt.showChips(true);
+	_prnt.isCashoutAvailable();
+	
+	if(objResult.mixing){
+		_mixingCard.visible = true;
+		_timeMixing = 3000;
+	}
+	
+	if(_balanceSession == 0){
+		_prnt.closeChannel();
+		_prnt.showChips(false);
+	}
 }
 
 // BLOCKCHAIN
-ScrSpeedGame.prototype.getAllowance = function() {
-	var key = openkey.substr(2);
-	var spender = addressContract.substr(2);
-	var data = "0x"+C_ALLOWANCE + pad(key, 64) + pad(spender, 64);
-	var params = {"from":openkey,
-				"to":addressCurErc,
-				"data":data};
-	infura.sendRequest("getAllowance", params, _callback);
-}
-
 ScrSpeedGame.prototype.getBalancePlayer = function(){
 	var value = callERC20("balanceOf", openkey);
 	_balance = Number(value);
-	_prnt.tfBalance.setText(convertToken(_balance) + " BET");
+	_prnt.refreshBalance();
+}
+
+ScrSpeedGame.prototype.refreshBalance = function(){
+	var str = toFixed(convertToken(_balanceSession), 2) + " (" +
+						toFixed(convertToken(_balance), 2) + ")" + " BET";
+	var str2 = "Game balance: " + toFixed(convertToken(_balanceSession), 2) + " ( Player balance: " +
+						toFixed(convertToken(_balance), 2) + ")" + " BET";
+	_prnt.tfBalance.setText(str);
+	_prnt.icoEthereum.hint = str2;
 }
 
 ScrSpeedGame.prototype.getBalanceBank = function(){
@@ -1612,16 +1809,68 @@ ScrSpeedGame.prototype.response = function(command, value, error) {
 		_balancePlEth = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
 	} else if(command == "getBalanceBank"){
 		_balanceBank = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
-	} else if(command == "getAllowance"){
-		if(hexToNum(value)){
-			_allowance = hexToNum(value);
-			_bApprove = true;
-			_prnt.tfApprove.visible = false;
-			if(_bClickApprove){
-				_prnt.getBankrolls();
-				_prnt.createWndInfo("The approval was completed successfully.", undefined, "OK");
-			}
+	} else if(command == "newChannel"){
+		_prnt.responseTransaction(command, value);
+		_bOpenChannel = true;
+	} else if(command == "closeChannel"){
+		_prnt.responseTransaction(command, value);
+		_bOpenChannel = false;
+	} else if(command == "sendRaw"){
+	}
+}
+
+ScrSpeedGame.prototype.responseTransaction = function(name, value) {
+	var args = [];
+	var price = 0;
+	var nameRequest = "sendRaw";
+	var gasPrice="0x"+numToHex(40000000000);
+	var gasLimit=0x927c0; //web3.toHex('600000');
+	if(name == "newChannel"){
+		price = _balanceSession;
+		args = [price];
+		console.log("newChannel:", price);
+	} else if(name == "closeChannel"){
+		if(_logic.getResult()){
+			price = _logic.getResult().profit;
+			var add = price > 0;
+			console.log("closeChannel:", price, add);
+			args = [openkey, Math.abs(price), add];
+		} else {
+			_prnt.showError("Profit is undefined.");
+			return false;
 		}
+	}
+	
+	var options = {};
+	options.nonce = value;
+	options.to = addressContract;
+	options.gasPrice = gasPrice;
+	options.gasLimit = gasLimit;
+	
+	console.log("The transaction was signed:", name);
+	// The transaction was signed
+	
+	if(ks){
+		ks.keyFromPassword(passwordUser, function (err, pwDerivedKey) {
+			if (err) {
+				console.log("err:", err);
+				_prnt.showError(ERROR_BUF);
+				return false;
+			}
+			
+			var registerTx = lightwallet.txutils.functionTx(abi, name, args, options);
+			var params = "0x"+lightwallet.signing.signTx(ks, pwDerivedKey, registerTx, sendingAddr);
+			infura.sendRequest(nameRequest, params, _callback, undefined, _currentMethod);
+		})
+	} else {
+		_prnt.showError(ERROR_BUF);
+		if(_prnt.countPlayerCard == 0){
+			_prnt.clearBet();
+			_prnt.tfStatus.setText("");
+			_prnt.showChips(true);
+			_prnt.bClickStart = false;
+		}
+		_prnt.bWait = false;
 	}
 }
 
@@ -1630,9 +1879,9 @@ ScrSpeedGame.prototype.responseServer = function(obj) {
 	_prnt.tfStatus.setText("");
 	_objSpeedGame = obj;
 	_objSpeedGame.curGame = obj.curGame;
-	_balance = _logic.getBalance();
+	_balanceSession = _logic.getBalance();
 	login_obj["objGame"] = _objSpeedGame;
-	_prnt.tfBalance.setText(convertToken(_balance) + " BET");
+	_prnt.refreshBalance();
 	// saveData();
 	
 	for(var name in _objSpeedGame.curGame){
@@ -1666,6 +1915,16 @@ ScrSpeedGame.prototype.update = function(diffTime){
 	if(options_pause){
 		return false;
 	}
+	
+	_mixingCard.update(diffTime);
+	if(_timeMixing > 0 && _mixingCard.visible){
+		_timeMixing -= diffTime;
+		if(_timeMixing < 100){
+			_timeMixing = 0;
+			_mixingCard.visible = false;
+		}
+	}
+	
 	
 	if(_timeCloseWnd > 0 && _curWindow){
 		_timeCloseWnd -= diffTime;
@@ -1725,6 +1984,8 @@ ScrSpeedGame.prototype.clickCell = function(item_mc) {
 		this.shareTwitter();
 	} else if(item_mc.name == "btnClearBets"){
 		this.clearBet();
+	} else if(item_mc.name == "btnCashout"){
+		this.closeChannel();
 	} else if(item_mc.name == "btnSmart"){
 		this.showSmartContract();
 	} else if(item_mc.name == "btnDao"){

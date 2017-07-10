@@ -84,10 +84,10 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		showGame();
 	} else if(item_mc.name == "btnSpeed"){
 		this.removeAllListener();
-		options_speedgame = true;
-		options_splitdouble = false;
-		showGame();
-		// showSpeedGame();
+		// options_speedgame = true;
+		// options_splitdouble = false;
+		// showGame();
+		showSpeedGame();
 	}
 }
 
