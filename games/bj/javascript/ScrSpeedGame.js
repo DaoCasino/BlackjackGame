@@ -34,10 +34,11 @@ var BLACKJACK = 21;
 
 var _prnt;
 var _logic;
-var _wndInfo;
 var _curWindow;
+var _wndInfo;
 var _wndInsurance;
 var _wndBank;
+var _wndWarning;
 var _callback;
 var _cardSuit;
 var _mixingCard;
@@ -51,7 +52,6 @@ var _bClear = false;
 var _bStand = false;
 var _bSplit = false;
 var _bWindow = false;
-var _bApprove = false;
 var _bClickApprove = false;
 var _bStandSplit = false;
 var _bEndTurnSplit = false;
@@ -96,6 +96,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.face_mc = new PIXI.Container();
 	this.back_mc = new PIXI.Container();
 	this.game_mc = new PIXI.Container();
+	this.chips_mc = new PIXI.Container();
 	this.cards_mc = new PIXI.Container();
 	this.gfx_mc = new PIXI.Container();
 	
@@ -106,6 +107,8 @@ ScrSpeedGame.prototype.init = function() {
 	this._arBtnChips = [];
 	this._arChips = [];
 	this._arSplitChips = [];
+	this._arWinChips = [];
+	this._arWinSplitChips = [];
 	this._arMyCards = [];
 	this._arMySplitCards = [];
 	this._arHouseCards = [];
@@ -121,6 +124,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.bg.scale.y = scaleBack;
 	this.addChild(this.bg);
 	
+	this.game_mc.addChild(this.chips_mc);
 	this.game_mc.addChild(this.cards_mc);
 	this.addChild(this.back_mc);
 	this.addChild(this.game_mc);
@@ -147,19 +151,7 @@ ScrSpeedGame.prototype.init = function() {
 	this.getBalancePlayer();
 	this.getBalanceBank();
 	this.getBalanceErc();
-	
-	// init logic
-	// this.prnt = this;
-	// this.balance = _balanceSession;
-	// this.callback = this.responseServer;
-	// _logic = new LogicJS(this);
-	
-	// this.getAllowance();
-	// if(_bApprove){
-		this.getBankrolls();
-	// } else {
-		// this.acceptApprove();
-	// }
+	this.getBankrolls();
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -294,10 +286,6 @@ ScrSpeedGame.prototype.createText = function() {
 	this.tfHousePoints.x = this.tfMyPoints.x;
 	this.tfHousePoints.y = _H/2-285;
 	this.face_mc.addChild(this.tfHousePoints);
-	this.tfApprove = addText("", 50, "#FCB70F", "#4F3904", "center", 600, 4);
-	this.tfApprove.x = _W/2;
-	this.tfApprove.y = _H/2 - 35;
-	this.face_mc.addChild(this.tfApprove);
 }
 
 ScrSpeedGame.prototype.createBtn = function() {
@@ -415,18 +403,6 @@ ScrSpeedGame.prototype.createBtn = function() {
 	this.isCashoutAvailable();
 }
 
-ScrSpeedGame.prototype.acceptApprove = function() {
-	if(_balancePlEth > 0 && _allowance < _maxBet){
-		login_obj["allowance"] = true;
-		approve(100000000000); // 1000 tokens
-		_bClickApprove = true;
-		_bWait = true;
-		_prnt.showChips(false);
-	} else {
-		_prnt.showError(ERROR_BALANCE);
-	}
-}
-
 ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 	if(_wndInsurance == undefined){
 		_wndInsurance = new WndInsurance(this);
@@ -470,6 +446,27 @@ ScrSpeedGame.prototype.showWndBank = function() {
 	_curWindow = _wndBank;
 }
 
+ScrSpeedGame.prototype.showWndWarning = function(str) {
+	if(_wndWarning == undefined){
+		_wndWarning = new PIXI.Container();
+		_wndWarning.x = _W/2;
+		_wndWarning.y = _H/2;
+		_prnt.face_mc.addChild(_wndWarning);
+		
+		var bg = addObj("wndInfo",0,0,1, 0.3, 0.15);
+		_wndWarning.addChild(bg);
+		var tf = addText("", 26, "#FFCC00", "#000000", "center", 500, 3)
+		_wndWarning.addChild(tf);
+		
+		_wndWarning.tf = tf;
+	}
+	
+	
+	_wndWarning.tf.setText(str);
+	_wndWarning.tf.y = -_wndWarning.tf.height/2;
+	_wndWarning.visible = true;
+}
+
 ScrSpeedGame.prototype.closeWindow = function(wnd) {
 	_curWindow = wnd;
 	_timeCloseWnd = 200;
@@ -479,9 +476,13 @@ ScrSpeedGame.prototype.addChip = function(name, x, y, type) {
 	var array = this._arChips;
 	if(type == "split"){
 		array = this._arSplitChips;
+	} else if(type == "mainWin"){
+		array = this._arWinChips;
+	} else if(type == "splitWin"){
+		array = this._arWinSplitChips;
 	}
 	var chip = addObj(name, x, y, _scaleChip);
-	this.game_mc.addChild(chip);
+	this.chips_mc.addChild(chip);
 	array.push(chip);
 }
 
@@ -562,7 +563,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 			_prnt.showWndBank();
 		// }
 	}).fail(function() {
-		_prnt.tfApprove.setText("Speed mode don't work. \n Try later.");
+		_prnt.showWndWarning("Speed mode don't work. \n Try later.");
 		_prnt.showButtons(false);
 		_prnt.showChips(false);
 	});
@@ -571,13 +572,12 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 
 ScrSpeedGame.prototype.openChannel = function(){
 	if(!options_debug){
-		_prnt.tfApprove.setText("Please wait. \n Send BETs into the game");
-		_prnt.tfApprove.visible = true;
+		_prnt.showWndWarning("Please wait. \n Send BETs into the game");
 		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(result){
 			_bOpenChannel = true;
 			_prnt.isCashoutAvailable();
 			_prnt.showChips(true);
-			_prnt.tfApprove.visible = false;
+			_wndWarning.visible = false;
 		});
 	}
 }
@@ -590,12 +590,11 @@ ScrSpeedGame.prototype.closeChannel = function() {
 			_prnt.showChips(false);
 			_prnt.btnExit.alpha = 0.5;
 			_prnt.resetGame();
+			_prnt.showWndWarning("Please wait. \n Soon will your BETs.");
 			Casino.endGame(deposit, function(obj){
+				_wndWarning.visible = false;
 				if(obj == true){
-					_prnt.tfApprove.setText("Please wait. \n Soon will your BETs.");
-					_prnt.tfApprove.visible = true;
 					_bOpenChannel = false;
-					_prnt.tfApprove.visible = false;
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
@@ -685,17 +684,27 @@ ScrSpeedGame.prototype.clearBet = function(){
 ScrSpeedGame.prototype.clearChips = function(){	
 	for (var i = 0; i < this._arChips.length; i++) {
 		var chip = this._arChips[i];
-		this.game_mc.removeChild(chip);
+		this.chips_mc.removeChild(chip);
 	}
 	this._arChips = [];
+	for (var i = 0; i < this._arWinChips.length; i++) {
+		var chip = this._arWinChips[i];
+		this.chips_mc.removeChild(chip);
+	}
+	this._arWinChips = [];
 }
 
 ScrSpeedGame.prototype.clearSplitChips = function(){	
 	for (var i = 0; i < this._arSplitChips.length; i++) {
 		var chip = this._arSplitChips[i];
-		this.game_mc.removeChild(chip);
+		this.chips_mc.removeChild(chip);
 	}
 	this._arSplitChips = [];
+	for (var i = 0; i < this._arWinSplitChips.length; i++) {
+		var chip = this._arWinSplitChips[i];
+		this.chips_mc.removeChild(chip);
+	}
+	this._arWinSplitChips = [];
 }
 
 ScrSpeedGame.prototype.clearText = function(){
@@ -827,11 +836,49 @@ ScrSpeedGame.prototype.showInsurance = function() {
 	_bInsurance = 0;
 }
 
-ScrSpeedGame.prototype.showResult = function(_name, _x, _y) {
-	var delay = this._arNewCards.length+1;
+ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
+	var delay = _prnt._arNewCards.length+1;
 	var tf = _prnt.createObj({x:_x, y:_y}, _name);
 	tf.alpha = 0;
 	createjs.Tween.get(tf).wait(1000*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
+	
+	
+	var array = _prnt._arChips;
+	if(type == "split"){
+		array = _prnt._arSplitChips;
+	}
+	
+	var _x = 0;
+	var _y = 0;
+	var speed = 500;
+	if(_name == "win" || _name == "blackjack"){
+		_prnt.fillChips(bet/2, type+"Win", 150);
+		var array2 = _prnt._arWinChips;
+		if(type == "split"){
+			array2 = _prnt._arWinSplitChips;
+		}
+		
+		for (var i = 0; i < array2.length; i++) {
+			var chip = array2[i];
+			_x = chip.x;
+			_y = _H+100+i*12;
+			createjs.Tween.get(chip).to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
+		}
+	}
+	
+	for (var i = 0; i < array.length; i++) {
+		var chip = array[i];
+		_x = chip.x;
+		_y = _H + 100+i*12;
+		if(_name == "lose" || _name == "bust"){
+			_y = 150;
+			createjs.Tween.get(chip).to({x:_x, y:_y, alpha:0},speed*2);
+		} else if(_name == "push"){
+			createjs.Tween.get(chip).to({x:_x, y:_y},speed*2);
+		} else {
+			createjs.Tween.get(chip).wait(speed).to({x:_x, y:_y},speed);
+		}
+	}
 }
 
 ScrSpeedGame.prototype.createWndInfo = function(str, callback, addStr) {
@@ -1012,9 +1059,8 @@ ScrSpeedGame.prototype.isCashoutAvailable = function() {
 
 ScrSpeedGame.prototype.isSplitAvailable = function() {
 	var value = false;
-	
 	if(this._arMyCards.length == 2 &&
-	_balance >= _betGame &&
+	_balanceSession >= _betGame &&
 	_bSplit == false &&
 	_betGame > 0 &&
 	this._arMySplitCards.length == 0 &&
@@ -1031,7 +1077,7 @@ ScrSpeedGame.prototype.isDoubleAvailable = function() {
 	_myPoints > 8 && _myPoints < 12) ||
 	(_bSplit && this._arMySplitCards.length == 2 &&
 	_mySplitPoints > 8 && _mySplitPoints < 12)) &&
-	_balance >= _betGame){
+	_balanceSession >= _betGame){
 		return true;
 	}
 	
@@ -1066,13 +1112,20 @@ ScrSpeedGame.prototype.fullscreen = function() {
 	}
 }
 
-ScrSpeedGame.prototype.fillChips = function(value, type){
+ScrSpeedGame.prototype.fillChips = function(value, type, _y){
+	if(_y == undefined){_y = this.seat.y}
 	var setBet = value;
 	var countChip = 0;
 	var posX = this.seat.x;
 	
 	if(type == "split"){
 		this.clearSplitChips();
+		posX += 200;
+	} else if(type == "mainWin"){
+		if(_bSplit || this.countPlayerSplitCard > 0){
+			posX -= 200;
+		}
+	} else if(type == "splitWin"){
 		posX += 200;
 	} else if(_bSplit || 
 	this.countPlayerSplitCard > 0 || 
@@ -1083,7 +1136,7 @@ ScrSpeedGame.prototype.fillChips = function(value, type){
 		this.clearChips();
 	}
 	while(setBet > 0){
-		var posY = this.seat.y-countChip*6;
+		var posY = _y-countChip*6;
 		if(setBet >= 5*valToken){
 			setBet -= 5*valToken;
 			this.addChip("chip_6", posX, posY, type);
@@ -1609,7 +1662,7 @@ ScrSpeedGame.prototype.clickDouble = function(){
 }
 
 ScrSpeedGame.prototype.clickSplit = function(){
-	if(_balance < _betGame){
+	if(_balanceSession < _betGame){
 		_prnt.showError(ERROR_BALANCE);
 		return false;
 	}
@@ -1676,21 +1729,23 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	_bClear = false;
 	_betGame = 0;
 	_betGameOld = 0;
+	var betMain = objResult.betMain/valToken;
+	var betSplit = objResult.betSplit/valToken;
 	
-	if(objResult.betMain > 0){
-		strResultM = "+"+String(objResult.betMain/valToken)
+	if(betMain > 0){
+		strResultM = "+"+String(betMain)
 	}
-	if(objResult.betSplit > 0){
-		strResultS = "+"+String(objResult.betSplit/valToken)
+	if(betSplit > 0){
+		strResultS = "+"+String(betSplit)
 	}
 	
 	if(_mySplitPoints > 0){
 		_xM = _W/2 - 200-75;
 	}
-	_prnt.showResult(objResult.main, _xM, _y);
+	_prnt.showResult(objResult.main, _xM, _y, "main", objResult.betMain);
 	_prnt.tfMyBet.setText(strResultM);
 	if(_mySplitPoints > 0){
-		_prnt.showResult(objResult.split, _xS, _y);
+		_prnt.showResult(objResult.split, _xS, _y, "split", objResult.betSplit);
 		_prnt.tfSplitBet.setText(strResultS);
 	}
 	
@@ -1709,16 +1764,6 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 }
 
 // BLOCKCHAIN
-ScrSpeedGame.prototype.getAllowance = function() {
-	var key = openkey.substr(2);
-	var spender = addressContract.substr(2);
-	var data = "0x"+C_ALLOWANCE + pad(key, 64) + pad(spender, 64);
-	var params = {"from":openkey,
-				"to":addressCurErc,
-				"data":data};
-	infura.sendRequest("getAllowance", params, _callback);
-}
-
 ScrSpeedGame.prototype.getBalancePlayer = function(){
 	var value = callERC20("balanceOf", openkey);
 	_balance = Number(value);
@@ -1764,16 +1809,6 @@ ScrSpeedGame.prototype.response = function(command, value, error) {
 		_balancePlEth = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
 	} else if(command == "getBalanceBank"){
 		_balanceBank = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
-	} else if(command == "getAllowance"){
-		if(hexToNum(value)){
-			_allowance = hexToNum(value);
-			_bApprove = true;
-			_prnt.tfApprove.visible = false;
-			if(_bClickApprove){
-				_prnt.getBankrolls();
-				_prnt.createWndInfo("The approval was completed successfully.", undefined, "OK");
-			}
-		}
 	} else if(command == "newChannel"){
 		_prnt.responseTransaction(command, value);
 		_bOpenChannel = true;
