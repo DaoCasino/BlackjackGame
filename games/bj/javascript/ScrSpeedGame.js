@@ -40,6 +40,7 @@ var _wndInsurance;
 var _wndBank;
 var _callback;
 var _cardSuit;
+var _mixingCard;
 var _objSpeedGame = {result:true, idGame:-1, curGame:{}, betGame:0, betSplitGame:0, money:0};
 
 var urlEtherscan = "https://api.etherscan.io/";
@@ -85,6 +86,7 @@ var _lastHouseCard = 0;
 var _timeNewCard = 0;
 var _timeShowButtons = 0;
 var _timeGetState = 0;
+var _timeMixing = 0;
 var _currentMethod = -1;
 var _idGame = localStorage._idGame || 0;
 
@@ -209,6 +211,12 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.back_mc.addChild(cardsLeft);
 	var cardsRight = addObj("cardsRight", 1650, 205, scaleBack);
 	this.back_mc.addChild(cardsRight);
+	
+	_mixingCard = new ItemMixing(this);
+	_mixingCard.x = _W/2 + 400;
+	_mixingCard.y = _H/2 - 150;
+	_mixingCard.visible = false;
+	this.gfx_mc.addChild(_mixingCard);
 	
 	var strUser = 'id'
 	var fontSize = 24;
@@ -435,7 +443,7 @@ ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 
 ScrSpeedGame.prototype.showWndBank = function() {
 	if(_wndBank == undefined){
-		_wndBank = new WndBank(_prnt, _balance);
+		_wndBank = new WndBank(_prnt);
 		_wndBank.x = _W/2;
 		_wndBank.y = _H/2;
 		_prnt.face_mc.addChild(_wndBank);
@@ -452,8 +460,11 @@ ScrSpeedGame.prototype.showWndBank = function() {
 				_prnt.balance = _balanceSession;
 				_prnt.callback = _prnt.responseServer;
 				_logic = new LogicJS(_prnt);
-				
 				_prnt.openChannel();
+				if(options_debug){
+					_bOpenChannel = true;
+					_prnt.showChips(true);
+				}
 			}, _balance)
 	_wndBank.visible = true;
 	_curWindow = _wndBank;
@@ -504,6 +515,13 @@ ScrSpeedGame.prototype.createButton2 = function(name, title, x, y, sc) {
 }
 
 ScrSpeedGame.prototype.getBankrolls = function(){
+	if(options_debug){
+		_countBankrollers = 1;
+		_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+		_prnt.showWndBank();
+		return false;
+	}
+	
 	var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game="+metaCode;
 	_bWait= true;
 	
@@ -567,21 +585,27 @@ ScrSpeedGame.prototype.openChannel = function(){
 ScrSpeedGame.prototype.closeChannel = function() {
 	if(_bOpenChannel && _objSpeedGame.result && !options_debug){
 		if(_logic.getResult()){
-			var deposit = convertToken(_objSpeedGame.money);
+			var deposit = _objSpeedGame.money;
 			_prnt.showButtons(false);
 			_prnt.showChips(false);
-			_prnt.tfApprove.setText("Please wait. \n Soon will your BETs.");
-			_prnt.tfApprove.visible = true;
 			_prnt.btnExit.alpha = 0.5;
 			_prnt.resetGame();
-			Casino.endGame(deposit, function(result){
-				_bOpenChannel = false;
-				_prnt.tfApprove.visible = false;
-				_prnt.isCashoutAvailable();
-				_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
-				_prnt.showChips(true);
-				_prnt.getBalancePlayer();
-				infura.sendRequest("getBalance", openkey, _callback);
+			Casino.endGame(deposit, function(obj){
+				if(obj == true){
+					_prnt.tfApprove.setText("Please wait. \n Soon will your BETs.");
+					_prnt.tfApprove.visible = true;
+					_bOpenChannel = false;
+					_prnt.tfApprove.visible = false;
+					_prnt.isCashoutAvailable();
+					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
+					_prnt.showChips(true);
+					_prnt.getBalancePlayer();
+					infura.sendRequest("getBalance", openkey, _callback);
+				} else {
+					var str = obj.error + ". " + deposit + " != " + obj.profit;
+					_prnt.showError(str);
+					_prnt.btnExit.alpha = 1;
+				}
 			})
 		} else {
 			_prnt.showError("Profit is undefined.");
@@ -701,7 +725,7 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 	var oldBet = _betGame;
 	_betGame += value;
 	_betGame = toFixed(_betGame, 2);
-	console.log("!!!!", _betGame, _balanceSession);
+	
 	if(_balanceSession == 0){
 		_prnt.showWndBank();
 		_betGame = oldBet;
@@ -1199,7 +1223,12 @@ ScrSpeedGame.prototype.makeID = function(count){
 
 ScrSpeedGame.prototype.signSeed = function(seed, callback){
 	Casino.getFastRandom(seed, function (res) {
-		callback(res.random)
+		if(res.error){
+			_prnt.showError(res.error);
+			_prnt.closeChannel();
+		} else {
+			callback(res.random)
+		}
 	})
 }
 
@@ -1668,6 +1697,11 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	_prnt.showChips(true);
 	_prnt.isCashoutAvailable();
 	
+	if(objResult.mixing){
+		_mixingCard.visible = true;
+		_timeMixing = 3000;
+	}
+	
 	if(_balanceSession == 0){
 		_prnt.closeChannel();
 		_prnt.showChips(false);
@@ -1846,6 +1880,16 @@ ScrSpeedGame.prototype.update = function(diffTime){
 	if(options_pause){
 		return false;
 	}
+	
+	_mixingCard.update(diffTime);
+	if(_timeMixing > 0 && _mixingCard.visible){
+		_timeMixing -= diffTime;
+		if(_timeMixing < 100){
+			_timeMixing = 0;
+			_mixingCard.visible = false;
+		}
+	}
+	
 	
 	if(_timeCloseWnd > 0 && _curWindow){
 		_timeCloseWnd -= diffTime;

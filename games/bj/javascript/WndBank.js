@@ -1,18 +1,18 @@
-function WndBank(_prnt, maxBet) {
+function WndBank(_prnt) {
 	PIXI.Container.call( this );
-	this.init(_prnt, maxBet);
+	this.init(_prnt);
 }
 
 WndBank.prototype = Object.create(PIXI.Container.prototype);
 WndBank.prototype.constructor = WndBank;
 
-WndBank.prototype.init = function(_prnt, maxBet) {
+WndBank.prototype.init = function(_prnt) {
 	this._prnt = _prnt;
 	this._callback = undefined;
 	this._arButtons= [];
 	this._pressHead = false;
 	this._curBet = 0;
-	this._maxBet = maxBet;
+	this._maxBet = 0;
 	
 	var rect = new PIXI.Graphics();
 	rect.beginFill(0x000000).drawRect(-_W/2, -_H/2, _W, _H).endFill();
@@ -64,7 +64,7 @@ WndBank.prototype.init = function(_prnt, maxBet) {
 	var tfOk = addText("OK", 34, "#FFFFFF", undefined, "center", 350)
 	tfOk.y = - tfOk.height/2;
 	btnOk.addChild(tfOk);
-	var tfBet = addText("0 BET", 40, "#FFFFFF", undefined, "center", 350)
+	var tfBet = addText("0.00 BET", 40, "#FFFFFF", undefined, "center", 350)
 	tfBet.y = -5- tfBet.height/2;
 	this.addChild(tfBet);
 	this.tfBet = tfBet;
@@ -109,6 +109,7 @@ WndBank.prototype.clickObj = function(item_mc) {
 		this._prnt.closeWindow(this);
 	} else if(name == "btnClose"){
 		this._prnt.closeWindow(this);
+		this._prnt.showChips(true);
 	}
 }
 
@@ -122,18 +123,18 @@ WndBank.prototype.scrollHead = function(evt){
 	this.fatLine.x = -200 + 200*sc;
 	this.fatLine.scale.x = sc;
 	
-	if(posX > -200){
-		this.btnOk.alpha = 1;
-	} else {
-		this.btnOk.alpha = 0.5;
-	}
-	
 	var minBet = 0;
 	this._curBet = sc*this._maxBet;
 	var value = toFixed(convertToken(this._curBet), 2);
 	value = roundBet(value*100)
 	this._curBet = value*valToken;
 	this.tfBet.setText(String(value) + " BET");
+	
+	if(posX > -200 && value >= 0.05){
+		this.btnOk.alpha = 1;
+	} else {
+		this.btnOk.alpha = 0.5;
+	}
 }
 
 WndBank.prototype.checkButtons = function(evt){

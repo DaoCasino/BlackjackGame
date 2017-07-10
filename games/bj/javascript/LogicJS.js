@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.2
+ * v 1.0.3
  */
 
 var LogicJS = function(params){
@@ -16,6 +16,9 @@ var LogicJS = function(params){
 	var DOUBLE = 4;
 	var INSURANCE = 5;
 	
+	var COUNT_DECKS = 4;
+	var COUNT_CARDS = 52;
+	
 	var _money = 0;
 	var _balance = 0;
 	var _myPoints = 0;
@@ -29,6 +32,8 @@ var LogicJS = function(params){
 	var _arMyPoints = [];
 	var _arMySplitPoints = [];
 	var _arHousePoints = [];
+	var _arDecks = [];
+	var _arCards = [];
 	
 	var _bStand = false;
 	var _bStandNecessary = false;
@@ -52,11 +57,13 @@ var LogicJS = function(params){
 						betGame:0, 
 						betSplitGame:0, 
 						money:_money};
-	var _objResult = {main:"", split:"", betMain:0, betSplit:0, profit:0};
+	var _objResult = {main:"", split:"", betMain:0, betSplit:0, profit:0, mixing:false};
+	
+	mixDeck();
 	
 	self.bjDeal = function(_s, _bet){
 		_idGame ++;
-		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet};
+		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
 		_objSpeedGame.result = false;
 		_objSpeedGame.curGame = {};
 		_objSpeedGame.betGame = _bet;
@@ -182,6 +189,15 @@ var LogicJS = function(params){
 		return spriteName;
 	}
 	
+	function mixDeck(){
+		_arCards = [];
+		_objResult.mixing = true;
+		
+		for(var i=0; i<52; i++){
+			_arDecks[i] = 0;
+		}
+	}
+	
 	function refreshGame(_s){
 		checkResult(true, _s);
 		if(_arMySplitCards.length > 0){
@@ -198,7 +214,11 @@ var LogicJS = function(params){
 		}
 		
 		if(_objSpeedGame.result){
-			console.log("Game Over", _objResult.profit, _money);
+			// console.log("Game Over", _objResult.profit, _money);
+			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.25);
+			if(_arCards.length > prcnt){
+				mixDeck();
+			}
 		}
 	}
 	
@@ -351,10 +371,31 @@ var LogicJS = function(params){
 		}
 	}
 
+	function checkCard(rand){
+		if(_arCards.length > 40){
+			mixDeck();
+		}
+		
+		if(_arDecks[rand] < COUNT_DECKS){
+		} else {
+			for(var i=0; i<52; i++){
+				if(_arDecks[i] < COUNT_DECKS){
+					rand = i;
+					break;
+				}
+			}
+		}
+		
+		return rand;
+	}
+	
 	function createCard(cardNumber){	
 		var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]).toString('hex');
 			hash = hash.substr(hash.length-2, hash.length) // uint8
 		var rand = bigInt(hash,16).divmod(52).remainder.value;
+		rand = checkCard(rand);
+		_arDecks[rand] ++;
+		_arCards.push(rand);
 		return rand;
 	}
 	
