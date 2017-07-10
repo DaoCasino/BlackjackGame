@@ -601,7 +601,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.getBalancePlayer();
 					infura.sendRequest("getBalance", openkey, _callback);
 				} else {
-					var str = obj.error + ". " + deposit + " != " + obj.profit;
+					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
 					_prnt.showError(str);
 					_prnt.btnExit.alpha = 1;
 				}
