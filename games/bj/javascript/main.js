@@ -1,6 +1,7 @@
 var _W = 1920;
 var _H = 1080;
 var version = "v. 1.1.0";
+version = "v. 1.0.65";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -36,7 +37,7 @@ var addressTestDeck = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
 var addressTestSeed = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
 var addressTestStorage = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
 var addressTestContract = "0xeb131eef1a58223802d1c572ee39ebfe2dcb2a67";
-addressTestContract = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
+// addressTestContract = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
 // alpha (speed game)
 var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
@@ -453,8 +454,9 @@ function loadData() {
 			openkey = "0x39b3da1a4343d68f7e2b2bf69e2cd2652256b942"; // LW
 			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
-			openkey = Casino.Account.get().openkey;
-			// privkey = localStorage.getItem('privkey')
+			// openkey = Casino.Account.get().openkey;
+			privkey = localStorage.getItem('openkey')
+			openkey = localStorage.getItem('privkey')
 		}
 		mainet = localStorage.getItem('mainnet')
 		if(openkey){
