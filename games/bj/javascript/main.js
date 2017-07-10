@@ -1,6 +1,7 @@
 var _W = 1920;
 var _H = 1080;
 var version = "v. 1.1.0";
+version = "v. 1.0.65";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -453,9 +454,9 @@ function loadData() {
 			openkey = "0x39b3da1a4343d68f7e2b2bf69e2cd2652256b942"; // LW
 			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
-			openkey = Casino.Account.get().openkey;
-			// privkey = localStorage.getItem('openkey')
-			// openkey = localStorage.getItem('privkey')
+			// openkey = Casino.Account.get().openkey;
+			privkey = localStorage.getItem('privkey')
+			openkey = localStorage.getItem('openkey')
 		}
 		mainet = localStorage.getItem('mainnet')
 		if(openkey){
