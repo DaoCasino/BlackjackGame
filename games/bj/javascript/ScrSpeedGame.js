@@ -42,7 +42,13 @@ var _wndWarning;
 var _callback;
 var _cardSuit;
 var _mixingCard;
-var _objSpeedGame = {result:true, idGame:-1, curGame:{}, betGame:0, betSplitGame:0, money:0};
+var _objSpeedGame = {result:false, 
+						idGame:-1, 
+						curGame:{}, 
+						betGame:0, 
+						betSplitGame:0, 
+						money:0,
+						insurance:false};
 
 var urlEtherscan = "https://api.etherscan.io/";
 
@@ -439,6 +445,7 @@ ScrSpeedGame.prototype.showWndBank = function() {
 				_prnt.openChannel();
 				if(options_debug){
 					_bOpenChannel = true;
+					sessionIsOver = false;
 					_prnt.showChips(true);
 				}
 			}, _balance)
@@ -528,13 +535,14 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	
 	$.ajax(urlRequest).done(function (d) {
 		_bWait = false;
-		var _arr = JSON.parse(d);
-		if (!_arr) {
-			_prnt.showError(ERROR_BANKROLLER);      
-			return;
-		}
+		// var _arr = JSON.parse(d);
+		// if (!_arr) {
+			// _prnt.showError(ERROR_BANKROLLER);      
+			// return;
+		// }
 		
-		_countBankrollers = _arr.length;
+		// _countBankrollers = _arr.length;
+		_countBankrollers = 1;
 		_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 		
 		// load game
@@ -572,12 +580,18 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 
 ScrSpeedGame.prototype.openChannel = function(){
 	if(!options_debug){
-		_prnt.showWndWarning("Please wait. \n Send BETs into the game");
-		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(result){
-			_bOpenChannel = true;
-			_prnt.isCashoutAvailable();
-			_prnt.showChips(true);
-			_wndWarning.visible = false;
+		_prnt.showWndWarning("Please wait. \n Sending BETs into the game");
+		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(obj){
+			if(obj == true){
+				sessionIsOver = false;
+				_bOpenChannel = true;
+				_prnt.isCashoutAvailable();
+				_prnt.showChips(true);
+				_wndWarning.visible = false;
+			} else {
+				var str = obj.error;
+				_prnt.showError(str);
+			}
 		});
 	}
 }
@@ -595,6 +609,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 				_wndWarning.visible = false;
 				if(obj == true){
 					_bOpenChannel = false;
+					sessionIsOver = true;
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
@@ -652,6 +667,7 @@ ScrSpeedGame.prototype.clearGame = function(){
 	_currentMethod = -1;
 	_myPoints = 0;
 	_mySplitPoints = 0;
+	_valInsurance = 0;
 	
 	var i = 0;
 	
@@ -723,6 +739,7 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 		_prnt.showWndBank();
 		return false;
 	}
+	_prnt.isCashoutAvailable();
 	
 	if(_betGame == 0){
 		_prnt.clearChips();
@@ -826,14 +843,13 @@ ScrSpeedGame.prototype.showError = function(value, callback) {
 }
 
 ScrSpeedGame.prototype.showInsurance = function() {
-	if(true){
-		return false;
-	}
 	var price = _betGame/2;
-	price = toFixed((convertToken(price)), 4);
-	var str = "Do you want Insurance? \n " + price + " BET.";
-	this.showWndInsurance(str, this.clickInsurance);
-	_bInsurance = 0;
+	if(_balanceSession >= price){
+		price = toFixed((convertToken(price)), 4);
+		var str = "Do you want Insurance? \n " + price + " BET.";
+		this.showWndInsurance(str, this.clickInsurance);
+		_bInsurance = 0;
+	}
 }
 
 ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
@@ -872,6 +888,9 @@ ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
 		_y = _H + 100+i*12;
 		if(_name == "lose" || _name == "bust"){
 			_y = 150;
+			if(type == "main" && _objSpeedGame.insurance){
+				_y = _H + 100+i*12;
+			}
 			createjs.Tween.get(chip).to({x:_x, y:_y, alpha:0},speed*2);
 		} else if(_name == "push"){
 			createjs.Tween.get(chip).to({x:_x, y:_y},speed*2);
@@ -1333,7 +1352,8 @@ ScrSpeedGame.prototype.sendCard = function(obj){
 		
 		if(_loadHouseCard==1){
 			_prnt._arNewCards.push({type:"suit", id:0});
-			if(_valInsurance == 0 && card.point == 11 && _myPoints != BLACKJACK){
+			if(_valInsurance == 0 && card.point == 11 && 
+			_myPoints != BLACKJACK && _mySplitPoints == 0){
 				_prnt.showInsurance();
 			}
 		}
@@ -1708,15 +1728,16 @@ ScrSpeedGame.prototype.clickSplit = function(){
 }
 
 ScrSpeedGame.prototype.clickInsurance = function(){
-	// var prnt = obj_game["game"];
-	// prnt.bInsurance = 1;
-	// infura.sendRequest("requestInsurance", openkey, _callback);
-	// prnt.bWait = true;
-	// prnt.showButtons(false);
-	
-	// if(options_speedgame){
-		// prnt.bInsurance = 2;
-	// }
+	_valInsurance = _betGame/2;
+	if(!options_debug){
+		Casino.callGameFunction(_idGame, msgID(), 
+			'bjInsurance', [_valInsurance]
+		);
+	}
+	_bInsurance = 1;
+	_logic.bjInsurance(_valInsurance);
+	_balanceSession = _logic.getBalance();
+	_prnt.refreshBalance();
 }
 
 ScrSpeedGame.prototype.checkResult = function(objResult){
@@ -1771,12 +1792,12 @@ ScrSpeedGame.prototype.getBalancePlayer = function(){
 }
 
 ScrSpeedGame.prototype.refreshBalance = function(){
-	var str = toFixed(convertToken(_balanceSession), 2) + " (" +
-						toFixed(convertToken(_balance), 2) + ")" + " BET";
-	var str2 = "Game balance: " + toFixed(convertToken(_balanceSession), 2) + " ( Player balance: " +
-						toFixed(convertToken(_balance), 2) + ")" + " BET";
+	var str = toFixed(convertToken(_balanceSession), 3) + " (" +
+						toFixed(convertToken(_balance), 3) + ")" + " BET";
+	var str2 = "Game balance: " + toFixed(convertToken(_balanceSession), 3) + " \n Player balance: " +
+						toFixed(convertToken(_balance), 3) + " \n BET";
 	_prnt.tfBalance.setText(str);
-	_prnt.icoEthereum.hint = str2;
+	_prnt.icoEthereum.hint2 = str2;
 }
 
 ScrSpeedGame.prototype.getBalanceBank = function(){
@@ -1787,36 +1808,6 @@ ScrSpeedGame.prototype.getBalanceBank = function(){
 ScrSpeedGame.prototype.getBalanceErc = function(){
 	var value = callERC20("balanceOf", addressCurErc);
 	_balanceErc = Number(value);
-}
-
-ScrSpeedGame.prototype.response = function(command, value, error) {
-	if(value == undefined || error){
-		if((command == "sendRaw" || command == "gameTxHash")){
-			if(error){
-				// OUT OF GAS - error client (wrong arguments from the client)
-				// invalid JUMP - throw contract
-				console.log("response:", error);
-				_prnt.showError(error.message);
-			} else {
-				_prnt.showError(ERROR_CONTRACT);
-			}
-			_bWait = false;
-		}
-		return false;
-	}
-	
-	if(command == "getBalance"){
-		_balancePlEth = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
-	} else if(command == "getBalanceBank"){
-		_balanceBank = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
-	} else if(command == "newChannel"){
-		_prnt.responseTransaction(command, value);
-		_bOpenChannel = true;
-	} else if(command == "closeChannel"){
-		_prnt.responseTransaction(command, value);
-		_bOpenChannel = false;
-	} else if(command == "sendRaw"){
-	}
 }
 
 ScrSpeedGame.prototype.responseTransaction = function(name, value) {
@@ -1831,7 +1822,8 @@ ScrSpeedGame.prototype.responseTransaction = function(name, value) {
 		console.log("newChannel:", price);
 	} else if(name == "closeChannel"){
 		if(_logic.getResult()){
-			price = _logic.getResult().profit;
+			price = _objSpeedGame.money;
+			// price = _logic.getResult().profit;
 			var add = price > 0;
 			console.log("closeChannel:", price, add);
 			args = [openkey, Math.abs(price), add];
@@ -1871,6 +1863,36 @@ ScrSpeedGame.prototype.responseTransaction = function(name, value) {
 			_prnt.bClickStart = false;
 		}
 		_prnt.bWait = false;
+	}
+}
+
+ScrSpeedGame.prototype.response = function(command, value, error) {
+	if(value == undefined || error){
+		if((command == "sendRaw" || command == "gameTxHash")){
+			if(error){
+				// OUT OF GAS - error client (wrong arguments from the client)
+				// invalid JUMP - throw contract
+				console.log("response:", error);
+				_prnt.showError(error.message);
+			} else {
+				_prnt.showError(ERROR_CONTRACT);
+			}
+			_bWait = false;
+		}
+		return false;
+	}
+	
+	if(command == "getBalance"){
+		_balancePlEth = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
+	} else if(command == "getBalanceBank"){
+		_balanceBank = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
+	} else if(command == "newChannel"){
+		_prnt.responseTransaction(command, value);
+		_bOpenChannel = true;
+	} else if(command == "closeChannel"){
+		_prnt.responseTransaction(command, value);
+		_bOpenChannel = false;
+	} else if(command == "sendRaw"){
 	}
 }
 
