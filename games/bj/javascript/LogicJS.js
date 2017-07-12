@@ -1,11 +1,11 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.4
+ * v 1.0.5
  */
 
 var LogicJS = function(params){
-	var self = this;
+	var _self = this;
 
 	var BLACKJACK = 21;
 
@@ -37,6 +37,7 @@ var LogicJS = function(params){
 	
 	var _bStand = false;
 	var _bStandNecessary = false;
+	var _bSplit = false;
 	
 	var _prnt;
 	var _callback;
@@ -62,7 +63,7 @@ var LogicJS = function(params){
 	
 	mixDeck();
 	
-	self.bjDeal = function(_s, _bet){
+	_self.bjDeal = function(_s, _bet){
 		_idGame ++;
 		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
 		_objSpeedGame.result = false;
@@ -80,6 +81,7 @@ var LogicJS = function(params){
 		_arHousePoints = [];
 		_bStand = false;
 		_bStandNecessary = false;
+		_bSplit = false;
 		
 		var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
 		dealCard(true, true, seedarr[15]);
@@ -88,18 +90,18 @@ var LogicJS = function(params){
 		refreshGame(_s);
 	}
 	
-	self.bjHit = function(_s, isMain){
+	_self.bjHit = function(_s, isMain){
 		dealCard(true, isMain, _s);
 		refreshGame(_s);
 	}
 	
-	self.bjStand = function(_s, isMain){
+	_self.bjStand = function(_s, isMain){
 		var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
 		stand(isMain, seedarr);
 		refreshGame(_s);
 	}
 	
-	self.bjSplit = function(_s){	
+	_self.bjSplit = function(_s){	
 		var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
 		_arMySplitCards = [_arMyCards[1]];
 		_arMyCards = [_arMyCards[0]];
@@ -107,6 +109,7 @@ var LogicJS = function(params){
 		_arMyPoints = [_arMyPoints[0]];
 		_myPoints = getMyPoints();
 		_splitPoints = getMySplitPoints();
+		_bSplit = true;
 		dealCard(true, true, seedarr[15]);
 		dealCard(true, false, seedarr[16]);
 		_objSpeedGame.betSplitGame = _objSpeedGame.betGame;
@@ -116,7 +119,7 @@ var LogicJS = function(params){
 		refreshGame(_s);
 	}
 	
-	self.bjDouble = function(_s, isMain){
+	_self.bjDouble = function(_s, isMain){
 		var seedarr = ABI.rawEncode([ "bytes32" ], [ _s ]);
 		dealCard(true, isMain, _s);
 		stand(isMain, seedarr);
@@ -133,13 +136,14 @@ var LogicJS = function(params){
 		refreshGame(_s);
 	}
 	
-	self.bjInsurance = function(_bet){
+	_self.bjInsurance = function(_bet){
 		_objSpeedGame.insurance = true;
 		_money -= _bet;
 		_objSpeedGame.money = _money;
+		_objResult.profit -= _bet;
 	}
 	
-	self.makeID = function(){
+	_self.makeID = function(){
 		var count = 64;
 		var str = "0x";
 		var possible = "abcdef0123456789";
@@ -156,20 +160,20 @@ var LogicJS = function(params){
 		return str;
 	}
 	
-	self.getGame = function(){
+	_self.getGame = function(){
 		return _objSpeedGame;
 	}
 	
-	self.getResult = function(){
+	_self.getResult = function(){
 		return _objResult;
 	}
 	
-	self.getBalance = function(){
+	_self.getBalance = function(){
 		var balance = _balance + _money;
 		return balance;
 	}
 	
-	self.getValCards = function(cardIndex){
+	_self.getValCards = function(cardIndex){
 		var cardType = Math.floor(cardIndex / 4);
 		var cardSymbol = String(cardType);
 		var s = cardIndex % 4 + 1;
@@ -227,6 +231,7 @@ var LogicJS = function(params){
 	}
 	
 	function stand(isMain, s){
+		_bSplit = false;
 		if (!isMain) {
 			return;
 		}
@@ -327,12 +332,16 @@ var LogicJS = function(params){
 			betWin = bet;
 			if(isMain){
 				_objSpeedGame.result = true;
+			} else {
+				_bSplit = false;
 			}
         }
         if (points > BLACKJACK && state=="") {
             state = "bust";
 			if(isMain){
 				_objSpeedGame.result = true;
+			} else {
+				_bSplit = false;
 			}
         }
 		if (points == _housePoints && state=="") {
@@ -351,12 +360,12 @@ var LogicJS = function(params){
 		if(!_objSpeedGame.result){
 			if(_bStand){
 				_objSpeedGame.result = true;
-			} else if(points == BLACKJACK && isMain){
+			} else if(points == BLACKJACK && isMain && !_bSplit){
 				if(_bStandNecessary){
 					_objSpeedGame.result = true;
 				} else {
 					_bStandNecessary = true;
-					self.bjStand(_s, isMain);
+					_self.bjStand(_s, isMain);
 					return false;
 				}
 			}
@@ -506,5 +515,5 @@ var LogicJS = function(params){
 		return n;
 	}
 
-	return self;
+	return _self;
 }

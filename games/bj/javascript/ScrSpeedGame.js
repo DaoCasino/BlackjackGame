@@ -154,10 +154,14 @@ ScrSpeedGame.prototype.init = function() {
 	}
 	
 	infura.sendRequest("getBalance", openkey, _callback);
-	this.getBalancePlayer();
 	this.getBalanceBank();
 	this.getBalanceErc();
-	this.getBankrolls();
+	Casino.Account.getBetsBalance(
+		function(value){
+			_prnt.getBalancePlayer(value);
+			_prnt.getBankrolls();
+		}
+	);
 	
 	if(openkey){} else {
 		this.showError(ERROR_KEY, showHome);
@@ -231,7 +235,7 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.tfTotalTime.x = icoTime.x + 30;
 	this.tfTotalTime.y = icoTime.y - 12;
 	this.face_mc.addChild(this.tfTotalTime);
-	this.tfBankrollers= addText("Bankrollers: 0", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	this.tfBankrollers = addText("", fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfBankrollers.x = icoTime.x - 10;
 	this.tfBankrollers.y = this.tfTotalTime.y + 45;
 	this.face_mc.addChild(this.tfBankrollers);
@@ -465,9 +469,14 @@ ScrSpeedGame.prototype.showWndWarning = function(str) {
 		var tf = addText("", 26, "#FFCC00", "#000000", "center", 500, 3)
 		_wndWarning.addChild(tf);
 		
+		var loading = new ItemLoading(this);
+		loading.x = 0;
+		loading.y = 70;
+		_wndWarning.addChild(loading);
+		
 		_wndWarning.tf = tf;
+		_wndWarning.loading = loading;
 	}
-	
 	
 	_wndWarning.tf.setText(str);
 	_wndWarning.tf.y = -_wndWarning.tf.height/2;
@@ -476,7 +485,7 @@ ScrSpeedGame.prototype.showWndWarning = function(str) {
 
 ScrSpeedGame.prototype.closeWindow = function(wnd) {
 	_curWindow = wnd;
-	_timeCloseWnd = 200;
+	_timeCloseWnd = 100;
 }
 
 ScrSpeedGame.prototype.addChip = function(name, x, y, type) {
@@ -525,7 +534,7 @@ ScrSpeedGame.prototype.createButton2 = function(name, title, x, y, sc) {
 ScrSpeedGame.prototype.getBankrolls = function(){
 	if(options_debug){
 		_countBankrollers = 1;
-		_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+		// _prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 		_prnt.showWndBank();
 		return false;
 	}
@@ -543,7 +552,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 		
 		// _countBankrollers = _arr.length;
 		_countBankrollers = 1;
-		_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+		// _prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 		
 		// load game
 		/*if(login_obj["objGame"]){
@@ -613,8 +622,10 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
-					_prnt.getBalancePlayer();
 					infura.sendRequest("getBalance", openkey, _callback);
+					setTimeout(function(){
+						Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
+					}, 5000);
 				} else {
 					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
 					_prnt.showError(str);
@@ -888,7 +899,10 @@ ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
 		_y = _H + 100+i*12;
 		if(_name == "lose" || _name == "bust"){
 			_y = 150;
-			if(type == "main" && _objSpeedGame.insurance){
+			if(type == "main" && 
+			_objSpeedGame.insurance && 
+			_mySplitPoints == BLACKJACK &&
+			_prnt._arHouseCards.length == 2){
 				_y = _H + 100+i*12;
 			}
 			createjs.Tween.get(chip).to({x:_x, y:_y, alpha:0},speed*2);
@@ -1785,9 +1799,8 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 }
 
 // BLOCKCHAIN
-ScrSpeedGame.prototype.getBalancePlayer = function(){
-	var value = callERC20("balanceOf", openkey);
-	_balance = Number(value);
+ScrSpeedGame.prototype.getBalancePlayer = function(value){
+	_balance = Number(value)*valToken;
 	_prnt.refreshBalance();
 }
 
@@ -1947,6 +1960,9 @@ ScrSpeedGame.prototype.update = function(diffTime){
 		}
 	}
 	
+	if(_wndWarning){
+		_wndWarning.loading.update(diffTime);
+	}
 	
 	if(_timeCloseWnd > 0 && _curWindow){
 		_timeCloseWnd -= diffTime;
