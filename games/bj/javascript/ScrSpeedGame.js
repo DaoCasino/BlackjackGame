@@ -603,13 +603,13 @@ ScrSpeedGame.prototype.closeChannel = function() {
 			_prnt.showButtons(false);
 			_prnt.showChips(false);
 			_prnt.btnExit.alpha = 0.5;
-			_prnt.resetGame();
 			_prnt.showWndWarning("Please wait. \n Soon will your BETs.");
 			Casino.endGame(deposit, function(obj){
 				_wndWarning.visible = false;
 				if(obj == true){
 					_bOpenChannel = false;
 					sessionIsOver = true;
+					_prnt.resetGame();
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
