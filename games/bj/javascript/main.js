@@ -1,7 +1,6 @@
 var _W = 1920;
 var _H = 1080;
 var version = "v. 1.1.0";
-version = "v. 1.0.65";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
@@ -27,39 +26,39 @@ var addressErc = "";
 var addressStorage = "";
 var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 // testrpc
-var	addressRpcErc = "0x084294104f8078b27e50f3292132f33d3fb8921b";
-var	addressRpcStorage = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
+var	addressRpcErc      = "0x084294104f8078b27e50f3292132f33d3fb8921b";
+var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
-var addressTestDeck = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
-var addressTestSeed = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
-var addressTestStorage = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
+var addressTestDeck     = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
+var addressTestSeed     = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
+var addressTestStorage  = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
 var addressTestContract = "0xeb131eef1a58223802d1c572ee39ebfe2dcb2a67";
-// addressTestContract = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
+addressTestContract     = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
 // alpha (speed game)
-var	addressSpeedDeck = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
-var	addressSpeedSeed = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
-var	addressSpeedStorage = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
+var	addressSpeedDeck     = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
+var	addressSpeedSeed     = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
+var	addressSpeedStorage  = "0xaa7faa3da6a58f59e4af8a7343f44680212cae9f";
 var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 
-var options_debug = false;
-var options_test = false;
-var options_ethereum = true;
-var options_mainet = false;
-var options_ropsten = true;
-var options_rinkeby = false;
-var options_testnet = options_ropsten || options_rinkeby;
-var options_rpc = false;
-var options_music = true;
-var options_sound = true;
-var options_mobile = true;
-var options_pause = false;
-var options_fullscreen = false;
-var options_speedgame = false;
+var options_debug       = false;
+var options_test        = false;
+var options_ethereum    = true;
+var options_mainet      = false;
+var options_ropsten     = true;
+var options_rinkeby     = false;
+var options_testnet     = options_ropsten || options_rinkeby;
+var options_rpc         = false;
+var options_music       = true;
+var options_sound       = true;
+var options_mobile      = true;
+var options_pause       = false;
+var options_fullscreen  = false;
+var options_speedgame   = false;
 var options_splitdouble = true;
 
 var ERROR_CONNECTION = 0;
@@ -395,7 +394,7 @@ function makeID(){
 }
 
 function msgID(){
-	return new Date().getTime()
+	return makeID();
 }
 
 function removeAllScreens() {
@@ -454,18 +453,18 @@ function loadData() {
 			openkey = "0x39b3da1a4343d68f7e2b2bf69e2cd2652256b942"; // LW
 			privkey = "302a13fad862f88fe13794b1c5e7895f3d00ebd48ff86a975bd3a0193b5ab57e"; // LW
 		} else {
-			// openkey = Casino.Account.get().openkey;
-			privkey = localStorage.getItem('privkey')
-			openkey = localStorage.getItem('openkey')
+			openkey = Casino.Account.get().openkey;
+			// privkey = localStorage.getItem('privkey')
+			// openkey = localStorage.getItem('openkey')
 		}
 		mainet = localStorage.getItem('mainnet')
 		if(openkey){
 			sendingAddr = openkey.substr(2);
 		}
-		var keystore = localStorage.getItem('keystore');
-		if(keystore){}else{
-			alert("This account does not support tokens. Create a new account.");
-		}
+		var keystore = Casino.Account.get().keystorage
+		// if(keystore){}else{
+		// 	alert("This account does not support tokens. Create a new account.");
+		// }
 		if(keystore && lightwallet){
 			ks = lightwallet.keystore.deserialize(keystore);
 		}
@@ -954,6 +953,10 @@ function rndSHA3(cardNumber) {
 
 window.onbeforeunload = function() {
 	if(!sessionIsOver){
+		if(currentScreen.name == "speedgame"){
+			currentScreen.closeChannel();
+			return "The gaming session is closed";
+		}
 		return "Data may not be saved. Are you sure you want to reload the page?";
 	}
 };

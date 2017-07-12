@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.3
+ * v 1.0.4
  */
 
 var LogicJS = function(params){
@@ -56,7 +56,8 @@ var LogicJS = function(params){
 						curGame:{}, 
 						betGame:0, 
 						betSplitGame:0, 
-						money:_money};
+						money:_money,
+						insurance:false};
 	var _objResult = {main:"", split:"", betMain:0, betSplit:0, profit:0, mixing:false};
 	
 	mixDeck();
@@ -70,6 +71,7 @@ var LogicJS = function(params){
 		_objSpeedGame.betSplitGame = 0;
 		_money -= _bet;
 		_objSpeedGame.money = _money;
+		_objSpeedGame.insurance = false;
 		_arMyCards = [];
 		_arMySplitCards = [];
 		_arHouseCards = [];
@@ -131,8 +133,10 @@ var LogicJS = function(params){
 		refreshGame(_s);
 	}
 	
-	self.bjInsurance = function(_s){
-		
+	self.bjInsurance = function(_bet){
+		_objSpeedGame.insurance = true;
+		_money -= _bet;
+		_objSpeedGame.money = _money;
 	}
 	
 	self.makeID = function(){
@@ -311,6 +315,9 @@ var LogicJS = function(params){
 			state = "lose";
 			if(isMain){
 				_objSpeedGame.result = true;
+				if(_objSpeedGame.insurance){
+					betWin = bet;
+				}
 			}
         }
 		
