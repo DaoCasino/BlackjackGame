@@ -29,6 +29,8 @@ var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
 var	addressRpcErc      = "0x084294104f8078b27e50f3292132f33d3fb8921b";
 var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
+// channel
+var addressChannel		= "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
@@ -36,7 +38,6 @@ var addressTestDeck     = "0x978bcd2ac501366f61f2f6264b4ee913435ca385";
 var addressTestSeed     = "0x1b50ff6735fc8a0e3635d9265e799f3e1722e753";
 var addressTestStorage  = "0xaee32ec2e9f50d82092c501533ba64b9061bd885";
 var addressTestContract = "0xeb131eef1a58223802d1c572ee39ebfe2dcb2a67";
-addressTestContract     = "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
 // alpha (speed game)
 var	addressSpeedDeck     = "0xa5ce8364091a8582c8d19dee5f77bca05f586b2c";
 var	addressSpeedSeed     = "0x4d785a5f76132cd6a351ca489d43405e9140d9de";
@@ -60,6 +61,7 @@ var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
 var options_splitdouble = true;
+var options_save = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -436,6 +438,9 @@ function update() {
 }
 
 function saveData() {
+	if(!options_save){
+		return false;
+	}
 	if(isLocalStorageAvailable() && !options_rpc){
 		var login_str = JSON.stringify(login_obj);
 		localStorage.setItem('daocasino_blackjack', login_str);
@@ -951,12 +956,12 @@ function rndSHA3(cardNumber) {
 	return rand;
 }
 
-window.onbeforeunload = function() {
-	if(!sessionIsOver){
-		if(currentScreen.name == "speedgame"){
-			currentScreen.closeChannel();
-			return "The gaming session is closed";
-		}
-		return "Data may not be saved. Are you sure you want to reload the page?";
-	}
-};
+// window.onbeforeunload = function() {
+	// if(!sessionIsOver){
+		// if(currentScreen.name == "speedgame"){
+			// currentScreen.closeChannel();
+			// return "The gaming session is closed";
+		// }
+		// return "Data may not be saved. Are you sure you want to reload the page?";
+	// }
+// };

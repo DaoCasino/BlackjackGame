@@ -42,18 +42,12 @@ var _wndWarning;
 var _callback;
 var _cardSuit;
 var _mixingCard;
-var _objSpeedGame = {result:false, 
-						idGame:-1, 
-						curGame:{}, 
-						betGame:0, 
-						betSplitGame:0, 
-						money:0,
-						insurance:false};
+var _objSpeedGame;
+var _objResult;
 
 var urlEtherscan = "https://api.etherscan.io/";
 
 var _startGame = false;
-var _bWait = false;
 var _bClear = false;
 var _bStand = false;
 var _bSplit = false;
@@ -61,7 +55,6 @@ var _bWindow = false;
 var _bClickApprove = false;
 var _bStandSplit = false;
 var _bEndTurnSplit = false;
-var _bOpenChannel = false;
 
 var _minBet = 5000000;
 var _maxBet = 500000000;
@@ -97,6 +90,7 @@ var _currentMethod = -1;
 var _idGame = localStorage._idGame || 0;
 
 var _dealedCards = [];
+var _arBankrollers = [];
 
 ScrSpeedGame.prototype.init = function() {
 	this.face_mc = new PIXI.Container();
@@ -108,6 +102,7 @@ ScrSpeedGame.prototype.init = function() {
 	
 	_prnt = this;
 	_callback = this.response;
+	_prnt.resetObjGame();
 	this.startTime = getTimer();
 	this._arButtons = [];
 	this._arBtnChips = [];
@@ -146,11 +141,7 @@ ScrSpeedGame.prototype.init = function() {
 		addressContract = addressRpcContract;
 	}else if(options_testnet){
 		urlEtherscan = "https://ropsten.etherscan.io/";
-		if(options_speedgame){
-			addressContract = addressSpeedContract;
-		} else {
-			addressContract = addressTestContract;
-		}
+		addressContract = addressChannel;
 	}
 	
 	infura.sendRequest("getBalance", openkey, _callback);
@@ -192,8 +183,8 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.icoEthereum = icoEthereum;
 	this._arButtons.push(icoEthereum);
 	this.face_mc.addChild(icoEthereum);
-	var icoTime = addObj("icoTime", 40, 40+stepY*2, scGui);
-	this.face_mc.addChild(icoTime);
+	// var icoTime = addObj("icoTime", 40, 40+stepY*2, scGui);
+	// this.face_mc.addChild(icoTime);
 	var btnFrame = addButton("btnFrame", 345, 38, 1, 1.2);
 	btnFrame.name = "btnKey";
 	btnFrame.interactive = true;
@@ -231,17 +222,17 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.tfBalance.x = icoEthereum.x + 30;
 	this.tfBalance.y = icoEthereum.y - 12;
 	this.face_mc.addChild(this.tfBalance);
-	this.tfTotalTime = addText("0", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	this.tfTotalTime.x = icoTime.x + 30;
-	this.tfTotalTime.y = icoTime.y - 12;
-	this.face_mc.addChild(this.tfTotalTime);
+	// this.tfTotalTime = addText("0", fontSize, "#ffffff", "#000000", "left", 400, 4)
+	// this.tfTotalTime.x = icoTime.x + 30;
+	// this.tfTotalTime.y = icoTime.y - 12;
+	// this.face_mc.addChild(this.tfTotalTime);
 	this.tfBankrollers = addText("", fontSize, "#ffffff", "#000000", "left", 400, 4)
-	this.tfBankrollers.x = icoTime.x - 10;
-	this.tfBankrollers.y = this.tfTotalTime.y + 45;
+	this.tfBankrollers.x = icoKey.x - 10;
+	this.tfBankrollers.y = 40+stepY*2 + 38;
 	this.face_mc.addChild(this.tfBankrollers);
 	this.tfVers= addText(version, fontSize, "#ffffff", "#000000", "left", 400, 4)
-	this.tfVers.x = icoTime.x - 10;
-	this.tfVers.y = this.tfBankrollers.y + 40;
+	this.tfVers.x = icoKey.x - 10;
+	this.tfVers.y = 40+stepY*2 - 12;
 	this.face_mc.addChild(this.tfVers);
 	var strVer = "beta version";
 	if(options_speedgame){
@@ -251,7 +242,7 @@ ScrSpeedGame.prototype.createGUI = function() {
 		this.tfIdUser.setText(openkey);
 	}
 	this.tfVers2= addText(strVer, fontSize, "#ffffff", "#000000", "left", 400, 4)
-	this.tfVers2.x = icoTime.x - 10;
+	this.tfVers2.x = icoKey.x - 10;
 	this.tfVers2.y = _H - this.tfVers2.height;
 	this.face_mc.addChild(this.tfVers2);
 	
@@ -441,14 +432,10 @@ ScrSpeedGame.prototype.showWndBank = function() {
 				_balanceSession = value;
 				_balance -= _balanceSession;
 				_prnt.refreshBalance();
-				// init logic
-				_prnt.prnt = _prnt;
-				_prnt.balance = _balanceSession;
-				_prnt.callback = _prnt.responseServer;
-				_logic = new LogicJS(_prnt);
+				_prnt.initLogic();
 				_prnt.openChannel();
 				if(options_debug){
-					_bOpenChannel = true;
+					login_obj["openChannel"] = true;
 					sessionIsOver = false;
 					_prnt.showChips(true);
 				}
@@ -531,73 +518,112 @@ ScrSpeedGame.prototype.createButton2 = function(name, title, x, y, sc) {
 	return btn;
 }
 
+ScrSpeedGame.prototype.initLogic = function(){
+	// init logic
+	_prnt.prnt = _prnt;
+	_prnt.balance = _balanceSession;
+	_prnt.callback = _prnt.responseServer;
+	_logic = new LogicJS(_prnt);
+}
+
 ScrSpeedGame.prototype.getBankrolls = function(){
-	if(options_debug){
-		_countBankrollers = 1;
-		// _prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-		_prnt.showWndBank();
-		return false;
-	}
-	
-	var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game="+metaCode;
-	_bWait= true;
-	
-	$.ajax(urlRequest).done(function (d) {
-		_bWait = false;
-		// var _arr = JSON.parse(d);
-		// if (!_arr) {
-			// _prnt.showError(ERROR_BANKROLLER);      
-			// return;
-		// }
-		
-		// _countBankrollers = _arr.length;
-		_countBankrollers = 1;
-		// _prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-		
-		// load game
-		/*if(login_obj["objGame"]){
-			_objSpeedGame = login_obj["objGame"];
-			if(_objSpeedGame.result){
-				_objSpeedGame = {result:false, idGame:_idGame, curGame:{}, betGame:0, betSplitGame:0, money:0};
-				_prnt.showChips(true);
-			} else {
-				_prnt.responseServer(_objSpeedGame.curGame);
-				_idGame = _objSpeedGame.idGame;
-				_betGame = _objSpeedGame.betGame;
-				_betSplitGame = _objSpeedGame.betSplitGame;
-				if(_betGame > 0){
-					_prnt.fillChips(_betGame);
-					_prnt.tfMyBet.setText(_betGame/valToken);
-				}
-				if(_betGame > 0 && _betSplitGame > 0){
-					_prnt.fillChips(_betSplitGame, "split");
-					_prnt.tfSplitBet.setText(_betSplitGame/valToken);
-				}
-				_startGame = true;
-				_prnt.showButtons(true);
+	var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game=daochannel_v1";
+	$.ajax(urlRequest).done(
+		function (d) {
+			var _arr = JSON.parse(d);
+			if (!_arr) {
+				prnt.showError(ERROR_BANKROLLER);      
+				return;
 			}
-		} else {*/
-			_prnt.showWndBank();
-		// }
-	}).fail(function() {
-		_prnt.showWndWarning("Speed mode don't work. \n Try later.");
-		_prnt.showButtons(false);
-		_prnt.showChips(false);
-	});
+			
+			_arBankrollers = _arr;
+			_countBankrollers = _arr.length;
+			_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+			_prnt.loadGame();
+		}
+	).fail(function() {
+			console.log("SERVER FAIL");
+			if(options_testnet){
+				_countBankrollers = 1;
+				_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+				addressContract = addressChannel;
+				_prnt.loadGame();
+			}
+		}
+	);
+}
+
+ScrSpeedGame.prototype.loadGame = function(){
+	// if(options_debug){
+		// _countBankrollers = 1;
+		// _prnt.showWndBank();
+		// return false;
+	// }
 	
+	var load = false;
+	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
+		var adr = login_obj["addressBankroller"];
+		if(_arBankrollers.indexOf(adr)>-1){
+			// load = true;
+		}
+	}
+	console.log("loadGame:", load);
+	// load game
+	if(load){
+		sessionIsOver = false;
+		if(login_obj["objGame"]){
+			_objSpeedGame = login_obj["objGame"];
+		}
+		if(login_obj["objResult"]){
+			_objResult = login_obj["objResult"];
+		}
+		if(_objSpeedGame.result){
+			_prnt.resetObjGame();
+			_balanceSession = login_obj["balanceSession"];
+			_prnt.refreshBalance();
+			_prnt.initLogic();
+			_prnt.showChips(true);
+		} else {
+			_balanceSession = login_obj["balanceSession"];
+			_prnt.refreshBalance();
+			_prnt.initLogic();
+			_logic.loadGame(_objSpeedGame, _objResult);
+			_prnt.responseServer(_objSpeedGame);
+			_betGame = _objSpeedGame.betGame;
+			_betSplitGame = _objSpeedGame.betSplitGame;
+			if(_betGame > 0){
+				_prnt.fillChips(_betGame);
+				_prnt.tfMyBet.setText(_betGame/valToken);
+			}
+			if(_betGame > 0 && _betSplitGame > 0){
+				_prnt.fillChips(_betSplitGame, "split");
+				_prnt.tfSplitBet.setText(_betSplitGame/valToken);
+			}
+			_startGame = true;
+			_prnt.showButtons(true);
+		}
+	} else {
+		_prnt.showWndBank();
+	}
 }
 
 ScrSpeedGame.prototype.openChannel = function(){
 	if(!options_debug){
+		_bWindow = false;
 		_prnt.showWndWarning("Please wait. \n Sending BETs into the game");
 		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(obj){
 			if(obj == true){
 				sessionIsOver = false;
-				_bOpenChannel = true;
 				_prnt.isCashoutAvailable();
 				_prnt.showChips(true);
 				_wndWarning.visible = false;
+				login_obj["openChannel"] = true;
+				login_obj["addressBankroller"] = addressContract;
+				saveData();
 			} else {
+				_balance += _balanceSession;
+				_balanceSession = 0;
+				_prnt.refreshBalance();
 				var str = obj.error;
 				_prnt.showError(str);
 			}
@@ -606,23 +632,24 @@ ScrSpeedGame.prototype.openChannel = function(){
 }
 
 ScrSpeedGame.prototype.closeChannel = function() {
-	if(_bOpenChannel && _objSpeedGame.result && !options_debug){
+	if(login_obj["openChannel"] && _objSpeedGame.result && !options_debug){
 		if(_logic.getResult()){
 			var deposit = _objSpeedGame.money;
 			_prnt.showButtons(false);
 			_prnt.showChips(false);
 			_prnt.btnExit.alpha = 0.5;
-			_prnt.showWndWarning("Please wait. \n Soon will your BETs.");
+			_prnt.showWndWarning("Please wait. \n The gaming session is closed.");
 			Casino.endGame(deposit, function(obj){
 				_wndWarning.visible = false;
 				if(obj == true){
-					_bOpenChannel = false;
 					sessionIsOver = true;
+					login_obj["openChannel"] = false;
 					_prnt.resetGame();
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
 					infura.sendRequest("getBalance", openkey, _callback);
+					saveData();
 					setTimeout(function(){
 						Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 					}, 5000);
@@ -639,6 +666,16 @@ ScrSpeedGame.prototype.closeChannel = function() {
 	}
 }
 
+ScrSpeedGame.prototype.resetObjGame = function(){
+	_objSpeedGame = {result:false, 
+						idGame:-1, 
+						curGame:{}, 
+						betGame:0, 
+						betSplitGame:0, 
+						money:0,
+						insurance:false};
+}
+
 ScrSpeedGame.prototype.resetGame = function(){
 	this.tfStatus.setText("");
 	this.tfMyPoints.setText("");
@@ -652,7 +689,6 @@ ScrSpeedGame.prototype.resetGame = function(){
 	this._arHouseCards = [];
 	this._arNewCards = [];
 	_bClear = true;
-	_bWait = false;
 	_balanceSession = 0;
 	this.clearBet();
 	this.clearGame();
@@ -660,7 +696,6 @@ ScrSpeedGame.prototype.resetGame = function(){
 
 ScrSpeedGame.prototype.clearGame = function(){
 	_startGame = false;
-	_bWait = false;
 	_bStand = false;
 	_bSplit = false;
 	_bStandSplit = false;
@@ -746,7 +781,7 @@ ScrSpeedGame.prototype.clearText = function(){
 }
 
 ScrSpeedGame.prototype.clickChip = function(item_mc){
-	if(!_bOpenChannel){
+	if(!login_obj["openChannel"]){
 		_prnt.showWndBank();
 		return false;
 	}
@@ -851,6 +886,7 @@ ScrSpeedGame.prototype.showError = function(value, callback) {
 			break;
 	}
 	_prnt.createWndInfo(str, callback);
+	_wndWarning.visible = false;
 }
 
 ScrSpeedGame.prototype.showInsurance = function() {
@@ -981,7 +1017,6 @@ ScrSpeedGame.prototype.showChips = function(value) {
 	
 	if(value && _betGame == 0 && _countBankrollers > 0){
 		_bClear = false;
-		_bWait = false;
 		this.tfStatus.setText("Select bet");
 	}
 }
@@ -1083,7 +1118,7 @@ ScrSpeedGame.prototype.showHouseCard = function(card){
 }
 
 ScrSpeedGame.prototype.isCashoutAvailable = function() {
-	if(_bOpenChannel && _objSpeedGame.result){
+	if(login_obj["openChannel"] && _objSpeedGame.result){
 		this.btnExit.alpha = 1;
 	} else {
 		this.btnExit.alpha = 0.5;
@@ -1439,10 +1474,7 @@ ScrSpeedGame.prototype.autoSplitStand = function(){
 		if(_currentMethod == HIT){
 			_bSplit = false;
 		}
-	} //else {
-		// this.bStand = true;
-	// }
-	
+	}
 	this.showButtons(false);
 	this.darkCards(this._arMyCards, false);
 	this.darkCards(this._arMySplitCards, true);
@@ -1743,6 +1775,7 @@ ScrSpeedGame.prototype.clickSplit = function(){
 
 ScrSpeedGame.prototype.clickInsurance = function(){
 	_valInsurance = _betGame/2;
+	_bWindow = false;
 	if(!options_debug){
 		Casino.callGameFunction(_idGame, msgID(), 
 			'bjInsurance', [_valInsurance]
@@ -1807,7 +1840,7 @@ ScrSpeedGame.prototype.getBalancePlayer = function(value){
 ScrSpeedGame.prototype.refreshBalance = function(){
 	var str = toFixed(convertToken(_balanceSession), 3) + " (" +
 						toFixed(convertToken(_balance), 3) + ")" + " BET";
-	var str2 = "Game balance: " + toFixed(convertToken(_balanceSession), 3) + " \n Player balance: " +
+	var str2 = "Session balance: " + toFixed(convertToken(_balanceSession), 3) + " \n Player balance: " +
 						toFixed(convertToken(_balance), 3) + " \n BET";
 	_prnt.tfBalance.setText(str);
 	_prnt.icoEthereum.hint2 = str2;
@@ -1890,7 +1923,6 @@ ScrSpeedGame.prototype.response = function(command, value, error) {
 			} else {
 				_prnt.showError(ERROR_CONTRACT);
 			}
-			_bWait = false;
 		}
 		return false;
 	}
@@ -1901,23 +1933,27 @@ ScrSpeedGame.prototype.response = function(command, value, error) {
 		_balanceBank = toFixed((Number(hexToNum(value))/1000000000000000000), 4);
 	} else if(command == "newChannel"){
 		_prnt.responseTransaction(command, value);
-		_bOpenChannel = true;
+		login_obj["openChannel"] = true;
 	} else if(command == "closeChannel"){
 		_prnt.responseTransaction(command, value);
-		_bOpenChannel = false;
+		login_obj["openChannel"] = false;
 	} else if(command == "sendRaw"){
 	}
 }
 
 // SERVER
-ScrSpeedGame.prototype.responseServer = function(obj) {
+ScrSpeedGame.prototype.responseServer = function(objGame) {
 	_prnt.tfStatus.setText("");
-	_objSpeedGame = obj;
-	_objSpeedGame.curGame = obj.curGame;
+	_objSpeedGame = objGame;
+	_objSpeedGame.curGame = objGame.curGame;
 	_balanceSession = _logic.getBalance();
-	login_obj["objGame"] = _objSpeedGame;
 	_prnt.refreshBalance();
-	// saveData();
+	login_obj["objGame"] = _objSpeedGame;
+	login_obj["objResult"] = _logic.getResult();
+	login_obj["balanceSession"] = _balanceSession;
+	if(!options_debug){
+		saveData();
+	}
 	
 	for(var name in _objSpeedGame.curGame){
 		var obj = _objSpeedGame.curGame[name];
