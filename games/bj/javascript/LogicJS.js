@@ -415,6 +415,24 @@ var LogicJS = function(params){
 		return rand;
 	}
 	
+	function getPoint(id){
+		var cardType = Math.floor(id / 4);
+		var point = cardType;
+		
+		switch (cardType) {
+			case 0:
+			case 11:
+			case 12:
+				point = 10;
+				break;
+			case 1:
+				point = 11;
+				break;
+		}
+		
+		return point;
+	}
+	
 	function getMyPoints(){
 		var myPoints = 0;
 		var countAce = 0;
@@ -514,6 +532,32 @@ var LogicJS = function(params){
 		var n = d.getTime();
 		return n;
 	}
-
+	
+	// only for client
+	_self.loadGame = function(game, result){
+		_objSpeedGame = game;
+		_objResult = result;
+		
+		_arMyCards = _objSpeedGame.curGame.arMyCards;
+		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards;
+		_arHouseCards = _objSpeedGame.curGame.arHouseCards;
+		_arMyPoints = [];
+		_arMySplitPoints = [];
+		_arHousePoints = [];
+		
+		for (var i = 0; i < _arMyCards.length; i++) {
+			var point = getPoint(_arMyCards[i]);
+			_arMyPoints.push(point);
+		}
+		for (var i = 0; i < _arMySplitCards.length; i++) {
+			var point = getPoint(_arMySplitCards[i]);
+			_arMySplitPoints.push(point);
+		}
+		for (var i = 0; i < _arHouseCards.length; i++) {
+			var point = getPoint(_arHouseCards[i]);
+			_arHousePoints.push(point);
+		}
+	}
+	
 	return _self;
 }

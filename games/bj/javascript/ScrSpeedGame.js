@@ -6,31 +6,31 @@ function ScrSpeedGame() {
 ScrSpeedGame.prototype = Object.create(PIXI.Container.prototype);
 ScrSpeedGame.prototype.constructor = ScrSpeedGame;
 
-var TIME_SHOW_BTN = 300;
+var TIME_SHOW_BTN  = 300;
 var TIME_GET_STATE = 5000;
-var C_DEAL = "e731240f";
-var C_HIT = "a45939bf";
-var C_SPLIT = "5fe71222";
-var C_STAND = "7018c942";
-var C_INSURANCE = "262b497d";
-var C_DOUBLE = "f086fbfd";
-var C_ALLOWANCE = "dd62ed3e";
-var C_CONFIRM = "b00606a5";
-var R_WIN = "WIN!";
-var R_LOSE = "LOSE...";
-var R_BUST = "BUST!";
-var R_PUSH = "PUSH";
-var R_BLACKJACK = "BLACKJACK";
-var INSURANCE = -1;
-var DEAL = 0;
-var HIT = 1;
-var STAND = 2;
-var SPLIT = 3;
-var DOUBLE = 4;
-var CONFIRM = 5;
-var NEWCHANNEL = 6;
-var CLOSECHANNEL = 7;
-var BLACKJACK = 21;
+var C_DEAL         = "e731240f";
+var C_HIT          = "a45939bf";
+var C_SPLIT        = "5fe71222";
+var C_STAND        = "7018c942";
+var C_INSURANCE    = "262b497d";
+var C_DOUBLE       = "f086fbfd";
+var C_ALLOWANCE    = "dd62ed3e";
+var C_CONFIRM      = "b00606a5";
+var R_WIN          = "WIN!";
+var R_LOSE         = "LOSE...";
+var R_BUST         = "BUST!";
+var R_PUSH         = "PUSH";
+var R_BLACKJACK    = "BLACKJACK";
+var INSURANCE      = -1;
+var DEAL           = 0;
+var HIT            = 1;
+var STAND          = 2;
+var SPLIT          = 3;
+var DOUBLE         = 4;
+var CONFIRM        = 5;
+var NEWCHANNEL     = 6;
+var CLOSECHANNEL   = 7;
+var BLACKJACK      = 21;
 
 var _prnt;
 var _logic;
@@ -526,31 +526,22 @@ ScrSpeedGame.prototype.initLogic = function(){
 	_logic = new LogicJS(_prnt);
 }
 
+ScrSpeedGame.prototype.getAdrBankroll = function(){
+	addressContract = _arBankrollers[Math.floor(Math.random()*_arBankrollers.length)];
+	return addressContract;
+}
+
 ScrSpeedGame.prototype.getBankrolls = function(){
-	var urlRequest = "https://platform.dao.casino/api/proxy.php?a=bankrolls&game=daochannel_v1";
-	$.ajax(urlRequest).done(
-		function (d) {
-			var _arr = JSON.parse(d);
-			if (!_arr) {
-				prnt.showError(ERROR_BANKROLLER);      
-				return;
-			}
-			
-			_arBankrollers = _arr;
-			_countBankrollers = _arr.length;
-			_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-			_prnt.loadGame();
-		}
-	).fail(function() {
-			console.log("SERVER FAIL");
-			if(options_testnet){
-				_countBankrollers = 1;
-				_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-				addressContract = addressChannel;
-				_prnt.loadGame();
-			}
-		}
-	);
+	_arBankrollers = Object.keys(Casino.getBankrollers('BJ'));
+	_countBankrollers = _arBankrollers.length;
+	_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
+	console.log("_arBankrollers:", _arBankrollers);
+	if (_countBankrollers > 0) {
+		_prnt.loadGame();
+	} else {
+		_prnt.getAdrBankroll();
+		_prnt.showWndBank();
+	}
 }
 
 ScrSpeedGame.prototype.loadGame = function(){
@@ -561,6 +552,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 	// }
 	
 	var load = false;
+
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
@@ -570,22 +562,25 @@ ScrSpeedGame.prototype.loadGame = function(){
 	console.log("loadGame:", load);
 	// load game
 	if(load){
+		Casino.contract_address = ''+login_obj["addressBankroller"];
+		Casino.game_code = 'BJ';
+
 		sessionIsOver = false;
 		if(login_obj["objGame"]){
 			_objSpeedGame = login_obj["objGame"];
+			console.log("_objSpeedGame:", _objSpeedGame);
 		}
 		if(login_obj["objResult"]){
 			_objResult = login_obj["objResult"];
 		}
+		_balanceSession = login_obj["balanceSession"];
+		_prnt.refreshBalance();
+		_prnt.isCashoutAvailable();
+		
 		if(_objSpeedGame.result){
-			_prnt.resetObjGame();
-			_balanceSession = login_obj["balanceSession"];
-			_prnt.refreshBalance();
 			_prnt.initLogic();
 			_prnt.showChips(true);
 		} else {
-			_balanceSession = login_obj["balanceSession"];
-			_prnt.refreshBalance();
 			_prnt.initLogic();
 			_logic.loadGame(_objSpeedGame, _objResult);
 			_prnt.responseServer(_objSpeedGame);
@@ -603,6 +598,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 			_prnt.showButtons(true);
 		}
 	} else {
+		_prnt.getAdrBankroll();
 		_prnt.showWndBank();
 	}
 }
@@ -649,10 +645,10 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
 					infura.sendRequest("getBalance", openkey, _callback);
-					saveData();
 					setTimeout(function(){
 						Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
-					}, 5000);
+						saveData();
+					}, 7000);
 				} else {
 					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
 					_prnt.showError(str);

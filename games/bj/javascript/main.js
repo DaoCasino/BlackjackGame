@@ -24,13 +24,13 @@ var abi = [{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name"
 // main
 var addressErc = "";
 var addressStorage = "";
-var addressContract = "0xa65d59708838581520511d98fb8b5d1f76a96cad";
+var addressContract = "0xae4153acc4621d9475daded912d075e6de0bf718";
 // testrpc
 var	addressRpcErc      = "0x084294104f8078b27e50f3292132f33d3fb8921b";
 var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // channel
-var addressChannel		= "0x89fe5E63487b2d45959502bEB1dac4d5A150663e"; // DAOchannel
+var addressChannel		= "0xde13e87fc796babe0164f081336287e309c75b5c";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
