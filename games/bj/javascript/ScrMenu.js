@@ -38,8 +38,10 @@ ScrMenu.prototype.init = function() {
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
 	
-	// btnSpeed.visible = false;
-	// btnSpeed.visible = false;
+	btnSpeed.visible = false;
+	setTimeout(function(){
+		btnSpeed.visible = true;
+	}, 5000);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
