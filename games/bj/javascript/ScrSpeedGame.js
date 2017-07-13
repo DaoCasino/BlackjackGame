@@ -535,11 +535,12 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	_arBankrollers = Object.keys(Casino.getBankrollers('BJ'));
 	_countBankrollers = _arBankrollers.length;
 	_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
-	console.log("_arBankrollers:", _arBankrollers);
+	
 	if (_countBankrollers > 0) {
 		_prnt.loadGame();
 	} else {
-		_prnt.getAdrBankroll();
+		addressContract = addressChannel;
+		_arBankrollers = [addressChannel];
 		_prnt.showWndBank();
 	}
 }
@@ -556,7 +557,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
-			// load = true;
+			load = true;
 		}
 	}
 	console.log("loadGame:", load);
@@ -568,7 +569,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 		sessionIsOver = false;
 		if(login_obj["objGame"]){
 			_objSpeedGame = login_obj["objGame"];
-			console.log("_objSpeedGame:", _objSpeedGame);
+			console.log("LOAD _objSpeedGame:", _objSpeedGame);
 		}
 		if(login_obj["objResult"]){
 			_objResult = login_obj["objResult"];
@@ -1948,6 +1949,7 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 	login_obj["objResult"] = _logic.getResult();
 	login_obj["balanceSession"] = _balanceSession;
 	if(!options_debug){
+		console.log("SAVE _objSpeedGame:", _objSpeedGame);
 		saveData();
 	}
 	
