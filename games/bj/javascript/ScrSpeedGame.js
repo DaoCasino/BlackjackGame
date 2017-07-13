@@ -609,10 +609,10 @@ ScrSpeedGame.prototype.openChannel = function(){
 		_bWindow = false;
 		_prnt.showWndWarning("Please wait. \n Sending BETs into the game");
 		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(obj){
+			_prnt.showChips(true);
 			if(obj == true){
 				sessionIsOver = false;
 				_prnt.isCashoutAvailable();
-				_prnt.showChips(true);
 				_wndWarning.visible = false;
 				login_obj["openChannel"] = true;
 				login_obj["addressBankroller"] = addressContract;
@@ -621,8 +621,12 @@ ScrSpeedGame.prototype.openChannel = function(){
 				_balance += _balanceSession;
 				_balanceSession = 0;
 				_prnt.refreshBalance();
-				var str = obj.error;
-				_prnt.showError(str);
+				if(obj.error){
+					var str = obj.error;
+					_prnt.showError(str);
+				} else {
+					_prnt.showError("Ropsten timeout.");
+				}
 			}
 		});
 	}
