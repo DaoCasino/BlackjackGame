@@ -6,7 +6,6 @@ function ScrMenu() {
 ScrMenu.prototype = Object.create(PIXI.Container.prototype);
 ScrMenu.prototype.constructor = ScrMenu;
 
-
 ScrMenu.prototype.init = function() {
 	this._arButtons = [];
 	
@@ -38,10 +37,20 @@ ScrMenu.prototype.init = function() {
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
 	
+	
+	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
+	tfWait.x = btnSpeed.x;
+	tfWait.y = btnSpeed.y - tfWait.height;
+	this.addChild(tfWait);
+	
 	btnSpeed.visible = false;
+	
+	
+	var _prnt = this;
 	setTimeout(function(){
 		btnSpeed.visible = true;
-	}, 5000);
+		tfWait.visible = false;
+	}, 7000);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";

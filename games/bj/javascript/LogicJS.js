@@ -537,6 +537,7 @@ var LogicJS = function(params){
 	_self.loadGame = function(game, result){
 		_objSpeedGame = game;
 		_objResult = result;
+		_money = _objSpeedGame.money;
 		
 		_arMyCards = _objSpeedGame.curGame.arMyCards;
 		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards;

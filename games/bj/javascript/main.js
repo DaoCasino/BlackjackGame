@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.1";
+var version = "v. 1.1.2";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var dataAnima = [];
