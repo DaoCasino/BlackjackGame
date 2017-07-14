@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.5
+ * v 1.0.6
  */
 
 var LogicJS = function(params){
@@ -274,7 +274,7 @@ var LogicJS = function(params){
 				_myPoints = getMyPoints();
 				_arMyCards.push(newCard);
 				// console.log("dealClient: Main", newCard, getNameCard(newCard));
-				if(_myPoints >= BLACKJACK){
+				if(_myPoints >= BLACKJACK && !_bSplit){
 					var seedarr = ABI.rawEncode([ "bytes32" ], [ seed ]);
 					stand(isMain, seedarr);
 				}
