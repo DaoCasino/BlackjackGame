@@ -426,6 +426,7 @@ ScrSpeedGame.prototype.showWndBank = function() {
 		_prnt.face_mc.addChild(_wndBank);
 	}
 	
+	Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 	var str = "Select the amount of BET \n you are ready to play.";
 	_bWindow = true;
 	_wndBank.show(str, function(value){
@@ -528,6 +529,7 @@ ScrSpeedGame.prototype.initLogic = function(){
 
 ScrSpeedGame.prototype.getAdrBankroll = function(){
 	addressContract = _arBankrollers[Math.floor(Math.random()*_arBankrollers.length)];
+	addressContract = addressChannel; // FIXED
 	return addressContract;
 }
 
@@ -557,15 +559,12 @@ ScrSpeedGame.prototype.loadGame = function(){
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
-			load = true;
+			// load = true;
 		}
 	}
 	console.log("loadGame:", load);
 	// load game
 	if(load){
-		Casino.contract_address = ''+login_obj["addressBankroller"];
-		Casino.game_code = 'BJ';
-
 		sessionIsOver = false;
 		if(login_obj["objGame"]){
 			_objSpeedGame = login_obj["objGame"];
@@ -574,9 +573,20 @@ ScrSpeedGame.prototype.loadGame = function(){
 		if(login_obj["objResult"]){
 			_objResult = login_obj["objResult"];
 		}
-		_balanceSession = login_obj["balanceSession"];
+		if(login_obj["balanceSession"]){
+			_balanceSession = login_obj["balanceSession"];
+		}
 		_prnt.refreshBalance();
+		if(_balanceSession == 0){
+			_prnt.initLogic();
+			_prnt.getAdrBankroll();
+			_prnt.showWndBank();
+			return;
+		}
 		_prnt.isCashoutAvailable();
+		
+		Casino.contract_address = login_obj["addressBankroller"];
+		Casino.game_code = 'BJ';
 		
 		if(_objSpeedGame.result){
 			_prnt.initLogic();
@@ -616,6 +626,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 				_wndWarning.visible = false;
 				login_obj["openChannel"] = true;
 				login_obj["addressBankroller"] = addressContract;
+				 login_obj["balanceSession"] = _balanceSession;
 				saveData();
 			} else {
 				_balance += _balanceSession;
@@ -650,10 +661,11 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.createWndInfo("The gaming session was closed successfully.", undefined, "OK");
 					_prnt.showChips(true);
 					infura.sendRequest("getBalance", openkey, _callback);
+					Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 					setTimeout(function(){
 						Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 						saveData();
-					}, 7000);
+					}, 10000);
 				} else {
 					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
 					_prnt.showError(str);
