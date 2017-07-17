@@ -38,16 +38,20 @@ WndBank.prototype.init = function(_prnt) {
 	this.fatLine = fatLine;
 	this.fatLine.scale.x = 0;
 	
-	/*var scrollZone = new PIXI.Container();
+	var scrollZone = new PIXI.Container();
 	this.addChild(scrollZone);
 	var zone = new PIXI.Graphics();
-	zone.beginFill(0xFF0000).drawRect(stX, posLineY/2, endX-stX, posLineY).endFill();
+	zone.beginFill(0xFF0000).drawRect(0, 0, endX-stX, posLineY).endFill();
+	zone.x = -zone.width/2;
+	zone.y = -zone.height/2;
 	scrollZone.addChild(zone);
+	scrollZone.y = posLineY;
 	scrollZone.w = endX-stX;
 	scrollZone.h = posLineY;
 	scrollZone.name = "scrollZone";
+	scrollZone.visible = false;
 	scrollZone._selected = false;
-	this._arButtons.push(scrollZone);*/
+	this._arButtons.push(scrollZone);
 	
 	var btnClose = addButton("btnClose", 230, -150, 0.5);
 	this.addChild(btnClose);
@@ -102,10 +106,10 @@ WndBank.prototype.show = function(str, callback, maxBet) {
 	this._maxBet = maxBet;
 }
 
-WndBank.prototype.clickObj = function(item_mc) {
+WndBank.prototype.clickObj = function(item_mc, evt) {
 	// sound_play("button_click");
 	var name = item_mc.name
-	console.log("clickObj:", name);
+	// console.log("clickObj:", name);
 	item_mc._selected = false;
 	if(item_mc.over){
 		item_mc.over.visible = false;
@@ -123,6 +127,8 @@ WndBank.prototype.clickObj = function(item_mc) {
 	} else if(name == "btnClose"){
 		this._prnt.closeWindow(this);
 		this._prnt.showChips(true);
+	} else if(name == "scrollZone"){
+		this.scrollHead(evt);
 	}
 }
 
@@ -156,11 +162,9 @@ WndBank.prototype.checkButtons = function(evt){
 	var mouseY = evt.data.global.y - this.y;
 	for (var i = 0; i < this._arButtons.length; i++) {
 		var item_mc = this._arButtons[i];
-		// if(phase=='touchstart' || phase == 'mousedown'){
-			// console.log("hit_test_rec:", item_mc.name, hit_test_rec(item_mc, item_mc.w, item_mc.h, mouseX, mouseY));
-		// }
 		if(hit_test_rec(item_mc, item_mc.w, item_mc.h, mouseX, mouseY)){
-			if(item_mc.visible && item_mc._selected == false && item_mc.alpha == 1){
+			if((item_mc.visible || item_mc.name == "scrollZone") && 
+			item_mc._selected == false && item_mc.alpha == 1){
 				item_mc._selected = true;
 				if(item_mc.over){
 					item_mc.over.visible = true;
@@ -208,8 +212,8 @@ WndBank.prototype.touchHandler = function(evt){
 		this._pressHead = false;
 		for (i = 0; i < this._arButtons.length; i ++) {
 			item_mc = this._arButtons[i];
-			if(item_mc.visible && item_mc._selected){
-				this.clickObj(item_mc);
+			if((item_mc.visible || item_mc.name == "scrollZone") && item_mc._selected){
+				this.clickObj(item_mc, evt);
 				return;
 			}
 		}
