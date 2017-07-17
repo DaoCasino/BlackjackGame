@@ -7,7 +7,7 @@ ScrSpeedGame.prototype = Object.create(PIXI.Container.prototype);
 ScrSpeedGame.prototype.constructor = ScrSpeedGame;
 
 var TIME_SHOW_BTN  = 300;
-var TIME_GET_STATE = 5000;
+var TIME_GET_STATE = 10000;
 var C_DEAL         = "e731240f";
 var C_HIT          = "a45939bf";
 var C_SPLIT        = "5fe71222";
@@ -128,11 +128,11 @@ ScrSpeedGame.prototype.init = function() {
 	
 	this.game_mc.addChild(this.chips_mc);
 	this.game_mc.addChild(this.cards_mc);
-	this.face_mc.addChild(this.warning_mc);
 	this.addChild(this.back_mc);
 	this.addChild(this.game_mc);
 	this.addChild(this.gfx_mc);
 	this.addChild(this.face_mc);
+	this.addChild(this.warning_mc);
 	
 	this.createGUI();
 	this.createText();
@@ -444,7 +444,7 @@ ScrSpeedGame.prototype.showWndBank = function() {
 	_bWindow = true;
 	_wndBank.show(str, function(value){
 				_balanceSession = value;
-				_balance -= _balanceSession;
+				// _balance -= _balanceSession;
 				_prnt.refreshBalance();
 				_prnt.initLogic();
 				_prnt.openChannel();
@@ -1537,13 +1537,12 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 }
 
 ScrSpeedGame.prototype.loadGame = function(){
-	
 	var load = false;
 
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
-			load = true;
+			// load = true;
 		}
 	}
 	console.log("loadGame:", load);
@@ -1612,6 +1611,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 				login_obj["addressBankroller"] = addressContract;
 				login_obj["balanceSession"] = _balanceSession;
 				_prnt.isCashoutAvailable();
+				Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 				saveData();
 			} else {
 				_balance += _balanceSession;
@@ -1653,10 +1653,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.showChips(true);
 					infura.sendRequest("getBalance", openkey, _callback);
 					Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
-					setTimeout(function(){
-						Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
-						saveData();
-					}, 10000);
+					saveData();
 				} else {
 					console.log("error:", obj.error);
 					var str = obj.error + ". " + String(deposit/valToken) + " != " + String(obj.profit/valToken);
@@ -2079,6 +2076,14 @@ ScrSpeedGame.prototype.update = function(diffTime){
 		_timeShowButtons -= diffTime;
 		if(_timeShowButtons <= 0){
 			this.showButtons(true);
+		}
+	}
+	
+	if(!login_obj["openChannel"]){
+		_timeGetState += diffTime;
+		if(_timeGetState >= TIME_GET_STATE){
+			_timeGetState = 0;
+			Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 		}
 	}
 }
