@@ -62,7 +62,7 @@ var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
 var options_splitdouble = true;
-var options_save = false;
+var options_save = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
