@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.3";
+var version = "v. 1.1.4";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var language;
@@ -31,7 +31,7 @@ var	addressRpcErc      = "0x084294104f8078b27e50f3292132f33d3fb8921b";
 var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // channel
-var addressChannel		= "0xde13e87fc796babe0164f081336287e309c75b5c";
+var addressChannel		= "0xb3b16fd30111bb12176d24fad4af1773d0378ce9";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
@@ -47,7 +47,7 @@ var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 
-var options_debug       = true;
+var options_debug       = false;
 var options_test        = false;
 var options_ethereum    = true;
 var options_mainet      = false;
@@ -62,7 +62,7 @@ var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
 var options_splitdouble = true;
-var options_save = true;
+var options_save = false;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
