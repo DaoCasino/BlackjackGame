@@ -1,8 +1,9 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.2";
+var version = "v. 1.1.3";
 var metaCode = "blackjack_v1";
 var login_obj = {};
+var language;
 var dataAnima = [];
 var dataMovie = [];
 var openkey, privkey, mainet;
@@ -46,7 +47,7 @@ var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 
-var options_debug       = false;
+var options_debug       = true;
 var options_test        = false;
 var options_ethereum    = true;
 var options_mainet      = false;
@@ -73,6 +74,7 @@ var ERROR_BALANCE = 6;
 var ERROR_DEAL = 7;
 var ERROR_MAX_BET = 8;
 var ERROR_BANKROLLER = 9;
+var ERROR_BALANCE_BET = 10;
 
 if(options_rpc){
 	addressCurErc = addressRpcErc;
@@ -115,6 +117,10 @@ function initGame() {
 	startTime = getTimer();
     onResize();
     update();
+	
+	language = new daoLang();
+	language.add_lang_xml('en');
+	language.loadSettings();
 	
 	// soundManager = new SoundManager();
 	// soundManager.currentMusic = "none";
@@ -289,7 +295,8 @@ function handleComplete(evt) {
 	}
 	options_testnet = !options_mainet;
 	if(options_debug){
-		version = version + " debug"
+		version = version + " arcade"
+		options_save = false;
 	} else if(options_rpc){
 		version = version + " testrpc"
 	} else if(options_testnet){
@@ -834,21 +841,28 @@ function addText(text, size, color, glow, _align, width, px, font){
 	return obj;
 }
 
-function addWinLevel(id){
-	var levels = getLevels();
-	levels[id] = true;
+function getText(txt) {
+	return language.get_txt(txt);
 }
 
-function resetLevels(){
-	login_obj["levels"] = {};
-}
-
-function getLevels(){
-	if(login_obj["levels"]){}else{
-		login_obj["levels"] = {};
+function getXMLDocument(url){  
+    var xml;  
+    if(window.XMLHttpRequest){   
+        xml=new XMLHttpRequest();  
+        xml.open("GET", url, false);  
+        xml.send(null);  
+        return xml.responseXML;  
+    } else {
+        if(window.ActiveXObject){
+            xml=new ActiveXObject("Microsoft.XMLDOM");  
+            xml.async=false;  
+            xml.load(url);  
+            return xml;  
+        } else {  
+            console.log("Loading XML is not supported by the browser");  
+            return null;  
+        } 
 	}
-	
-	return login_obj["levels"];
 }
 
 function initjiggle(t, startvalue, finishvalue, div, step){

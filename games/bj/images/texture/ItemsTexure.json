@@ -544,6 +544,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":199,"h":96},
 	"sourceSize": {"w":199,"h":96}
 },
+"btnReset.png":
+{
+	"frame": {"x":1756,"y":589,"w":90,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":90},
+	"sourceSize": {"w":90,"h":90}
+},
 "btnSplit.png":
 {
 	"frame": {"x":1,"y":1511,"w":221,"h":221},
@@ -719,6 +727,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1850,"h":1911},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7292614f23a43230421e69e93c65c3c3:1245e7d4117149919f598c52838ab585:3cfb2fe90443b3227c0789dde459a709$"
+	"smartupdate": "$TexturePacker:SmartUpdate:bf195e9ff4ce2f7761e97a4bd6ba46b5:2a8342a540f30445a4f68e59d3503f0e:3cfb2fe90443b3227c0789dde459a709$"
 }
 }
