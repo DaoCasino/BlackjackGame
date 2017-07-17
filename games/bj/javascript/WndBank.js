@@ -23,18 +23,31 @@ WndBank.prototype.init = function(_prnt) {
 	this.addChild(bg);
 	
 	var posLineY = 50;
+	var stX = -200;
+	var endX = 200;
 	var thinLine = new PIXI.Graphics();
 	thinLine.lineStyle(2, 0xffffff)
-	thinLine.moveTo(-200, posLineY)
-		   .lineTo(200, posLineY);
+	thinLine.moveTo(stX, posLineY)
+		   .lineTo(endX, posLineY);
 	this.addChild(thinLine);
 	var fatLine = new PIXI.Graphics();
 	fatLine.lineStyle(7, 0xffffff)
-	fatLine.moveTo(-200, posLineY)
-		   .lineTo(200, posLineY);
+	fatLine.moveTo(stX, posLineY)
+		   .lineTo(endX, posLineY);
 	this.addChild(fatLine);
 	this.fatLine = fatLine;
 	this.fatLine.scale.x = 0;
+	
+	/*var scrollZone = new PIXI.Container();
+	this.addChild(scrollZone);
+	var zone = new PIXI.Graphics();
+	zone.beginFill(0xFF0000).drawRect(stX, posLineY/2, endX-stX, posLineY).endFill();
+	scrollZone.addChild(zone);
+	scrollZone.w = endX-stX;
+	scrollZone.h = posLineY;
+	scrollZone.name = "scrollZone";
+	scrollZone._selected = false;
+	this._arButtons.push(scrollZone);*/
 	
 	var btnClose = addButton("btnClose", 230, -150, 0.5);
 	this.addChild(btnClose);
@@ -92,7 +105,7 @@ WndBank.prototype.show = function(str, callback, maxBet) {
 WndBank.prototype.clickObj = function(item_mc) {
 	// sound_play("button_click");
 	var name = item_mc.name
-	// console.log("clickObj:", name);
+	console.log("clickObj:", name);
 	item_mc._selected = false;
 	if(item_mc.over){
 		item_mc.over.visible = false;
@@ -143,6 +156,9 @@ WndBank.prototype.checkButtons = function(evt){
 	var mouseY = evt.data.global.y - this.y;
 	for (var i = 0; i < this._arButtons.length; i++) {
 		var item_mc = this._arButtons[i];
+		// if(phase=='touchstart' || phase == 'mousedown'){
+			// console.log("hit_test_rec:", item_mc.name, hit_test_rec(item_mc, item_mc.w, item_mc.h, mouseX, mouseY));
+		// }
 		if(hit_test_rec(item_mc, item_mc.w, item_mc.h, mouseX, mouseY)){
 			if(item_mc.visible && item_mc._selected == false && item_mc.alpha == 1){
 				item_mc._selected = true;

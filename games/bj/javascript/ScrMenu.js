@@ -32,7 +32,7 @@ ScrMenu.prototype.init = function() {
 	btnSpeed.overSc = true;
 	this.addChild(btnSpeed);
 	this._arButtons.push(btnSpeed);
-	var tf = addText("START", 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tf = addText(getText("start"), 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
@@ -45,8 +45,6 @@ ScrMenu.prototype.init = function() {
 	
 	btnSpeed.visible = false;
 	
-	
-	var _prnt = this;
 	setTimeout(function(){
 		btnSpeed.visible = true;
 		tfWait.visible = false;
