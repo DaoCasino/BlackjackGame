@@ -32,7 +32,7 @@
 	error_key="The key is not valid."
 	error_bank="No money in the bank. Please contact to administrator."
 	error_transaction="The transaction is not sent. Please contact technical support."
-	error_balance="You do not have enough money."
+	error_balance="You do not have enough ethereum."
 	error_balance_bet="You do not have enough BET."
 	error_max_bet="The maximum bet is NUM."
 	error_bankroller="No online bankroller. Come back later."

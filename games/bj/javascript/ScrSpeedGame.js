@@ -432,6 +432,11 @@ ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 }
 
 ScrSpeedGame.prototype.showWndBank = function() {
+	if(_balancePlEth < 0.1){
+		_prnt.showError(ERROR_BALANCE);
+		infura.sendRequest("getBalance", openkey, _callback);
+		return;
+	}
 	if(_wndBank == undefined){
 		_wndBank = new WndBank(_prnt);
 		_wndBank.x = _W/2;
@@ -668,7 +673,7 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 		_prnt.showWndBank();
 		_betGame = oldBet;
 		return false;
-	} else if(_balancePlEth == 0){
+	} else if(_balancePlEth < 0.1){
 		_prnt.showError(ERROR_BALANCE);
 		_betGame = oldBet;
 	} else if(_betGame > _balanceSession){
