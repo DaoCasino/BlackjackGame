@@ -1,5 +1,6 @@
 ﻿<lang
 	cash_out="Cash out"
+	click_reset="Click the 'Reset data' button."
 	close_channel_end="The gaming session was closed successfully."
 	close_channel_start="Please wait! SPL The game session is closing!"
 	contact_support="Contact technical support."

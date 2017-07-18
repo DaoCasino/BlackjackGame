@@ -451,9 +451,7 @@ ScrSpeedGame.prototype.showWndBank = function() {
 	_bWindow = true;
 	_wndBank.show(str, function(value){
 				_balanceSession = value;
-				// _balance -= _balanceSession;
 				_prnt.refreshBalance();
-				_prnt.initLogic();
 				_prnt.openChannel();
 				if(options_debug){
 					login_obj["openChannel"] = true;
@@ -1508,7 +1506,7 @@ ScrSpeedGame.prototype.getCard = function(cardIndex){
 ScrSpeedGame.prototype.initLogic = function(){
 	// init logic
 	_prnt.prnt = _prnt;
-	_prnt.balance = _balanceSession;
+	_prnt.balance = login_obj["deposit"];
 	_prnt.callback = _prnt.responseServer;
 	_logic = new LogicJS(_prnt);
 }
@@ -1551,7 +1549,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 			load = true;
 		}
 	}
-	console.log("loadGame:", load);
+	
 	// load game
 	if(load){
 		sessionIsOver = false;
@@ -1564,7 +1562,6 @@ ScrSpeedGame.prototype.loadGame = function(){
 		if(login_obj["balanceSession"]){
 			_balanceSession = login_obj["balanceSession"];
 		}
-		console.log("LOAD _objSpeedGame:", _balanceSession, login_obj["deposit"]);
 		_prnt.refreshBalance();
 		if(_balanceSession == 0){
 			_prnt.initLogic();
@@ -1581,7 +1578,7 @@ ScrSpeedGame.prototype.loadGame = function(){
 					_prnt.showChips(true);
 				} else {
 					_prnt.initLogic();
-					_logic.loadGame(_objSpeedGame, _objResult, login_obj["deposit"]);
+					_logic.loadGame(_objSpeedGame, _objResult);
 					_prnt.responseServer(_objSpeedGame);
 					_betGame = _objSpeedGame.betGame;
 					_betSplitGame = _objSpeedGame.betSplitGame;
@@ -1623,6 +1620,8 @@ ScrSpeedGame.prototype.openChannel = function(){
 				login_obj["addressBankroller"] = addressContract;
 				login_obj["balanceSession"] = _balanceSession;
 				login_obj["deposit"] = _balanceSession;
+				_prnt.initLogic();
+				console.log("openChannel:", _balanceSession);
 				_prnt.isCashoutAvailable();
 				Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 				saveData();
@@ -1648,9 +1647,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 ScrSpeedGame.prototype.closeChannel = function() {
 	if(login_obj["openChannel"] && _objSpeedGame.result && !options_debug){
 		if(_logic.getResult()){
-			// var deposit = _objSpeedGame.money;
 			var deposit = _balanceSession - login_obj["deposit"];
-			console.log("DEPOSIT:", deposit);
 			_prnt.showButtons(false);
 			_prnt.showChips(false);
 			_prnt.btnExit.alpha = 0.5;
@@ -1673,6 +1670,9 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					console.log("error:", obj.error);
 					var str = getText("error_"+obj.error) + 
 								String(deposit/valToken) + " != " + String(obj.profit/valToken);
+					if(obj.error == "invalid_profit"){
+						str += "\n" + getText("click_reset");
+					}
 					_prnt.showError(str);
 					_prnt.btnExit.alpha = 1;
 				}
@@ -1853,6 +1853,7 @@ ScrSpeedGame.prototype.clickReset = function(){
 	_prnt.resetGame();
 	_prnt.resetObjGame();
 	_prnt.showChips(true);
+	localStorage.removeItem('channel_id');
 	if(_wndWarning){
 		_wndWarning.visible = false;
 	}
@@ -2024,7 +2025,6 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 	login_obj["objResult"] = _logic.getResult();
 	login_obj["balanceSession"] = _balanceSession;
 	if(!options_debug){
-		console.log("SAVE _objSpeedGame:", _balanceSession, login_obj["deposit"]);
 		saveData();
 	}
 	
