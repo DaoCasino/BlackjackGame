@@ -534,11 +534,10 @@ var LogicJS = function(params){
 	}
 	
 	// only for client
-	_self.loadGame = function(game, result, deposit){
+	_self.loadGame = function(game, result){
 		_objSpeedGame = game;
 		_objResult = result;
 		_money = _objSpeedGame.money;
-		_balance = deposit;
 		
 		_arMyCards = _objSpeedGame.curGame.arMyCards;
 		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards;
