@@ -1523,8 +1523,9 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 		_balanceSession = 10*valToken;
 		_balance = 0;
 		_prnt.refreshBalance();
-		_prnt.initLogic();
 		login_obj["openChannel"] = true;
+		login_obj["deposit"] = _balanceSession;
+		_prnt.initLogic();
 		sessionIsOver = false;
 		_prnt.showChips(true);
 		return false;
@@ -1621,7 +1622,6 @@ ScrSpeedGame.prototype.openChannel = function(){
 				login_obj["balanceSession"] = _balanceSession;
 				login_obj["deposit"] = _balanceSession;
 				_prnt.initLogic();
-				console.log("openChannel:", _balanceSession);
 				_prnt.isCashoutAvailable();
 				Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
 				saveData();
