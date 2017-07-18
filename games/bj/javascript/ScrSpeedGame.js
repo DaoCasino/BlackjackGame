@@ -1697,6 +1697,7 @@ ScrSpeedGame.prototype.clickDeal = function(){
 		if(_balancePlEth > 0){
 			this.btnDeal.alpha = 0.5;
 			this.btnClear.alpha = 0.5;
+			this.btnExit.alpha = 0.5;
 			this.showChips(false);
 			_startGame = true;
 			if(options_debug){
@@ -2225,8 +2226,11 @@ ScrSpeedGame.prototype.removeAllListener = function(){
 	if(_wndInfo){
 		_wndInfo.removeAllListener();
 	}
-	if(this.wndInsurance){
-		this.wndInsurance.removeAllListener();
+	if(_wndInsurance){
+		_wndInsurance.removeAllListener();
+	}
+	if(_wndBank){
+		_wndBank.removeAllListener();
 	}
 	
 	this.interactive = false;

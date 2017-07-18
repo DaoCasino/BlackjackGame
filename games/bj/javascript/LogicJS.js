@@ -535,13 +535,17 @@ var LogicJS = function(params){
 	
 	// only for client
 	_self.loadGame = function(game, result){
-		_objSpeedGame = game;
-		_objResult = result;
-		_money = _objSpeedGame.money;
+		if(game){
+			_objSpeedGame = game;
+		}
+		if(result){
+			_objResult = result;
+		}
+		_money = _objSpeedGame.money || 0;
 		
-		_arMyCards = _objSpeedGame.curGame.arMyCards;
-		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards;
-		_arHouseCards = _objSpeedGame.curGame.arHouseCards;
+		_arMyCards = _objSpeedGame.curGame.arMyCards || [];
+		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards || [];
+		_arHouseCards = _objSpeedGame.curGame.arHouseCards || [];
 		_arMyPoints = [];
 		_arMySplitPoints = [];
 		_arHousePoints = [];
