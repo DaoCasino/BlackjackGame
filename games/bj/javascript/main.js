@@ -32,7 +32,7 @@ var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // channel
 var addressChannel		= "0xe26b3678fef015f3122e78f9d85b292ce45975b1"; // server
-addressChannel		= "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8"; // my
+// addressChannel		= "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8"; // my
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
