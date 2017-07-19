@@ -63,6 +63,8 @@ var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
 var options_splitdouble = true;
+var options_split = false;
+var options_double = true;
 var options_save = true;
 
 var ERROR_CONNECTION = 0;

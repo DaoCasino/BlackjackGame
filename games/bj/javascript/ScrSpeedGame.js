@@ -327,14 +327,16 @@ ScrSpeedGame.prototype.createBtn = function() {
 	btnDeal.hint = getText("hint_deal");
 	btnClear.hint = getText("hint_remove");
 	
-	if(options_splitdouble){
+	if(options_split){
 		var btnSplit = this.createButton2("btnSplit", "split", 1650, 800, scGui);
 		this.btnSplit = btnSplit;
+		btnSplit.alpha = 0.5;
+		btnSplit.hint = getText("hint_split");
+	}
+	if(options_double){
 		var btnDouble = this.createButton2("btnDouble", "double", 1500, 890, scGui);
 		this.btnDouble = btnDouble;
-		btnSplit.alpha = 0.5;
 		btnDouble.alpha = 0.5;
-		btnSplit.hint = getText("hint_split");
 		btnDouble.hint = getText("hint_double");
 	}
 	
@@ -924,12 +926,14 @@ ScrSpeedGame.prototype.showButtons = function(value) {
 	}
     this.btnHit.alpha = alpha;
     this.btnStand.alpha = alpha;
-	if(options_splitdouble){
+	if(options_split){
 		if(value && this.isSplitAvailable()){
 			this.btnSplit.alpha = 1;
 		} else {
 			this.btnSplit.alpha = a;
 		}
+	}
+	if(options_double){
 		if(value && this.isDoubleAvailable()){
 			this.btnDouble.alpha = 1;
 		} else {
@@ -1795,7 +1799,7 @@ ScrSpeedGame.prototype.clickStand = function(){
 		if(_myPoints >= BLACKJACK){
 			this.showButtons(false);
 		}
-		if(options_splitdouble){
+		if(options_double){
 			if(this.isDoubleAvailable()){
 				this.btnDouble.alpha = 1;
 			}
