@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.6
+ * v 1.0.7
  */
 
 var LogicJS = function(params){
@@ -331,7 +331,9 @@ var LogicJS = function(params){
 			bet = bet * 2.5;
 			betWin = bet;
 			if(isMain){
-				_objSpeedGame.result = true;
+				if(!_bSplit){
+					_objSpeedGame.result = true;
+				}
 			} else {
 				_bSplit = false;
 			}
@@ -339,7 +341,9 @@ var LogicJS = function(params){
         if (points > BLACKJACK && state=="") {
             state = "bust";
 			if(isMain){
-				_objSpeedGame.result = true;
+				if(!_bSplit){
+					_objSpeedGame.result = true;
+				}
 			} else {
 				_bSplit = false;
 			}
@@ -410,7 +414,6 @@ var LogicJS = function(params){
 			hash = hash.substr(hash.length-2, hash.length) // uint8
 		var rand = bigInt(hash,16).divmod(52).remainder.value;
 		rand = checkCard(rand);
-		_arDecks[rand] ++;
 		_arCards.push(rand);
 		return rand;
 	}
@@ -535,13 +538,9 @@ var LogicJS = function(params){
 	
 	// only for client
 	_self.loadGame = function(game, result){
-		if(game){
-			_objSpeedGame = game;
-		}
-		if(result){
-			_objResult = result;
-		}
-		_money = _objSpeedGame.money || 0;
+		_objSpeedGame = game;
+		_objResult = result;
+		_money = _objSpeedGame.money;
 		
 		_arMyCards = _objSpeedGame.curGame.arMyCards || [];
 		_arMySplitCards = _objSpeedGame.curGame.arMySplitCards || [];

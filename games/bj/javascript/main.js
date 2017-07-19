@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.5";
+var version = "v. 1.1.6";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var language;
@@ -31,7 +31,7 @@ var	addressRpcErc      = "0x084294104f8078b27e50f3292132f33d3fb8921b";
 var	addressRpcStorage  = "0x6bba6649113f534578ac735c5b3942bb09a2cb08";
 var	addressRpcContract = "0x2e44b198a44b434cae540d8b8f3e93dd56009da7";
 // channel
-var addressChannel		= "0xb3b16fd30111bb12176d24fad4af1773d0378ce9";
+var addressChannel		= "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8";
 // testnet
 var addressTestErc = "0x95a48dca999c89e4e284930d9b9af973a7481287"; // 0x95a48dca999c89e4e284930d9b9af973a7481287 !!!
 // work (slow game)
@@ -129,30 +129,20 @@ function initGame() {
 	stage.addChild(LoadBack);
 	scrContainer = new PIXI.Container();
 	stage.addChild(scrContainer);
-	
-	var preload_image = document.createElement("img");
-	preload_image.src = "images/bg/bgMenu.jpg";
-	preload_image.onload = function() {
-		var bgLoading = new PIXI.Sprite.fromImage(preload_image.src);
-		bgLoading.texture.baseTexture.on('loaded', 
-				function(){
-					var scaleBack = _W/bgLoading.width;
-					bgLoading.scale.x = scaleBack;
-					bgLoading.scale.y = scaleBack;
-					bgLoading.x = _W/2 - bgLoading.width/2;
-					bgLoading.y = _H/2 - bgLoading.height/2;
-				});
-		LoadBack.addChild(bgLoading);
-		var w = 400;
-		LoadPercent = addText("Game loading", 30, "#FFFFFF", "#000000", "center", w, 2.5);
-		LoadPercent.x = _W/2;
-		LoadPercent.y = _H/2 + 120;
-		LoadBack.addChild(LoadPercent);
-		var tfVersion = addText(version, 16, "#000000", undefined, "right", 400)
-		tfVersion.x = _W-20;
-		tfVersion.y = _H-24;
-		LoadBack.addChild(tfVersion);
-	};
+	var w = 400;
+	LoadPercent = addText("Game loading", 30, "#FFFFFF", "#000000", "center", w, 2.5);
+	LoadPercent.x = _W/2;
+	LoadPercent.y = _H/2 + 120;
+	LoadBack.addChild(LoadPercent);
+	var tfVersion = addText(version, 16, "#000000", undefined, "right", 400)
+	tfVersion.x = _W-20;
+	tfVersion.y = _H-24;
+	LoadBack.addChild(tfVersion);
+	var loading = new ItemLoading(this);
+	loading.x = LoadPercent.x;
+	loading.y = LoadPercent.y + 50;
+	LoadBack.addChild(loading);
+	LoadBack.loading = loading;
 	
 	loadManifest();
 }
@@ -433,11 +423,18 @@ function update() {
 	}
 	var diffTime = getTimer() - startTime;
 	if(diffTime > 29){
+		if (ScreenMenu) {
+			ScreenMenu.update(diffTime);
+		}
 		if (ScreenGame) {
 			ScreenGame.update(diffTime);
 		}
 		if (ScreenSpeedGame) {
 			ScreenSpeedGame.update(diffTime);
+		}
+		
+		if(LoadBack){
+			LoadBack.loading.update(diffTime);
 		}
 		
 		startTime = getTimer();
@@ -560,9 +557,9 @@ function removeSelf(obj) {
 function start() {
 	if(LoadBack){
 		stage.removeChild(LoadBack);
+		LoadBack = undefined;
 	}
 	addScreen("menu");
-	// addScreen("speedgame");
 }
 
 function showMenu() {

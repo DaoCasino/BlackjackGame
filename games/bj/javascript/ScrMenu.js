@@ -14,17 +14,6 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
-	// var btnNormal = addButton("btnDefault", _W/2, _H/2+100);
-	// btnNormal.name = "btnNormal";
-	// btnNormal.interactive = true;
-	// btnNormal.buttonMode=true;
-	// btnNormal.overSc = true;
-	// this.addChild(btnNormal);
-	// this._arButtons.push(btnNormal);
-	// var tf = addText("Slow Mode", 24, "#FFFFFF", undefined, "center", 350, 2)
-	// tf.x = 0;
-	// tf.y = -tf.height/2;
-	// btnNormal.addChild(tf);
 	var btnSpeed = addButton("btnDefault", _W/2, _H/2+100);
 	btnSpeed.name = "btnSpeed";
 	btnSpeed.interactive = true;
@@ -37,17 +26,22 @@ ScrMenu.prototype.init = function() {
 	tf.y = -tf.height/2;
 	btnSpeed.addChild(tf);
 	
-	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
 	tfWait.x = btnSpeed.x;
 	tfWait.y = btnSpeed.y - tfWait.height;
 	this.addChild(tfWait);
+	var loading = new ItemLoading(this);
+	loading.x = _W/2;
+	loading.y = _H/2+120;
+	this.addChild(loading);
+	this.loading = loading;
 	
 	btnSpeed.visible = false;
 	
 	setTimeout(function(){
 		btnSpeed.visible = true;
 		tfWait.visible = false;
+		loading.visible = false;
 	}, 7000);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
@@ -76,6 +70,11 @@ ScrMenu.prototype.init = function() {
 	this.on('touchend', this.touchHandler);
 }
 
+// UPDATE
+ScrMenu.prototype.update = function(diffTime){
+	this.loading.update(diffTime);
+}
+
 ScrMenu.prototype.clickCell = function(item_mc) {
 	if(item_mc.name.search("btn") != -1){
 		item_mc._selected = false;
@@ -93,9 +92,6 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		showGame();
 	} else if(item_mc.name == "btnSpeed"){
 		this.removeAllListener();
-		// options_speedgame = true;
-		// options_splitdouble = false;
-		// showGame();
 		showSpeedGame();
 	}
 }

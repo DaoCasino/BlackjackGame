@@ -7,6 +7,7 @@ ScrSpeedGame.prototype = Object.create(PIXI.Container.prototype);
 ScrSpeedGame.prototype.constructor = ScrSpeedGame;
 
 var TIME_SHOW_BTN  = 300;
+var TIME_NEW_CARD  = 600;
 var TIME_GET_STATE = 10000;
 var C_DEAL         = "e731240f";
 var C_HIT          = "a45939bf";
@@ -120,6 +121,7 @@ ScrSpeedGame.prototype.init = function() {
 	this._arHousePoints = [];
 	this._arHolder = [];
 	this._arNewCards = [];
+	this._arHideCards = [];
 	
 	this.bg = addObj("bgGame"+rndBg, _W/2, _H/2);
 	scaleBack = _W/this.bg.w;
@@ -590,6 +592,7 @@ ScrSpeedGame.prototype.clearGame = function(){
 	
 	for (i = 0; i < _dealedCards.length; i++) {
 		var card = _dealedCards[i];
+		this._arHideCards.push({id:card.id, x:card.x, y:card.y});
 		this.cards_mc.removeChild(card);
 	}
 	for (i = 0; i < this._arHolder.length; i++) {
@@ -597,6 +600,7 @@ ScrSpeedGame.prototype.clearGame = function(){
 		this.addHolderObj(mc);
 	}
 	
+	this.hideCards();
 	_dealedCards = [];
 	if(_cardSuit){
 		_cardSuit.width = _cardSuit.w;
@@ -1267,12 +1271,12 @@ ScrSpeedGame.prototype.sendCard = function(obj){
 	if(type == "player"){
 		coord = _prnt.showPlayerCard(card);
 		if(_betGame > 0){
-			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*1000;
+			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	} else if(type == "split"){
 		coord = _prnt.showPlayerSplitCard(card);
 		if(_betGame > 0){
-			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*1000;
+			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	} else if(type == "house"){
 		coord = _prnt.showHouseCard(card);
@@ -1324,13 +1328,42 @@ ScrSpeedGame.prototype.sendCard = function(obj){
 			if(_prnt._arNewCards.length == 1 &&
 			(_currentMethod == DOUBLE || _mySplitPoints >= BLACKJACK)){
 				_bSplit = false;
-				_prnt.timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*1000;
+				_prnt.timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 				_prnt.darkCards(_prnt._arMyCards, false);
 				_prnt.darkCards(_prnt._arMySplitCards, true);
 			}
 		}
 	} else {
 		console.log("card: null");
+	}
+}
+
+ScrSpeedGame.prototype.hideCards = function(){
+	var i = 0;
+	var j = 0;
+	var index = 0;
+	
+	if(_prnt._arHideCards.length > 0){
+		var ar = [];
+		for (i = 0; i < _prnt._arHideCards.length; i++) {
+			var obj = _prnt._arHideCards[i];
+			var card = _prnt.getCard(obj.id);
+			card.x = obj.x;
+			card.y = obj.y;
+			_prnt.cards_mc.addChild(card);
+			ar.push(card);
+			createjs.Tween.get(card).to({x:320, y:300},400).to({alpha:0},100)
+								.call(function(){
+									index ++;
+									if(index == ar.length){
+										for (j = 0; j < ar.length; j++) {
+											_prnt.cards_mc.removeChild(ar[j]);
+										}
+									}
+								});
+		}
+		
+		_prnt._arHideCards = [];
 	}
 }
 
@@ -1351,8 +1384,13 @@ ScrSpeedGame.prototype.autoSplitStand = function(){
 		_bStandSplit = true;
 		if(_currentMethod == HIT){
 			_bSplit = false;
+			
+			if(_myPoints >= BLACKJACK){
+				this.clickStand();
+			}
 		}
 	}
+	
 	this.showButtons(false);
 	this.darkCards(this._arMyCards, false);
 	this.darkCards(this._arMySplitCards, true);
@@ -1739,21 +1777,30 @@ ScrSpeedGame.prototype.clickHit = function(){
 }
 
 ScrSpeedGame.prototype.clickStand = function(){
+	var seed = makeID();
+	_currentMethod = STAND;
+	if(options_debug){
+		_logic.bjStand(seed, !_bSplit);
+	} else {
+		Casino.callGameFunction(_idGame, msgID(), 
+			'bjStand', ['confirm('+seed+')', !_bSplit]
+		);
+		this.signSeed(seed, function(result){_logic.bjStand(result, !_bSplit);});	
+	}
+	
 	if(_bSplit){
 		_bSplit = false;
 		_prnt.darkCards(_prnt._arMyCards, false);
 		_prnt.darkCards(_prnt._arMySplitCards, true);
-	} else {
-		var seed = makeID();
-		_currentMethod = STAND;
-		if(options_debug){
-			_logic.bjStand(seed, !_bSplit);
-		} else {
-			Casino.callGameFunction(_idGame, msgID(), 
-				'bjStand', ['confirm('+seed+')', !_bSplit]
-			);
-			this.signSeed(seed, function(result){_logic.bjStand(result, !_bSplit);});	
+		if(_myPoints >= BLACKJACK){
+			this.showButtons(false);
 		}
+		if(options_splitdouble){
+			if(this.isDoubleAvailable()){
+				this.btnDouble.alpha = 1;
+			}
+		}
+	} else {
 		this.showButtons(false);
 	}
 }
@@ -1897,6 +1944,8 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	if(objResult.mixing){
 		_mixingCard.visible = true;
 		_timeMixing = 3000;
+		var str = getText("mixed_decks").replace(new RegExp("SPL"), "\n");
+		_prnt.showWndWarning(str);
 	}
 	
 	if(_balanceSession == 0){
@@ -2048,8 +2097,8 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 	}
 	
 	if(_objSpeedGame.result){
-		var delay = _prnt._arNewCards.length+1;
-		createjs.Tween.get({}).wait(1000*delay).call(function(){
+		var delay = (_prnt._arNewCards.length+1)*TIME_NEW_CARD;
+		createjs.Tween.get({}).wait(delay).call(function(){
 								_prnt.checkResult(_logic.getResult());
 							});
 	}
@@ -2067,6 +2116,7 @@ ScrSpeedGame.prototype.update = function(diffTime){
 		if(_timeMixing < 100){
 			_timeMixing = 0;
 			_mixingCard.visible = false;
+			_wndWarning.visible = false;
 		}
 	}
 	
@@ -2086,7 +2136,7 @@ ScrSpeedGame.prototype.update = function(diffTime){
 	
 	_timeNewCard -= diffTime;
 	if(this._arNewCards.length > 0 && _timeNewCard < 1){
-		_timeNewCard = 1000;
+		_timeNewCard = TIME_NEW_CARD;
 		this.sendCard(this._arNewCards[0]);
 		this._arNewCards.shift();
 	}
