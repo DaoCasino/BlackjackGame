@@ -1902,6 +1902,7 @@ ScrSpeedGame.prototype.clickReset = function(){
 	_prnt.resetObjGame();
 	_prnt.showChips(true);
 	localStorage.removeItem('channel_id');
+	localStorage.removeItem('contract_address');
 	if(_wndWarning){
 		_wndWarning.visible = false;
 	}
