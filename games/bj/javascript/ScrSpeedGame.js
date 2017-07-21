@@ -797,11 +797,11 @@ ScrSpeedGame.prototype.showError = function(value, callback) {
 
 ScrSpeedGame.prototype.showInsurance = function() {
 	var price = _betGame/2;
-	if(_balanceSession >= price){
+	_bInsurance = 0;
+	if(_balanceSession >= price && !_objSpeedGame.insurance){
 		price = toFixed((convertToken(price)), 4);
 		var str = "Do you want Insurance? \n " + price + " BET.";
 		this.showWndInsurance(str, this.clickInsurance);
-		_bInsurance = 0;
 	}
 }
 
@@ -1985,6 +1985,7 @@ ScrSpeedGame.prototype.clickSplit = function(){
 }
 
 ScrSpeedGame.prototype.clickInsurance = function(){
+	console.log("clickInsurance");
 	_currentMethod = INSURANCE;
 	_valInsurance = _betGame/2;
 	_bWindow = false;

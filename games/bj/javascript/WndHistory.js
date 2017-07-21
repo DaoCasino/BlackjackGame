@@ -193,7 +193,6 @@ WndHistory.prototype.scrollHead = function(evt){
 		var difH = this.tfName.height - this.hMask;
 		var sc = (posY + 190)/450;
 		var textY = this._posTfY - difH*sc;
-		console.log("posY:", sc, difH*sc);
 		this.tfName.y = textY;
 		this.tfBalance.y = textY;
 		this.tfCards.y = textY;
