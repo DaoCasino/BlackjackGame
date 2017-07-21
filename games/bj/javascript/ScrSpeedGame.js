@@ -1688,7 +1688,11 @@ ScrSpeedGame.prototype.loadGame = function(){
 		Casino.restoreGame(function(res){
             if (res===true) {
                 if(_objSpeedGame.result || _objSpeedGame.curGame.arMyCards == undefined){
+					var money = _objSpeedGame.money;
+					_prnt.resetObjGame();
 					_prnt.initLogic();
+					_objSpeedGame.money = money;
+					_logic.loadGame(_objSpeedGame, _objResult);
 					_prnt.showChips(true);
 				} else {
 					_prnt.initLogic();
@@ -1811,7 +1815,6 @@ ScrSpeedGame.prototype.clickDeal = function(){
 	_currentMethod = DEAL;
 	_idGame ++;
 	localStorage._idGame = _idGame;
-	
 	if((_betGame >= _minBet && 
 	_balanceBank >= (_betGame/valToken)*3) && 
 	_countBankrollers > 0){
@@ -1828,7 +1831,9 @@ ScrSpeedGame.prototype.clickDeal = function(){
 				Casino.callGameFunction(_idGame, msgID(), 
 					'bjDeal', ['confirm('+seed+')', _betGame]
 				);
-				this.signSeed(seed, function(result){_logic.bjDeal(result, _betGame);});
+				this.signSeed(seed, function(result){
+					_logic.bjDeal(result, _betGame);
+				});
 			}
 		} else {
 			this.showError(ERROR_BALANCE);
@@ -1985,7 +1990,6 @@ ScrSpeedGame.prototype.clickSplit = function(){
 }
 
 ScrSpeedGame.prototype.clickInsurance = function(){
-	console.log("clickInsurance");
 	_currentMethod = INSURANCE;
 	_valInsurance = _betGame/2;
 	_bWindow = false;
