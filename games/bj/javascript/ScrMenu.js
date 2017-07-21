@@ -62,6 +62,12 @@ ScrMenu.prototype.init = function() {
 	tf1.y = tf2.y - tf1.height;
 	this.addChild(tf1);
 	
+	// var _wndHistory = new WndHistory(this);
+	// _wndHistory.x = _W/2;
+	// _wndHistory.y = _H/2;
+	// _wndHistory.show()
+	// this.addChild(_wndHistory);
+	
 	this.interactive = true;
 	this.on('mousedown', this.touchHandler);
 	this.on('mousemove', this.touchHandler);
