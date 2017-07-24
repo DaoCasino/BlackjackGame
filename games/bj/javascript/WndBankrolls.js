@@ -6,12 +6,16 @@ function WndBankrolls(_prnt) {
 WndBankrolls.prototype = Object.create(PIXI.Container.prototype);
 WndBankrolls.prototype.constructor = WndBankrolls;
 
+var _this;
+
 WndBankrolls.prototype.init = function(_prnt) {
+	_this = this;
 	this.listBanks = new PIXI.Container();
 	this._prnt = _prnt;
 	this._callback = undefined;
 	this._arButtons = [];
 	this._posTfY = -112;
+	this._countBank = 1;
 	
 	var rect = new PIXI.Graphics();
 	rect.beginFill(0x000000).drawRect(-_W/2, -_H/2, _W, _H).endFill();
@@ -22,43 +26,55 @@ WndBankrolls.prototype.init = function(_prnt) {
 	this.addChild(bg);
 	
 	var posLineX = 320;
-	var stY = -120;
-	var endY = 90;
+	this.stY = -120;
+	this.endY = 90;
+	this.distSc = Math.abs(this.stY) + this.endY;
 	var thinLine = new PIXI.Graphics();
 	thinLine.lineStyle(2, 0xffffff)
-	thinLine.moveTo(posLineX, stY)
-		   .lineTo(posLineX, endY);
+	thinLine.moveTo(posLineX, this.stY)
+		   .lineTo(posLineX, this.endY);
 	this.addChild(thinLine);
 	
 	var scrollZone = new PIXI.Container();
 	this.addChild(scrollZone);
 	var zone = new PIXI.Graphics();
-	zone.beginFill(0xFF0000).drawRect(0, 0, 50, endY-stY).endFill();
+	zone.beginFill(0xFF0000).drawRect(0, 0, 50, this.endY-this.stY).endFill();
 	zone.x = -zone.width/2;
 	zone.y = -zone.height/2;
 	scrollZone.addChild(zone);
 	scrollZone.w = 50;
-	scrollZone.h = endY-stY;
+	scrollZone.h = this.endY-this.stY;
 	scrollZone.x = posLineX;
-	scrollZone.y = stY+scrollZone.h/2;
+	scrollZone.y = this.stY+scrollZone.h/2;
 	scrollZone.name = "scrollZone";
 	scrollZone.visible = false;
 	scrollZone._selected = false;
 	this._arButtons.push(scrollZone);
 	
-	var headScroll = addButton("headScroll", posLineX, stY, 1);
+	var headScroll = addButton("headScroll", posLineX, this.stY, 1);
 	headScroll.rotation = Math.PI/2;
 	this.addChild(headScroll);
 	this._arButtons.push(headScroll);
 	this.headScroll = headScroll;
 	
 	var btnOk = addButton("btnGreen", 0, 130, 0.75);
+	btnOk.name = "btnOk";
 	this.addChild(btnOk);
 	this._arButtons.push(btnOk);
+	var btnRefresh = addButton("btnGreen", 0, 130, 0.75);
+	btnRefresh.name = "btnRefresh";
+	this.addChild(btnRefresh);
+	this._arButtons.push(btnRefresh);
+	
+	btnOk.visible = false;
+	btnRefresh.visible = false;
 	
 	btnOk.interactive = true;
 	btnOk.buttonMode=true;
 	btnOk.overSc=true;
+	btnRefresh.interactive = true;
+	btnRefresh.buttonMode=true;
+	btnRefresh.overSc=true;
 	headScroll.interactive = true;
 	headScroll.buttonMode=true;
 	
@@ -68,6 +84,12 @@ WndBankrolls.prototype.init = function(_prnt) {
 	var tfOk = addText("OK", 26, "#FFFFFF", undefined, "center", 350)
 	tfOk.y = - tfOk.height/2;
 	btnOk.addChild(tfOk);
+	var tfRefresh = addText(getText("refresh"), 26, "#FFFFFF", undefined, "center", 350)
+	tfRefresh.y = - tfRefresh.height/2;
+	btnRefresh.addChild(tfRefresh);
+	
+	this.btnOk = btnOk;
+	this.btnRefresh = btnRefresh;
 	
 	this.listBanks.y = this._posTfY;
 	this.addChild(this.listBanks);
@@ -89,9 +111,12 @@ WndBankrolls.prototype.init = function(_prnt) {
 	this.on('touchstart', this.touchHandler);
 	this.on('touchmove', this.touchHandler);
 	this.on('touchend', this.touchHandler);
+	window.addEventListener('wheel', this.mouseWheel);
 }
 
-WndBankrolls.prototype.show = function(ar) {
+WndBankrolls.prototype.show = function() {
+	var ar = Object.keys(Casino.getBankrollers('BJ'));
+	// console.log("showBankrolls:", ar);
 	// ar = [
 			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
 			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
@@ -104,8 +129,19 @@ WndBankrolls.prototype.show = function(ar) {
 		// ];
 	
 	if(ar.length == 0){
+		this.headScroll.visible = false;
+		this.btnOk.visible = false;
+		var prnt = this;
+		setTimeout(function(){
+			prnt.btnRefresh.visible = true;
+		}, 2000);
 		return;
 	}
+	
+	this._countBank = ar.length;
+	
+	this.btnOk.visible = true;
+	this.btnRefresh.visible = false;
 	
 	for (var i = 0; i < ar.length; i++) {
 		var obj = ar[i];
@@ -216,27 +252,40 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 		item_mc.scale.y = 1*item_mc.sc;
 	}
 	
-	if(name == "btnGreen"){
+	if(name == "btnOk"){
 		this._prnt.startGame();
+	} else if(name == "btnRefresh"){
+		this.show();
 	} else if(name == "scrollZone"){
-		this.scrollHead(evt);
+		this.mouseBtn(evt);
 	} else if(name == "bankroller"){
 		this.selectBankroller(item_mc);
 	}
 }
 
-WndBankrolls.prototype.scrollHead = function(evt){
-	var stY = -120;
-	var endY = 90;
-	var dist = Math.abs(stY) + endY;
+WndBankrolls.prototype.mouseWheel = function(evt){
+	var count = Math.max(_this._countBank - 5, 1);
+	var offset = -_this.distSc/count;
+	var mouseY = _this.headScroll.y + offset;
+	if(evt.deltaY > 0){
+		mouseY = _this.headScroll.y - offset;
+	}
+	_this.scrollHead(mouseY);
+}
+
+WndBankrolls.prototype.mouseBtn = function(evt){
 	var mouseY = evt.data.global.y - this.y;
-	var posY = Math.max(mouseY, stY);
-	posY = Math.min(posY, endY);
+	this.scrollHead(mouseY);
+}
+
+WndBankrolls.prototype.scrollHead = function(mouseY){
+	var posY = Math.max(mouseY, this.stY);
+	posY = Math.min(posY, this.endY);
 	this.headScroll.y = posY;
 	
 	if(this.listBanks.height > this.hMask){
 		var difH = this.listBanks.height - this.hMask;
-		var sc = (posY - stY)/dist;
+		var sc = (posY - this.stY)/this.distSc;
 		var textY = this._posTfY - difH*sc;
 		this.listBanks.y = textY;
 	}
@@ -293,7 +342,7 @@ WndBankrolls.prototype.touchHandler = function(evt){
 	if(phase=='mousemove' || phase == 'touchmove' || 
 	phase == 'touchstart' || phase == 'mousedown'){
 		if(this._pressHead){
-			this.scrollHead(evt);
+			this.mouseBtn(evt);
 			return;
 		}
 		this.checkButtons(evt);
@@ -317,4 +366,5 @@ WndBankrolls.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
+	window.addEventListener('wheel', this.mouseWheel);
 }

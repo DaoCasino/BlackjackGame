@@ -45,7 +45,7 @@ ScrMenu.prototype.init = function() {
 		_prnt.showBankrolls();
 		tfWait.visible = false;
 		loading.visible = false;
-	}, 10000);
+	}, 5000);
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -74,14 +74,11 @@ ScrMenu.prototype.init = function() {
 }
 
 ScrMenu.prototype.showBankrolls = function(){
-	this._arBankrollers = Object.keys(Casino.getBankrollers('BJ'));
-	this._countBankrollers = this._arBankrollers.length;
-	// console.log("showBankrolls:", this._arBankrollers);
 	this._wndList = new WndBankrolls(this);
 	this._wndList.x = _W/2;
 	this._wndList.y = _H/2;
 	this.addChild(this._wndList);
-	this._wndList.show(this._arBankrollers);
+	this._wndList.show();
 }
 
 ScrMenu.prototype.startGame = function(){

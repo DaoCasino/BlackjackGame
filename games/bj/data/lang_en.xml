@@ -20,6 +20,7 @@
 	mixed_decks="Please wait. SPL Mixed decks."
 	open_channel="Open channel"
 	open_channel_start="Please wait. SPL Sending BETs into the game."
+	refresh="Refresh"
 	remove_bet="Remove bet"
 	reset_data="Reset data"
 	reset_desc="All data about the current session will be deleted. Are you sure?"
