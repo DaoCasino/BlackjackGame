@@ -1828,6 +1828,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					sessionIsOver = true;
 					login_obj["openChannel"] = false;
 					login_obj["deposit"] = 0;
+					_prnt.resetObjGame();
 					_prnt.resetGame();
 					_prnt.isCashoutAvailable();
 					_prnt.createWndInfo(getText("close_channel_end"), undefined, "OK");
@@ -2271,8 +2272,10 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 	
 	var name = _arMethodsName[_currentMethod];
 	var transaction = _balanceSession - balanceSession;
-	_prnt._arHistory.push({name:name, transaction:transaction, 
+	if(name){
+		_prnt._arHistory.push({name:name, transaction:transaction, 
 							my:arMy, split:arSplit, house:arHouse});
+	}
 	
 	if(_objSpeedGame.result){
 		_prnt._arHistory.push({name:"end_game", balance:_balanceSession});
