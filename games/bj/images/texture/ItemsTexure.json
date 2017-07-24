@@ -528,6 +528,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":199,"h":96},
 	"sourceSize": {"w":199,"h":96}
 },
+"btnHistory.png":
+{
+	"frame": {"x":1756,"y":589,"w":90,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":90},
+	"sourceSize": {"w":90,"h":90}
+},
 "btnHit.png":
 {
 	"frame": {"x":393,"y":796,"w":221,"h":221},
@@ -546,7 +554,7 @@
 },
 "btnReset.png":
 {
-	"frame": {"x":1756,"y":589,"w":90,"h":90},
+	"frame": {"x":1756,"y":681,"w":90,"h":90},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":90},
@@ -727,6 +735,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1850,"h":1911},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:bf195e9ff4ce2f7761e97a4bd6ba46b5:2a8342a540f30445a4f68e59d3503f0e:3cfb2fe90443b3227c0789dde459a709$"
+	"smartupdate": "$TexturePacker:SmartUpdate:caaf28479269469e60f66c99eccf78a0:889ef1e46ed2ebe486c84f04c2f9b3f7:3cfb2fe90443b3227c0789dde459a709$"
 }
 }
