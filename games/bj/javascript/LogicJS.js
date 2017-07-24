@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.10
+ * v 1.0.11
  */
 
 var LogicJS = function(params){
@@ -288,7 +288,7 @@ var LogicJS = function(params){
 	}
 	
 	function checkResult(isMain, _s){
-		var points = _splitPoints;
+		var points = getMySplitPoints();
 		var bet = _objSpeedGame.betSplitGame;
 		var betWin = 0;
 		var countCard = _arMySplitCards.length;
@@ -296,7 +296,7 @@ var LogicJS = function(params){
 		
 		if(isMain){
 			countCard = _arMyCards.length;
-			points = _myPoints;
+			points = getMyPoints();
 			bet = _objSpeedGame.betGame;
 			
 			if(_objSpeedGame.result){
@@ -352,7 +352,8 @@ var LogicJS = function(params){
         if (points < _housePoints && _housePoints <= BLACKJACK && state=="") {
 			state = "lose";
         }
-        if (state=="") {
+		
+		if (state=="") {
 			state = "win";
 			bet = bet * 2;
 			betWin = bet;
@@ -412,7 +413,7 @@ var LogicJS = function(params){
 			hash = [hash[val]];
 		}
 		var rand = bigInt(hash.toString('hex'),16).divmod(52).remainder.value;
-		rand = checkCard(rand);
+		rand = checkCard(rand);		
 		_arCards.push(rand);
 		return rand;
 	}
