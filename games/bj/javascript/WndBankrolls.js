@@ -1,28 +1,29 @@
-function WndHistory(_prnt) {
+function WndBankrolls(_prnt) {
 	PIXI.Container.call( this );
 	this.init(_prnt);
 }
 
-WndHistory.prototype = Object.create(PIXI.Container.prototype);
-WndHistory.prototype.constructor = WndHistory;
+WndBankrolls.prototype = Object.create(PIXI.Container.prototype);
+WndBankrolls.prototype.constructor = WndBankrolls;
 
-WndHistory.prototype.init = function(_prnt) {
+WndBankrolls.prototype.init = function(_prnt) {
+	this.listBanks = new PIXI.Container();
 	this._prnt = _prnt;
 	this._callback = undefined;
-	this._arButtons =[];
-	this._posTfY = -210;
+	this._arButtons = [];
+	this._posTfY = -112;
 	
 	var rect = new PIXI.Graphics();
 	rect.beginFill(0x000000).drawRect(-_W/2, -_H/2, _W, _H).endFill();
 	rect.alpha = 0.5;
 	this.addChild(rect);
 	
-	var bg = addObj("wndInfo",0,0,0.5);
+	var bg = addObj("wndInfo",0,0,1,0.4,0.3);
 	this.addChild(bg);
 	
-	var posLineX = 400;
-	var stY = -190;
-	var endY = 260;
+	var posLineX = 320;
+	var stY = -120;
+	var endY = 90;
 	var thinLine = new PIXI.Graphics();
 	thinLine.lineStyle(2, 0xffffff)
 	thinLine.moveTo(posLineX, stY)
@@ -45,59 +46,41 @@ WndHistory.prototype.init = function(_prnt) {
 	scrollZone._selected = false;
 	this._arButtons.push(scrollZone);
 	
-	var btnClose = addButton("btnClose", 400, -270, 0.5);
-	this.addChild(btnClose);
-	this._arButtons.push(btnClose);
 	var headScroll = addButton("headScroll", posLineX, stY, 1);
 	headScroll.rotation = Math.PI/2;
 	this.addChild(headScroll);
 	this._arButtons.push(headScroll);
 	this.headScroll = headScroll;
 	
-	btnClose.interactive = true;
-	btnClose.buttonMode=true;
-	btnClose.overSc=true;
+	var btnOk = addButton("btnGreen", 0, 130, 0.75);
+	this.addChild(btnOk);
+	this._arButtons.push(btnOk);
+	
+	btnOk.interactive = true;
+	btnOk.buttonMode=true;
+	btnOk.overSc=true;
 	headScroll.interactive = true;
 	headScroll.buttonMode=true;
 	
-	var tfTitle = addText(getText("history_game"), 40, "#FFFFFF", "#000000", "center", 500, 3);
-	tfTitle.y = -270 - tfTitle.height/2;
+	var tfTitle = addText(getText("select_bankrollers"), 34, "#FFCC00", "#000000", "center", 500, 3);
+	tfTitle.y = -160 - tfTitle.height/2;
 	this.addChild(tfTitle);
-	var tfName = addText(getText("status"), 20, "#FFCC00", undefined, "left", 500)
-	tfName.x = -400;
-	tfName.y = -240;
-	this.addChild(tfName);
-	var tfBalance = addText(getText("balance"), 20, "#FFCC00", undefined, "left", 500)
-	tfBalance.x = -200;
-	tfBalance.y = -240;
-	this.addChild(tfBalance);
-	var tfCards = addText(getText("cards"), 20, "#FFCC00", undefined, "left", 500)
-	tfCards.x = -20;
-	tfCards.y = -240;
-	this.addChild(tfCards);
-	this.tfName = addText("", 20, "#FFFFFF", undefined, "left", 500)
-	this.tfName.x = -400;
-	this.tfName.y = this._posTfY;
-	this.addChild(this.tfName);
-	this.tfBalance = addText("", 20, "#FFFFFF", undefined, "left", 500)
-	this.tfBalance.x = -200;
-	this.tfBalance.y = this._posTfY;
-	this.addChild(this.tfBalance);
-	this.tfCards = addText("", 20, "#FFFFFF", undefined, "left", 500)
-	this.tfCards.x = -20;
-	this.tfCards.y = this._posTfY;
-	this.addChild(this.tfCards);
+	var tfOk = addText("OK", 26, "#FFFFFF", undefined, "center", 350)
+	tfOk.y = - tfOk.height/2;
+	btnOk.addChild(tfOk);
 	
-	this.hMask = 530;
+	this.listBanks.y = this._posTfY;
+	this.addChild(this.listBanks);
+	
+	this.hMask = 200;
 	var zoneMask = new PIXI.Graphics();
-	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 800, this.hMask).endFill();
+	zoneMask.alpha= 0.5;
+	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 600, this.hMask).endFill();
 	zoneMask.x = -50-zoneMask.width/2;
-	zoneMask.y = 50-zoneMask.height/2;
+	zoneMask.y = -30-zoneMask.height/2;
 	this.addChild(zoneMask);
 	
-	this.tfName.mask = zoneMask;
-	this.tfBalance.mask = zoneMask;
-	this.tfCards.mask = zoneMask;
+	this.listBanks.mask = zoneMask;
 	
 	this.interactive = true;
 	this.on('mousedown', this.touchHandler);
@@ -108,28 +91,27 @@ WndHistory.prototype.init = function(_prnt) {
 	this.on('touchend', this.touchHandler);
 }
 
-WndHistory.prototype.show = function(ar) {
+WndBankrolls.prototype.show = function(ar) {
 	// ar = [
-			// {name:"open_channel", deposit:10000000},
-			// {name:"start_game"},
-			// {name:"deal", balance:5000000, house:["4"], my:["8", "Q"], split:[], transaction:-5000000},
-			// {name:"stand", balance:5000000, house:["5","7","3"], my:[], split:[], transaction:0},
-			// {name:"end_game"},
-			// {name:"end_channel", profit:-5000000}
+			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
+			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
+			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
+			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
+			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
+			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
+			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
+			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8"
 		// ];
-	this.headScroll.visible = false;
+	
 	if(ar.length == 0){
 		return;
 	}
 	
-	var strName = "";
-	var strBalance = "";
-	var strCards = "";
 	for (var i = 0; i < ar.length; i++) {
 		var obj = ar[i];
-		var cards = "";
+		this.addBankroller(i, obj);
 		
-		for(var tag in obj){
+		/*for(var tag in obj){
 			var value = obj[tag];
 			if(tag == "name"){
 				if(value == "open_channel" || value == "end_channel"){
@@ -147,27 +129,81 @@ WndHistory.prototype.show = function(ar) {
 				strBalance += "profit: " + convertToken(value);
 			} else if(tag == "balance"){
 				strBalance += "balance: " + convertToken(value);
-			} else if(tag == "my" || tag == "split" || tag == "house"){
-				if(value.length > 0){
-					cards += "| "+tag+":" + value.toString()+" |";
-				}
 			}
-		}
-		strName += "\n";
-		strBalance += "\n";
-		strCards += cards + "\n";
+		}*/
 	}
 	
-	this.tfName.setText(strName);
-	this.tfBalance.setText(strBalance);
-	this.tfCards.setText(strCards);
-	console.log("this.tfName.height:", this.tfName.height, this.hMask);
-	if(this.tfName.height > this.hMask){
-		this.headScroll.visible = true;
+	if(this.listBanks.height <= this.hMask){
+		this.headScroll.visible = false;
 	}
 }
 
-WndHistory.prototype.clickObj = function(item_mc, evt) {
+WndBankrolls.prototype.addBankroller = function(i, obj){
+	var item = new PIXI.Container();
+	item.name = "bankroller";
+	item.id = obj;
+	item.x = -50;
+	item.y = i*40;
+	item.w = 600;
+	item.h = 35;
+	item._selected = false;
+	item.interactive = true;
+	item.buttonMode=true;
+	this.listBanks.addChild(item);
+	
+	var bg = new PIXI.Graphics();
+	if(i%2==0){
+		bg.alpha= 0.1;
+	} else {
+		bg.alpha= 0.15;
+	}
+	bg.beginFill(0xFFFFFF).drawRect(0, 0, item.w, item.h).endFill();
+	bg.x = -bg.width/2;
+	bg.y = -bg.height/2;
+	item.addChild(bg);
+	var bgSelect = new PIXI.Graphics();
+	bgSelect.beginFill(0xFFCC00).drawRect(0, 0, item.w, item.h).endFill();
+	bgSelect.alpha= 0.5;
+	bgSelect.x = -bgSelect.width/2;
+	bgSelect.y = -bgSelect.height/2;
+	item.addChild(bgSelect);
+	var bgOver = new PIXI.Graphics();
+	bgOver.lineStyle(3, 0xFFFFFF, 1);
+	bgOver.drawRect(2, 2, 596, 31);
+	bgOver.x = -bgOver.width/2;
+	bgOver.y = -bgOver.height/2;
+	bgOver.visible = false;
+	item.addChild(bgOver);
+	
+	var tfName = addText(obj, 20, "#FFFFFF", undefined, "left", 400)
+	tfName.x = -280;
+	tfName.y = -tfName.height/2+2;
+	item.addChild(tfName);
+	
+	item.sel = bgSelect;
+	item.over = bgOver;
+	
+	if(i > 0){
+		bgSelect.visible = false;
+	} else {
+		this._selectedBank = item;
+		addressChannel = item.id;
+	}
+	
+	this._arButtons.push(item);
+}
+
+WndBankrolls.prototype.selectBankroller = function(item_mc){
+	if(item_mc.sel.visible){
+		return;
+	}
+	this._selectedBank.sel.visible = false;
+	item_mc.sel.visible = true;
+	this._selectedBank = item_mc;
+	addressChannel = item_mc.id;
+}
+
+WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 	// sound_play("button_click");
 	var name = item_mc.name
 	// console.log("clickObj:", name);
@@ -180,36 +216,41 @@ WndHistory.prototype.clickObj = function(item_mc, evt) {
 		item_mc.scale.y = 1*item_mc.sc;
 	}
 	
-	if(name == "btnClose"){
-		this._prnt.closeWindow(this);
+	if(name == "btnGreen"){
+		this._prnt.startGame();
 	} else if(name == "scrollZone"){
 		this.scrollHead(evt);
+	} else if(name == "bankroller"){
+		this.selectBankroller(item_mc);
 	}
 }
 
-WndHistory.prototype.scrollHead = function(evt){
+WndBankrolls.prototype.scrollHead = function(evt){
+	var stY = -120;
+	var endY = 90;
+	var dist = Math.abs(stY) + endY;
 	var mouseY = evt.data.global.y - this.y;
-	var posY = Math.max(mouseY, -190);
-	posY = Math.min(posY, 260);
+	var posY = Math.max(mouseY, stY);
+	posY = Math.min(posY, endY);
 	this.headScroll.y = posY;
 	
-	if(this.tfName.height > this.hMask){
-		var difH = this.tfName.height - this.hMask;
-		var sc = (posY + 190)/450;
+	if(this.listBanks.height > this.hMask){
+		var difH = this.listBanks.height - this.hMask;
+		var sc = (posY - stY)/dist;
 		var textY = this._posTfY - difH*sc;
-		this.tfName.y = textY;
-		this.tfBalance.y = textY;
-		this.tfCards.y = textY;
+		this.listBanks.y = textY;
 	}
-	
 }
 
-WndHistory.prototype.checkButtons = function(evt){
+WndBankrolls.prototype.checkButtons = function(evt){
 	var phase = evt.type; 
 	var mouseX = evt.data.global.x - this.x
 	var mouseY = evt.data.global.y - this.y;
 	for (var i = 0; i < this._arButtons.length; i++) {
 		var item_mc = this._arButtons[i];
+		if(item_mc.name == "bankroller"){
+			mouseY = evt.data.global.y - this.y - this.listBanks.y;
+		}
 		if(hit_test_rec(item_mc, item_mc.w, item_mc.h, mouseX, mouseY)){
 			if((item_mc.visible || item_mc.name == "scrollZone") && 
 			item_mc._selected == false && item_mc.alpha == 1){
@@ -239,7 +280,7 @@ WndHistory.prototype.checkButtons = function(evt){
 	}
 }
 
-WndHistory.prototype.touchHandler = function(evt){	
+WndBankrolls.prototype.touchHandler = function(evt){	
 	if(!this.visible){
 		return false;
 	}
@@ -268,7 +309,7 @@ WndHistory.prototype.touchHandler = function(evt){
 	}
 }
 
-WndHistory.prototype.removeAllListener = function(){
+WndBankrolls.prototype.removeAllListener = function(){
 	this.interactive = false;
 	this.off('mousedown', this.touchHandler);
 	this.off('mousemove', this.touchHandler);
