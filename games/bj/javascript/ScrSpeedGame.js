@@ -1276,7 +1276,9 @@ ScrSpeedGame.prototype.makeID = function(count){
 }
 
 ScrSpeedGame.prototype.signSeed = function(seed, callback){
+	console.log("signSeed");
 	Casino.getFastRandom(seed, function (res) {
+		console.log("getFastRandom:", seed);
 		if(res.error){
 			_prnt.showError(res.error);
 			_prnt.closeChannel();
@@ -1622,9 +1624,7 @@ ScrSpeedGame.prototype.initLogic = function(){
 }
 
 ScrSpeedGame.prototype.getAdrBankroll = function(){
-	addressContract = _arBankrollers[Math.floor(Math.random()*_arBankrollers.length)];
-	addressContract = addressChannel; // DELETE
-	return addressContract;
+	addressContract = addressChannel;
 }
 
 ScrSpeedGame.prototype.getBankrolls = function(){
@@ -1658,6 +1658,8 @@ ScrSpeedGame.prototype.loadGame = function(){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
 			load = true;
+			addressChannel = adr;
+			addressContract = addressChannel;
 		}
 	}
 	

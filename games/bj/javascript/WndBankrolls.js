@@ -119,7 +119,7 @@ WndBankrolls.prototype.show = function() {
 	// console.log("showBankrolls:", ar);
 	// ar = [
 			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
-			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
+			// "0xb3b16fd30111bb12176d24fad4af1773d0378ce9",
 			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 
 			// "0xa2c89aac657b2f8f0df83635e7ceb05fcd6bf6f8",
 			// "0xe26b3678fef015f3122e78f9d85b292ce45975b1", 

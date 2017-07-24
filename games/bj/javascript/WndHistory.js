@@ -161,7 +161,6 @@ WndHistory.prototype.show = function(ar) {
 	this.tfName.setText(strName);
 	this.tfBalance.setText(strBalance);
 	this.tfCards.setText(strCards);
-	console.log("this.tfName.height:", this.tfName.height, this.hMask);
 	if(this.tfName.height > this.hMask){
 		this.headScroll.visible = true;
 	}
