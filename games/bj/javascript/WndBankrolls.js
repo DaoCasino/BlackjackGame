@@ -14,8 +14,11 @@ WndBankrolls.prototype.init = function(_prnt) {
 	this._prnt = _prnt;
 	this._callback = undefined;
 	this._arButtons = [];
+	this._arBankrollers = [];
+	this._arSelected = [];
 	this._posTfY = -112;
 	this._countBank = 1;
+	this._selectB = false;
 	
 	var rect = new PIXI.Graphics();
 	rect.beginFill(0x000000).drawRect(-_W/2, -_H/2, _W, _H).endFill();
@@ -24,6 +27,10 @@ WndBankrolls.prototype.init = function(_prnt) {
 	
 	var bg = addObj("wndInfo",0,0,1,0.4,0.3);
 	this.addChild(bg);
+	
+	var loading = new ItemLoading(this);
+	this.addChild(loading);
+	this.loading = loading;
 	
 	var posLineX = 320;
 	this.stY = -120;
@@ -61,13 +68,13 @@ WndBankrolls.prototype.init = function(_prnt) {
 	btnOk.name = "btnOk";
 	this.addChild(btnOk);
 	this._arButtons.push(btnOk);
-	var btnRefresh = addButton("btnGreen", 0, 130, 0.75);
+	var btnRefresh = addButton("btnRed", -150, 130, 0.75);
 	btnRefresh.name = "btnRefresh";
 	this.addChild(btnRefresh);
 	this._arButtons.push(btnRefresh);
 	
-	btnOk.visible = false;
 	btnRefresh.visible = false;
+	btnOk.visible = false;
 	
 	btnOk.interactive = true;
 	btnOk.buttonMode=true;
@@ -81,6 +88,7 @@ WndBankrolls.prototype.init = function(_prnt) {
 	var tfTitle = addText(getText("select_bankrollers"), 34, "#FFCC00", "#000000", "center", 500, 3);
 	tfTitle.y = -160 - tfTitle.height/2;
 	this.addChild(tfTitle);
+	this.tfTitle = tfTitle;
 	var tfOk = addText("OK", 26, "#FFFFFF", undefined, "center", 350)
 	tfOk.y = - tfOk.height/2;
 	btnOk.addChild(tfOk);
@@ -114,21 +122,40 @@ WndBankrolls.prototype.init = function(_prnt) {
 	window.addEventListener('wheel', this.mouseWheel);
 }
 
+WndBankrolls.prototype.clearList = function() {
+	this._arButtons = [this.btnOk, this.btnRefresh];
+	
+	for (var i = 0; i < this._arBankrollers.length; i++) {
+		var item = this._arBankrollers[i];
+		this.listBanks.removeChild(item);
+		item = undefined;
+	}
+	this._arBankrollers = [];
+	this._arSelected = [];
+}
+
 WndBankrolls.prototype.show = function() {
+	this.clearList();
 	var ar = Object.keys(Casino.getBankrollers('BJ'));
 	var load = false;
 	
 	// console.log("showBankrolls:", ar);
-	ar = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
+	// ar = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
+	this.loading.visible = (ar.length == 0);
 	
 	if(ar.length == 0){
 		this.headScroll.visible = false;
 		this.btnOk.visible = false;
-		var prnt = this;
-		setTimeout(function(){
-			prnt.btnRefresh.visible = true;
-		}, 2000);
 		return;
+	}
+	
+	var blacklist = ["0xc6dc32b6bbcfb2ef17fb3042be3a138528caaecc"];
+	for (var i = 0; i < ar.length; i++) {
+		for (var j = 0; j < blacklist.length; j++) {
+			if(ar[i] == blacklist[j]){
+				ar.splice(i, 1);
+			}
+		}
 	}
 	
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
@@ -139,13 +166,14 @@ WndBankrolls.prototype.show = function() {
 			addressChannel = adr;
 			addressContract = addressChannel;
 			ar = [addressContract];
+			this.tfTitle.setText(getText("continue_game"));
 		}
 	}
 	
 	this._countBank = ar.length;
 	
 	this.btnOk.visible = true;
-	this.btnRefresh.visible = false;
+	this._selectB = false;
 	
 	for (var i = 0; i < ar.length; i++) {
 		var obj = ar[i];
@@ -175,6 +203,15 @@ WndBankrolls.prototype.show = function() {
 	
 	if(this.listBanks.height <= this.hMask){
 		this.headScroll.visible = false;
+	}
+	
+	if(!this._selectB && this._arBankrollers.length > 0){
+		this._selectB = true;
+		var item = this._arBankrollers[0];
+		item.sel.visible = true;
+		addressChannel = item.id;
+		this._selectedBank = item;
+		this._arSelected.push(item);
 	}
 }
 
@@ -223,24 +260,46 @@ WndBankrolls.prototype.addBankroller = function(i, obj){
 	item.sel = bgSelect;
 	item.over = bgOver;
 	
-	if(i > 0){
-		bgSelect.visible = false;
+	if(this._selectedBank){
+		if(this._selectedBank.id == item.id){
+			this._selectB = true;
+			this._arSelected.push(item);
+		} else {
+			bgSelect.visible = false;
+		}
 	} else {
-		this._selectedBank = item;
-		addressChannel = item.id;
+		if(i > 0){
+			bgSelect.visible = false;
+		} else {
+			this._selectB = true;
+			this._selectedBank = item;
+			this._arSelected.push(item);
+			addressChannel = item.id;
+		}
 	}
 	
 	this._arButtons.push(item);
+	this._arBankrollers.push(item);
 }
 
 WndBankrolls.prototype.selectBankroller = function(item_mc){
-	if(item_mc.sel.visible){
+	if(this._selectedBank == item_mc){
 		return;
 	}
-	this._selectedBank.sel.visible = false;
+	
+	for (var i = 0; i < this._arSelected.length; i++) {
+		var item = this._arSelected[i];
+		item.sel.visible = false;
+	}
+	
 	item_mc.sel.visible = true;
+	this._arSelected.push(item_mc);
 	this._selectedBank = item_mc;
 	addressChannel = item_mc.id;
+}
+
+WndBankrolls.prototype.update = function(diffTime) {
+	this.loading.update(diffTime);
 }
 
 WndBankrolls.prototype.clickObj = function(item_mc, evt) {

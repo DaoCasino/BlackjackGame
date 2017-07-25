@@ -1127,7 +1127,6 @@ ScrSpeedGame.prototype.fillChips = function(value, type, _y){
 			left = true;
 		}
 	}
-	
 	if(type == "split"){
 		this.clearSplitChips();
 		posX += 200;
@@ -1696,12 +1695,6 @@ ScrSpeedGame.prototype.loadGame = function(){
 			_prnt._arHistory = login_obj["arHistory"];
 		}
 		_prnt.refreshBalance();
-		if(_balanceSession == 0){
-			_prnt.initLogic();
-			_prnt.getAdrBankroll();
-			_prnt.showWndBank();
-			return;
-		}
 		_prnt.isCashoutAvailable();
 		
 		if(options_debug){
@@ -1809,6 +1802,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 		sessionIsOver = true;
 		login_obj["openChannel"] = false;
 		login_obj["deposit"] = 0;
+		_prnt.resetObjGame();
 		_prnt.resetGame();
 		_prnt.showChips(true);
 		_prnt._arHistory.push({name:"end_channel", profit:deposit});
@@ -2272,7 +2266,7 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 	
 	var name = _arMethodsName[_currentMethod];
 	var transaction = _balanceSession - balanceSession;
-	if(name){
+	if(name != undefined){
 		_prnt._arHistory.push({name:name, transaction:transaction, 
 							my:arMy, split:arSplit, house:arHouse});
 	}
@@ -2283,6 +2277,8 @@ ScrSpeedGame.prototype.responseServer = function(objGame) {
 		createjs.Tween.get({}).wait(delay).call(function(){
 								_prnt.checkResult(_logic.getResult());
 								_prnt.refreshBalance();
+								_objSpeedGame.betGame = 0;
+								_objSpeedGame.betSplitGame = 0;
 							});
 	} else {
 		_prnt.refreshBalance();

@@ -5,6 +5,7 @@
 	click_reset="Click the 'Reset data' button and refresh browser."
 	close_channel_end="The gaming session was closed successfully."
 	close_channel_start="Please wait! SPL The game session is closing!"
+	continue_game="Continue the game"
 	contact_support="Contact technical support."
 	deal="Deal"
 	double="Double"
