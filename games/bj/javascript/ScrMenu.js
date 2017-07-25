@@ -6,11 +6,14 @@ function ScrMenu() {
 ScrMenu.prototype = Object.create(PIXI.Container.prototype);
 ScrMenu.prototype.constructor = ScrMenu;
 
+var TIME_GET_STATE = 7000;
+
 var _prnt;
 
 ScrMenu.prototype.init = function() {
 	_prnt = this;
 	this._arButtons = [];
+	this._timeGetState = 0;
 	
 	this.bg = addObj("bgMenu", _W/2, _H/2);
 	this.bg.scale.x =  _W/this.bg.w;
@@ -90,6 +93,15 @@ ScrMenu.prototype.startGame = function(){
 // UPDATE
 ScrMenu.prototype.update = function(diffTime){
 	this.loading.update(diffTime);
+	
+	if(this._wndList){
+		this._timeGetState += diffTime;
+		this._wndList.update(diffTime);
+		if(this._timeGetState >= TIME_GET_STATE){
+			this._timeGetState = 0;
+			this._wndList.show();
+		}
+	}
 }
 
 ScrMenu.prototype.clickCell = function(item_mc) {
