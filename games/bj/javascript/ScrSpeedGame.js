@@ -2134,7 +2134,7 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 	_prnt.showButtons(false);
 	_prnt.isCashoutAvailable();
 	
-	if(objResult.mixing){
+	if(objResult.mixing && _balanceSession > 0){
 		_mixingCard.visible = true;
 		_timeMixing = 3000;
 		var str = getText("mixed_decks").replace(new RegExp("SPL"), "\n");
