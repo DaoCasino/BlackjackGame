@@ -239,6 +239,10 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 	tfName.x = -320;
 	tfName.y = -tfName.height/2+2;
 	item.addChild(tfName);
+	var tfUser = addText("0", 20, "#2AE1FF", undefined, "left", 100)
+	tfUser.x = 190;
+	tfUser.y = -tfUser.height/2+2;
+	item.addChild(tfUser);
 	
 	// console.log("----------------------------")
 	for(var tag in obj){
@@ -253,10 +257,7 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 					item.addChild(tfBank);
 				}
 				if(value.players_now){
-					var tfUser = addText(value.players_now, 20, "#2AE1FF", undefined, "left", 100)
-					tfUser.x = 190;
-					tfUser.y = -tfUser.height/2+2;
-					item.addChild(tfUser);
+					tfUser.setText(value.players_now);
 				}
 			}
 		}
