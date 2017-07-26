@@ -25,6 +25,7 @@
 	remove_bet="Remove bet"
 	reset_data="Reset data"
 	reset_desc="All data about the current session will be deleted. Are you sure?"
+	search_bankrollers="Search bankrollers"
 	select_bankrollers="Select bankrollers"
 	select_bet="Select bet"
 	share_facebook="Share Facebook"

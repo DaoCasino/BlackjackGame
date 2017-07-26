@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.9";
+var version = "v. 1.1.10";
 var metaCode = "blackjack_v1";
 var login_obj = {};
 var language;
@@ -546,6 +546,12 @@ function parseData(objData) {
 			}
         }
     }
+}
+
+function getFnName(fn) {
+	var f = typeof fn == 'function';
+	var s = f && ((fn.name && ['', fn.name]) || fn.toString().match(/function ([^\(]+)/));
+	return (!f && 'not a function') || (s && s[1] || 'anonymous');
 }
 
 function removeSelf(obj) {

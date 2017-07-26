@@ -32,6 +32,7 @@ var _wndInsurance;
 var _wndBank;
 var _wndWarning;
 var _wndHistory;
+var _wndList;
 var _callback;
 var _cardSuit;
 var _mixingCard;
@@ -479,6 +480,7 @@ ScrSpeedGame.prototype.showWndBank = function() {
 					_prnt.showChips(true);
 				}
 			}, _balance)
+	_timeCloseWnd = 0;
 	_wndBank.visible = true;
 	_curWindow = _wndBank;
 }
@@ -809,11 +811,32 @@ ScrSpeedGame.prototype.showHistory = function() {
 		_wndHistory.y = _H/2;
 		this.wnd_mc.addChild(_wndHistory);
 	}
-	
+	_timeCloseWnd = 0;
 	_bWindow = true;
 	_wndHistory.show(this._arHistory)
 	_wndHistory.visible = true;
 	_curWindow = _wndHistory;
+}
+
+ScrSpeedGame.prototype.showBankrolls = function showBankrolls(){
+	if(_bWindow){
+		return false;
+	}
+	if(_wndList == undefined){
+		_wndList = new WndBankrolls(_prnt, _prnt.closeBankrolls);
+		_wndList.x = _W/2;
+		_wndList.y = _H/2;
+		_prnt.wnd_mc.addChild(_wndList);
+	}
+	_timeCloseWnd = 0;
+	_bWindow = true;
+	_wndList.show();
+	_wndList.visible = true;
+}
+
+ScrSpeedGame.prototype.closeBankrolls = function(){
+	_bWindow = false;
+	_wndList.visible = false;
 }
 
 ScrSpeedGame.prototype.showResult = function(_name, _x, _y, type, bet) {
@@ -879,6 +902,7 @@ ScrSpeedGame.prototype.createWndInfo = function(str, callback, addStr) {
 	}
 	
 	_bWindow = true;
+	
 	_wndInfo.show(str, callback, addStr)
 	_wndInfo.visible = true;
 	_curWindow = _wndInfo;
@@ -1660,7 +1684,8 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	if (_countBankrollers > 0) {
 		_prnt.loadGame();
 	} else {
-		_prnt.showError(ERROR_BANKROLLER);
+		// _prnt.showError(ERROR_BANKROLLER);
+		_prnt.showBankrolls();
 	}
 }
 
@@ -1784,7 +1809,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 				if(obj.error){
 					str = getText("error_"+obj.error).replace(new RegExp("VALUE"), addressContract);
 					console.log("error:", obj.error);
-					_prnt.showError(str);
+					_prnt.showError(str, _prnt.showBankrolls);
 					sessionIsOver = false;
 					_objSpeedGame.result = true;
 					_prnt.isCashoutAvailable();
@@ -1889,7 +1914,8 @@ ScrSpeedGame.prototype.clickDeal = function(){
 		if(_countBankrollers > 0){
 			this.showError(ERROR_BANK);
 		} else {
-			this.showError(ERROR_BANKROLLER);
+			// this.showError(ERROR_BANKROLLER);
+			_prnt.showBankrolls();
 		}
 		this.clearBet();
 		this.showChips(true);
@@ -1940,6 +1966,7 @@ ScrSpeedGame.prototype.clickStand = function(){
 		_prnt.darkCards(_prnt._arMySplitCards, true);
 		if(_myPoints >= BLACKJACK){
 			this.showButtons(false);
+			this.clickStand();
 		}
 		if(options_double){
 			if(this.isDoubleAvailable()){
@@ -2306,7 +2333,14 @@ ScrSpeedGame.prototype.update = function(diffTime){
 	}
 	
 	if(_wndWarning){
-		_wndWarning.loading.update(diffTime);
+		if(_wndWarning.visible){
+			_wndWarning.loading.update(diffTime);
+		}
+	}
+	if(_wndList){
+		if(_wndList.visible){
+			_wndList.update(diffTime);
+		}
 	}
 	
 	if(_timeCloseWnd > 0 && _curWindow){
@@ -2332,11 +2366,16 @@ ScrSpeedGame.prototype.update = function(diffTime){
 		}
 	}
 	
-	if(!login_obj["openChannel"]){
-		_timeGetState += diffTime;
-		if(_timeGetState >= TIME_GET_STATE){
-			_timeGetState = 0;
+	_timeGetState += diffTime;
+	if(_timeGetState >= TIME_GET_STATE){
+		_timeGetState = 0;
+		if(!login_obj["openChannel"]){
 			Casino.Account.getBetsBalance(_prnt.getBalancePlayer);
+		}
+		if(_wndList){
+			if(_wndList.visible){
+				_wndList.show();
+			}
 		}
 	}
 }
@@ -2468,6 +2507,9 @@ ScrSpeedGame.prototype.removeAllListener = function(){
 	}
 	if(_wndBank){
 		_wndBank.removeAllListener();
+	}
+	if(_wndList){
+		_wndList.removeAllListener();
 	}
 	
 	this.interactive = false;

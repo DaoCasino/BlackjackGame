@@ -6,7 +6,10 @@ function WndInfo(_prnt) {
 WndInfo.prototype = Object.create(PIXI.Container.prototype);
 WndInfo.prototype.constructor = WndInfo;
 
+var _this;
+
 WndInfo.prototype.init = function(_prnt) {
+	_this = this;
 	this._prnt = _prnt;
 	this._callback = undefined;
 	this._arButtons= [];
@@ -80,8 +83,12 @@ WndInfo.prototype.clickObj = function(item_mc) {
 	this._prnt.closeWindow(this);
 	
 	if(name == "btnDefault"){
-		if(this._callback){
-			this._callback();
+		if(getFnName(_this._callback) == "showBankrolls"){
+			setTimeout(function(){
+				_this._callback();
+			}, 200);
+		} else {
+			_this._callback();
 		}
 	}
 }

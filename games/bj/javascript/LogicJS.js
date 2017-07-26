@@ -1,14 +1,14 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.11
+ * v 1.0.12
  */
 
 var LogicJS = function(params){
 	var _self = this;
 
 	var BLACKJACK = 21;
-
+	
 	var DEAL = 0;
 	var HIT = 1;
 	var STAND = 2;
@@ -288,6 +288,9 @@ var LogicJS = function(params){
 	}
 	
 	function checkResult(isMain, _s){
+		if(_arHouseCards.length < 2){
+			return false;
+		}
 		var points = getMySplitPoints();
 		var bet = _objSpeedGame.betSplitGame;
 		var betWin = 0;
@@ -307,7 +310,7 @@ var LogicJS = function(params){
 		if(points == BLACKJACK && _housePoints == BLACKJACK && state==""){
 			state = "push";
 			betWin = bet;
-			if(isMain){
+			if(isMain && !_bSplit){
 				_objSpeedGame.result = true;
 			}
 		}

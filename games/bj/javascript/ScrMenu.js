@@ -6,7 +6,7 @@ function ScrMenu() {
 ScrMenu.prototype = Object.create(PIXI.Container.prototype);
 ScrMenu.prototype.constructor = ScrMenu;
 
-var TIME_GET_STATE = 7000;
+var TIME_GET_STATE = 10000;
 
 var _prnt;
 
@@ -77,16 +77,20 @@ ScrMenu.prototype.init = function() {
 }
 
 ScrMenu.prototype.showBankrolls = function(){
-	this._wndList = new WndBankrolls(this);
-	this._wndList.x = _W/2;
-	this._wndList.y = _H/2;
-	this.addChild(this._wndList);
-	this._wndList.show();
+	if(options_debug){
+		this.startGame();
+	} else {
+		this._wndList = new WndBankrolls(this, _prnt.startGame);
+		this._wndList.x = _W/2;
+		this._wndList.y = _H/2;
+		this.addChild(this._wndList);
+		this._wndList.show();
+	}
 }
 
 ScrMenu.prototype.startGame = function(){
-	this._wndList.visible = false;
-	this.removeAllListener();
+	_prnt._wndList.visible = false;
+	_prnt.removeAllListener();
 	showSpeedGame();
 }
 
