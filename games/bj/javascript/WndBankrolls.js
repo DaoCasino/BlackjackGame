@@ -1,6 +1,6 @@
-function WndBankrolls(_prnt) {
+function WndBankrolls(_prnt, callback) {
 	PIXI.Container.call( this );
-	this.init(_prnt);
+	this.init(_prnt, callback);
 }
 
 WndBankrolls.prototype = Object.create(PIXI.Container.prototype);
@@ -8,11 +8,11 @@ WndBankrolls.prototype.constructor = WndBankrolls;
 
 var _this;
 
-WndBankrolls.prototype.init = function(_prnt) {
+WndBankrolls.prototype.init = function(_prnt, callback) {
 	_this = this;
 	this.listBanks = new PIXI.Container();
 	this._prnt = _prnt;
-	this._callback = undefined;
+	this._callback = callback;
 	this._arButtons = [];
 	this._arBankrollers = [];
 	this._arSelected = [];
@@ -144,6 +144,7 @@ WndBankrolls.prototype.show = function() {
 	this.loading.visible = (ar.length == 0);
 	
 	if(ar.length == 0){
+		this.tfTitle.setText(getText("search_bankrollers"));
 		this.headScroll.visible = false;
 		this.btnOk.visible = false;
 		return;
@@ -213,6 +214,8 @@ WndBankrolls.prototype.show = function() {
 		this._selectedBank = item;
 		this._arSelected.push(item);
 	}
+	
+	addressContract = addressChannel;
 }
 
 WndBankrolls.prototype.addBankroller = function(i, obj){
@@ -296,6 +299,7 @@ WndBankrolls.prototype.selectBankroller = function(item_mc){
 	this._arSelected.push(item_mc);
 	this._selectedBank = item_mc;
 	addressChannel = item_mc.id;
+	addressContract = addressChannel;
 }
 
 WndBankrolls.prototype.update = function(diffTime) {
@@ -316,7 +320,7 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 	}
 	
 	if(name == "btnOk"){
-		this._prnt.startGame();
+		this._callback();
 	} else if(name == "btnRefresh"){
 		this.show();
 	} else if(name == "scrollZone"){
