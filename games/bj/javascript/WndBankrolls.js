@@ -25,14 +25,14 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	rect.alpha = 0.5;
 	this.addChild(rect);
 	
-	var bg = addObj("wndInfo",0,0,1,0.4,0.3);
+	var bg = addObj("wndInfo",0,0,1,0.45,0.3);
 	this.addChild(bg);
 	
 	var loading = new ItemLoading(this);
 	this.addChild(loading);
 	this.loading = loading;
 	
-	var posLineX = 320;
+	var posLineX = 370;
 	this.stY = -120;
 	this.endY = 90;
 	this.distSc = Math.abs(this.stY) + this.endY;
@@ -105,9 +105,9 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	this.hMask = 200;
 	var zoneMask = new PIXI.Graphics();
 	zoneMask.alpha= 0.5;
-	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 600, this.hMask).endFill();
-	zoneMask.x = -50-zoneMask.width/2;
-	zoneMask.y = -30-zoneMask.height/2;
+	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 700, this.hMask).endFill();
+	zoneMask.x = -30-zoneMask.width/2;
+	zoneMask.y = -29-zoneMask.height/2;
 	this.addChild(zoneMask);
 	
 	this.listBanks.mask = zoneMask;
@@ -136,14 +136,15 @@ WndBankrolls.prototype.clearList = function() {
 
 WndBankrolls.prototype.show = function() {
 	this.clearList();
-	var ar = Object.keys(Casino.getBankrollers('BJ'));
+	var ar = Casino.getBankrollers('BJ');
+	var arAdr = Object.keys(ar);
 	var load = false;
 	
-	// console.log("showBankrolls:", ar);
+	// console.log("showBankrolls:", arAdr);
 	// ar = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
-	this.loading.visible = (ar.length == 0);
+	this.loading.visible = (arAdr.length == 0);
 	
-	if(ar.length == 0){
+	if(arAdr.length == 0){
 		this.tfTitle.setText(getText("search_bankrollers"));
 		this.headScroll.visible = false;
 		this.btnOk.visible = false;
@@ -151,10 +152,10 @@ WndBankrolls.prototype.show = function() {
 	}
 	
 	var blacklist = ["0xc6dc32b6bbcfb2ef17fb3042be3a138528caaecc"];
-	for (var i = 0; i < ar.length; i++) {
+	for (var i = 0; i < arAdr.length; i++) {
 		for (var j = 0; j < blacklist.length; j++) {
-			if(ar[i] == blacklist[j]){
-				ar.splice(i, 1);
+			if(arAdr[i] == blacklist[j]){
+				arAdr.splice(i, 1);
 			}
 		}
 	}
@@ -162,49 +163,28 @@ WndBankrolls.prototype.show = function() {
 	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
 		var adr = login_obj["addressBankroller"];
 		
-		if(ar.indexOf(adr)>-1){
+		if(arAdr.indexOf(adr)>-1){
 			load = true;
 			addressChannel = adr;
 			addressContract = addressChannel;
-			ar = [addressContract];
+			arAdr = [addressContract];
 			this.tfTitle.setText(getText("continue_game"));
 		}
 	}
 	
-	this._countBank = ar.length;
+	this._countBank = arAdr.length;
 	
 	this.btnOk.visible = true;
 	this._selectB = false;
 	
-	for (var i = 0; i < ar.length; i++) {
-		var obj = ar[i];
-		this.addBankroller(i, obj);
-		
-		/*for(var tag in obj){
-			var value = obj[tag];
-			if(tag == "name"){
-				if(value == "open_channel" || value == "end_channel"){
-					strName += "* " + getText(value) + " *";
-				} else if(value == "start_game" || value == "end_game"){
-					strName += "----------------------------";
-				} else {
-					strName += getText(value);
-				}
-			} else if(tag == "deposit"){
-				strBalance += "deposit: " + convertToken(value);
-			} else if(tag == "transaction"){
-				strBalance += "trans: " + convertToken(value);
-			} else if(tag == "profit"){
-				strBalance += "profit: " + convertToken(value);
-			} else if(tag == "balance"){
-				strBalance += "balance: " + convertToken(value);
-			}
-		}*/
+	var i = 0;
+	for(var tag in ar){
+		var obj = ar[tag];
+		this.addBankroller(i, tag, obj);
+		i ++;
 	}
 	
-	if(this.listBanks.height <= this.hMask){
-		this.headScroll.visible = false;
-	}
+	this.headScroll.visible = (this.listBanks.height > this.hMask);
 	
 	if(!this._selectB && this._arBankrollers.length > 0){
 		this._selectB = true;
@@ -218,13 +198,13 @@ WndBankrolls.prototype.show = function() {
 	addressContract = addressChannel;
 }
 
-WndBankrolls.prototype.addBankroller = function(i, obj){
+WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 	var item = new PIXI.Container();
 	item.name = "bankroller";
-	item.id = obj;
-	item.x = -50;
-	item.y = i*40;
-	item.w = 600;
+	item.id = adr;
+	item.x = -30;
+	item.y = 1+i*40;
+	item.w = 700;
 	item.h = 35;
 	item._selected = false;
 	item.interactive = true;
@@ -249,16 +229,39 @@ WndBankrolls.prototype.addBankroller = function(i, obj){
 	item.addChild(bgSelect);
 	var bgOver = new PIXI.Graphics();
 	bgOver.lineStyle(3, 0xFFFFFF, 1);
-	bgOver.drawRect(2, 2, 596, 31);
+	bgOver.drawRect(2, 2, item.w-4, 31);
 	bgOver.x = -bgOver.width/2;
 	bgOver.y = -bgOver.height/2;
 	bgOver.visible = false;
 	item.addChild(bgOver);
 	
-	var tfName = addText(obj, 20, "#FFFFFF", undefined, "left", 400)
-	tfName.x = -280;
+	var tfName = addText(adr, 20, "#FFFFFF", undefined, "left", 400)
+	tfName.x = -320;
 	tfName.y = -tfName.height/2+2;
 	item.addChild(tfName);
+	var tfUser = addText("0", 20, "#2AE1FF", undefined, "left", 100)
+	tfUser.x = 190;
+	tfUser.y = -tfUser.height/2+2;
+	item.addChild(tfUser);
+	
+	// console.log("----------------------------")
+	for(var tag in obj){
+		var value = obj[tag];
+		// console.log("obj:", tag, value);
+		if(value){
+			if(tag == "stat"){
+				if(value.game){
+					var tfBank = addText(value.game.balance, 20, "#4AFF2F", undefined, "left", 100)
+					tfBank.x = 250;
+					tfBank.y = -tfBank.height/2+2;
+					item.addChild(tfBank);
+				}
+				if(value.players_now){
+					tfUser.setText(value.players_now);
+				}
+			}
+		}
+	}
 	
 	item.sel = bgSelect;
 	item.over = bgOver;
