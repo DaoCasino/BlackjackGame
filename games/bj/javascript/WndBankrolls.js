@@ -239,25 +239,32 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 	tfName.x = -320;
 	tfName.y = -tfName.height/2+2;
 	item.addChild(tfName);
-	var tfUser = addText("0", 20, "#2AE1FF", undefined, "left", 100)
-	tfUser.x = 190;
-	tfUser.y = -tfUser.height/2+2;
-	item.addChild(tfUser);
+	var tfCountGame = addText("0", 20, "#2AE1FF", undefined, "left", 100)
+	tfCountGame.x = 270;
+	tfCountGame.y = -tfCountGame.height/2+2;
+	item.addChild(tfCountGame);
+	var icoGames = addObj("icoCountGame", 250, 0, 0.8);
+	item.addChild(icoGames);
 	
-	// console.log("----------------------------")
 	for(var tag in obj){
 		var value = obj[tag];
-		// console.log("obj:", tag, value);
 		if(value){
 			if(tag == "stat"){
 				if(value.game){
-					var tfBank = addText(value.game.balance, 20, "#4AFF2F", undefined, "left", 100)
-					tfBank.x = 250;
-					tfBank.y = -tfBank.height/2+2;
-					item.addChild(tfBank);
-				}
-				if(value.players_now){
-					tfUser.setText(value.players_now);
+					if(value.game.code != "BJ"){
+						continue;
+					}
+					if(value.game.balance){
+						var icoBet = addObj("icoCountBet", 160, 0, 0.9);
+						item.addChild(icoBet);
+						var tfBank = addText(toFixed(value.game.balance, 2), 20, "#4AFF2F", undefined, "left", 100)
+						tfBank.x = 180;
+						tfBank.y = -tfBank.height/2+2;
+						item.addChild(tfBank);
+					}
+					if(value.open_game){
+						tfCountGame.setText(value.open_game);
+					}
 				}
 			}
 		}

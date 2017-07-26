@@ -82,7 +82,7 @@ WndInfo.prototype.clickObj = function(item_mc) {
 	}
 	this._prnt.closeWindow(this);
 	
-	if(name == "btnDefault"){
+	if(name == "btnDefault" && _this._callback){
 		if(getFnName(_this._callback) == "showBankrolls"){
 			setTimeout(function(){
 				_this._callback();
