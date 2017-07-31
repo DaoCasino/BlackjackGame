@@ -42,13 +42,13 @@ ScrMenu.prototype.init = function() {
 	this.addChild(loading);
 	this.loading = loading;
 	
-	btnSpeed.visible = false;
+	tfWait.visible = false;
+	loading.visible = false;
 	
-	setTimeout(function(){
+	if(!options_debug){
 		_prnt.showBankrolls();
-		tfWait.visible = false;
-		loading.visible = false;
-	}, 5000);
+		btnSpeed.visible = false;
+	}
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -77,19 +77,17 @@ ScrMenu.prototype.init = function() {
 }
 
 ScrMenu.prototype.showBankrolls = function(){
-	if(options_debug){
-		this.startGame();
-	} else {
-		this._wndList = new WndBankrolls(this, _prnt.startGame);
-		this._wndList.x = _W/2;
-		this._wndList.y = _H/2;
-		this.addChild(this._wndList);
-		this._wndList.show();
-	}
+	this._wndList = new WndBankrolls(this, _prnt.startGame);
+	this._wndList.x = _W/2;
+	this._wndList.y = _H/2;
+	this.addChild(this._wndList);
+	this._wndList.show();
 }
 
 ScrMenu.prototype.startGame = function(){
-	_prnt._wndList.visible = false;
+	if(_prnt._wndList){
+		_prnt._wndList.visible = false;
+	}
 	_prnt.removeAllListener();
 	showSpeedGame();
 }

@@ -1,10 +1,10 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.13
+ * v 1.0.0
  */
 
-var LogicJS = function(params){
+var LogicMultJS = function(params){
 	var _self = this;
 
 	var BLACKJACK = 21;
@@ -49,7 +49,7 @@ var LogicJS = function(params){
 			_prnt = params.prnt;
 		}
 		if(params.address){
-			_address = params._address;
+			_address = params.address;
 		}
 		if(params.callback){
 			_callback = params.callback;
@@ -69,10 +69,10 @@ var LogicJS = function(params){
 	
 	mixDeck();
 	
-	_self.bjDeal = function(_s, _bet){
-		_objSpeedGame.method = "bjDeal";
+	_self.bjBet = function(_bet){
 		_idGame ++;
 		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
+		_objSpeedGame.method = "bjBet";
 		_objSpeedGame.result = false;
 		_objSpeedGame.curGame = {};
 		_objSpeedGame.betGame = _bet;
@@ -90,6 +90,13 @@ var LogicJS = function(params){
 		_bStandNecessary = false;
 		_bSplit = false;
 		
+		if(typeof _callback === 'function'){
+			_callback(_address, _objSpeedGame);
+		}
+	}
+	
+	_self.bjDeal = function(_s, _bet){
+		_objSpeedGame.method = "bjDeal";
 		dealCard(true, true, _s, 15);
 		dealCard(false, true, _s, 16);
 		dealCard(true, true, _s, 17);

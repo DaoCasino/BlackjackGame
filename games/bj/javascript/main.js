@@ -47,7 +47,7 @@ var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 
-var options_debug       = false;
+var options_debug       = true;
 var options_test        = false;
 var options_ethereum    = true;
 var options_mainet      = false;
@@ -65,6 +65,7 @@ var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
 var options_save = true;
+var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -296,7 +297,7 @@ function handleComplete(evt) {
 	}
 	
 	// remove tile cub
-	addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
+	// addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
 	
 	infura = new Infura();
 	
@@ -411,6 +412,10 @@ function removeAllScreens() {
 		scrContainer.removeChild(ScreenMenu);
 		ScreenMenu = null;
 	}
+	if(ScreenTest){
+		scrContainer.removeChild(ScreenTest);
+		ScreenTest = null;
+	}
 	if(currentScreen){
 		scrContainer.removeChild(currentScreen);
 		currentScreen = null;
@@ -433,6 +438,9 @@ function update() {
 		}
 		if (ScreenSpeedGame) {
 			ScreenSpeedGame.update(diffTime);
+		}
+		if (ScreenTest) {
+			ScreenTest.update(diffTime);
 		}
 		
 		if(LoadBack){
@@ -568,6 +576,7 @@ function start() {
 		LoadBack = undefined;
 	}
 	addScreen("menu");
+	// addScreen("test");
 }
 
 function showMenu() {
