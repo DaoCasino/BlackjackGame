@@ -141,7 +141,7 @@ WndBankrolls.prototype.show = function() {
 	var load = false;
 	
 	// console.log("showBankrolls:", arAdr);
-	ar = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
+	arAdr = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
 	this.loading.visible = (arAdr.length == 0);
 	
 	if(arAdr.length == 0){
