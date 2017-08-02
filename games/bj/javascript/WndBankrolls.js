@@ -180,8 +180,13 @@ WndBankrolls.prototype.show = function() {
 	var i = 0;
 	for(var tag in ar){
 		var obj = ar[tag];
-		this.addBankroller(i, tag, obj);
-		i ++;
+		// this.addBankroller(i, tag, obj);
+		// i ++;
+		
+		// remove this
+		if(tag == arAdr[0]){
+			this.addBankroller(0, tag, obj);
+		}
 	}
 	
 	this.headScroll.visible = (this.listBanks.height > this.hMask);
