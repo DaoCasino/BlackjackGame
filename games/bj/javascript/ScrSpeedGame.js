@@ -1370,12 +1370,12 @@ ScrSpeedGame.prototype.sendCard = function(obj){
 	
 	if(type == "player"){
 		coord = _prnt.showPlayerCard(card);
-		if(_betGame > 0){
+		if(_betGame > 0 && !options_multiplayer){
 			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	} else if(type == "split"){
 		coord = _prnt.showPlayerSplitCard(card);
-		if(_betGame > 0){
+		if(_betGame > 0 && !options_multiplayer){
 			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	} else if(type == "house"){
@@ -1666,18 +1666,20 @@ ScrSpeedGame.prototype.getNameCard = function(cardIndex){
 }
 
 ScrSpeedGame.prototype.updateShowBtn = function(timeShowButtons) {
-	_timeShowButtons = timeShowButtons;
+	if(_idTurnUser == _myIdMult){
+		_timeShowButtons = timeShowButtons;
+	}
 }
 
 // CHANNEL
 ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 	_room = new RoomJS();
 
-	var str = getText( 'Wait '+_room.getMaxUsers()+' players' )
-	_prnt.showWndWarning(str);	
+	var countLast = _room.getMaxUsers() - _room.getUsersArr().length;
+	var str = getText("wait_players").replace(new RegExp("NUM"), countLast);
+	_prnt.showWndWarning(str);
 
 	Casino.onGameStateChange(function(data){
-		
 		if (data.action=='room_users') {
 			for(var k in data.users){
 				_room.addUser(data.users[k].address, data.users[k].deposit, data.users[k].id, _prnt.responseServer);
@@ -1686,43 +1688,24 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 			if (_room.full()) {
 				roomFullCallback( _room.getUsersArr() )
 			} else {
-				str = getText( 'Wait '+_room.getMaxUsers()+' players' )
+				countLast = _room.getMaxUsers() - _room.getUsersArr().length;
+				str = getText("wait_players").replace(new RegExp("NUM"), countLast);
 				_prnt.showWndWarning(str);
 			}
 		}
 		
+		var curUser = _room.getTagUser(data.user_id);
 		if (data.action=='call_game_function') {
-			_idTurnUser = _room.getTagUser(data.user_id).id 
-			_prnt.refreshLogic();
-
-			if (_room.getTagUser(data.user_id)) {
+			if (curUser) {
+				// _idTurnUser = curUser.id 
+				_prnt.refreshLogic(curUser.id);
 				_room.callFunction(data.user_id, data.name, data.args)
+			} else {
+				str = getText("error_user_offline").replace(new RegExp("VALUE"), data.user_id);
+				_prnt.showError(str);
 			}
 		}
 	})
-
-
-	// Debug mode
-	if (!options_debug) {
-		return
-	}
-
-	var users = [
-				{address:"0x1", deposit:valToken, callback:_prnt.responseServer},
-				{address:openkey, deposit:login_obj["deposit"], callback:_prnt.responseServer},
-				{address:"0x2", deposit:valToken*2, callback:_prnt.responseServer}
-				];
-	
-	for (var i = 0; i < users.length; i++) {
-		var obj = users[i];
-		var user = _room.addUser(obj.address, obj.deposit, obj.callback);
-		if(obj.address == openkey){
-			_myIdMult = i;
-			_logic = user.logic; // initLogic
-		} else {
-			_users.addUser(i);
-		}
-	}
 }
 
 ScrSpeedGame.prototype.initLogic = function(){
@@ -1733,10 +1716,10 @@ ScrSpeedGame.prototype.initLogic = function(){
 	_logic = new LogicJS(_prnt);
 }
 
-ScrSpeedGame.prototype.refreshLogic = function(){
+ScrSpeedGame.prototype.refreshLogic = function(id){
 	if(_room && options_multiplayer){
 		var ar = _room.getUsersArr();
-		_logic = ar[_idTurnUser].logic;
+		_logic = ar[id].logic;
 	}
 }
 
@@ -1768,7 +1751,6 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	if (_countBankrollers > 0) {
 		_prnt.loadGame();
 	} else {
-		// _prnt.showError(ERROR_BANKROLLER);
 		_prnt.showBankrolls();
 	}
 }
@@ -1872,7 +1854,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_prnt.showWndWarning(str);
 
-		
+		console.log('Casino.startGame')
 		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(obj){
 			if(obj == true){
 				if (options_multiplayer) {
@@ -1905,13 +1887,14 @@ ScrSpeedGame.prototype.openChannel = function(){
 }
 
 ScrSpeedGame.prototype.showUsers = function() {
+	console.log("showUsers");
 	var users = _room.getUsers()
 	var user  = users[openkey]
 	
 	_myIdMult   = user.id
 	_idTurnUser = 0
 
-	_prnt.refreshLogic()
+	_prnt.refreshLogic(_myIdMult)
 
 	for(var k in users){
 		if (user.id!=users[k].id) {
@@ -1923,6 +1906,7 @@ ScrSpeedGame.prototype.showUsers = function() {
 }
 
 ScrSpeedGame.prototype.setUserData = function() {
+	console.log("setUserData");
 	sessionIsOver       = false;
 	_prnt._arHistory    = [];
 	_wndWarning.visible = false;
@@ -1942,6 +1926,7 @@ ScrSpeedGame.prototype.setUserData = function() {
 	
 	saveData();	
 }
+
 ScrSpeedGame.prototype.closeChannel = function() {
 	if(options_debug){
 		var deposit = _balanceSession - login_obj["deposit"];
@@ -2000,10 +1985,9 @@ ScrSpeedGame.prototype.closeChannel = function() {
 ScrSpeedGame.prototype.clickBet = function(){
 	_prnt.showChips(false)
 	_prnt.showButtons(false)
-	console.log('clickBet:', _betGame)
 	
 	_idTurnUser = _myIdMult
-	_prnt.refreshLogic();
+	_prnt.refreshLogic(_myIdMult);
 	
 	if(options_debug){
 		_logic.bjBet(_betGame);
@@ -2018,57 +2002,32 @@ ScrSpeedGame.prototype.clickBet = function(){
 ScrSpeedGame.prototype.clickGeneralDeal = function(){
 	_startGame     = true;
 	_currentMethod = DEAL;
+	_idTurnUser = 0
 
 	_idGame ++;
 	
+	_prnt.showButtons(false)
 	var curUser = _room.getTagUser(openkey)
 
 	// 2 карты игроку
 	function Hit(){
-		var seed = makeID();
-		Casino.callGameFunction(_idGame, msgID(), 'bjHit', ['confirm('+seed+')', true]);
-		_prnt.signSeed(seed, function(result){
-			curUser.logic.bjHit(result, true);
-		});
-	}
+        var seed = makeID();
+        _prnt.signSeed(seed, function(result){
+            Casino.callGameFunction(_idGame, msgID(), 'bjHit', [result, true]);
+            curUser.logic.bjHit(result, true);
+        });
+    }
 	Hit();Hit();
+	// _prnt.clickHit();
+	// _prnt.clickHit();
 
 	// 1 карта диллеру
 	if (curUser.id==0) {
 		var seed = makeID();
 		Casino.callGameFunction(_idGame, msgID(), 'bjDealer', [seed]);
-		curUser.logic.bjDealer(seed);	
-	}
-
-
-	return
-
-	for (var i = 0; i < arUsers.length; i++) {
-		var user = arUsers[i];
-		seed = makeID();
-		if(options_debug){
-			user.logic.bjHit(seed, true);
-		} else {
-			Casino.callGameFunction(_idGame, msgID(), 
-				'bjHit', [seed, true]
-			);
-			this.signSeed(seed, function(result){
-				user.logic.bjHit(seed, true);
-			});
-		}
-	}
-	for (var i = 0; i < ar.length; i++) {
-		var user = ar[i];
-		seed = makeID();
-		if(options_debug){
-			user.logic.bjDealer(seed);
-		} else {
-			Casino.callGameFunction(_idGame, msgID(), 
-				'bjDealer', [seed]
-			);
-			this.signSeed(seed, function(result){
-				user.logic.bjDealer(seed);
-			});
+		curUser.logic.bjDealer(seed);
+		if(_idTurnUser == _myIdMult){
+			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	}
 }
@@ -2155,7 +2114,8 @@ ScrSpeedGame.prototype.clickStand = function(){
 			_prnt.btnClear.alpha = 0.5;
 			_prnt.btnExit.alpha = 0.5;
 			_prnt.showChips(false);
-			_prnt.refreshLogic();
+			console.log("TODO: stand");
+			// _prnt.refreshLogic(); 
 		} else {
 			return;
 		}
@@ -2488,7 +2448,6 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 			_prnt.btnDeal.alpha  = 0.5;
 			_prnt.btnClear.alpha = 0.5;
 			_prnt.btnExit.alpha  = 0.5;
-
 			_prnt.showChips(false);
 			_startGame = true;
 			_prnt.clickGeneralDeal();
@@ -2498,7 +2457,6 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 	
 	// show action
 	if(address == openkey){
-		console.log("responseServer MY:", address);
 		var balanceSession = _balanceSession;
 		var arMy = [];
 		var arSplit = [];
@@ -2554,8 +2512,6 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 
 		saveData();
 	} else {
-		console.log("responseServer AP:", address, objGame.method);
-
 		var user   = _room.getTagUser(address);
 		var userMc = _users.getUser(user.id);	
 		
@@ -2684,7 +2640,7 @@ ScrSpeedGame.prototype.clickCell = function(item_mc) {
 		item_mc.scale.y = 1*item_mc.sc;
 	}
 	
-	this.refreshLogic();
+	this.refreshLogic(_myIdMult);
 	
 	if(item_mc.name == "btnDeal"){
 		this.clickDeal();

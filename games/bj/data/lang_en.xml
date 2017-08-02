@@ -36,6 +36,7 @@
 	status="Status"
 	timeout="Timeout."
 	tweet="Tweet"
+	wait_players="Waiting for NUM players."
 	your_bet="Your bet:"
 	
 	hint_contract="Show contract"
@@ -55,4 +56,5 @@
 	error_invalid_profit="Invalid profit."
 	error_channel_allready_open="Channel allready open."
 	error_game_allready_started="Game allready started."
+	error_user_offline="User VALUE offline."
 />
