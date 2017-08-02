@@ -5,44 +5,56 @@
  */
 
 var RoomJS = function(){
-	var _self = this;
-	var _arUsers = [];
-	var _arTagUsers = [];
-	var _countUsers = 0;
+	var _self     = this;
+	var _Users    = {};
+	var _maxUsers = 3;
 	
-	// _self.init = function(){
-		// Casino.onGameStateChange(function(data){
-			// if(data.action && data.action=='callFunction'){
-				// _self[data.function_name](data.function_args)
-			// }
-		// })
-	// }
-	
-	_self.addUser = function(address, bet, callback){
-		var params = {prnt:_self, balance:bet, address:address, callback:callback};
-		var logic = new LogicMultJS(params);
-		var user = {address:address, 
-					id:_countUsers,
-					bet:bet,
-					logic:logic};
-		_arUsers.push(user);
-		_arTagUsers[address] = user;
-		_countUsers ++;
+	_self.addUser = function(address, deposit, id, callback){
+		var params = {prnt:_self, balance:deposit, address:address, callback:callback};
 		
+		var logic = new LogicMultJS(params);
+		
+		if (!id) {
+			id = Object.keys(_Users).length
+		}
+
+		var user = {
+			address: address, 
+			deposit: deposit,
+			logic:   logic,
+			id:      id
+		}
+
+		if (!_Users[address]) {
+			_Users[address] = user
+		}
+
+		_Users[address].callback = callback
+
 		return user;
 	}
 	
-	_self.callFunction = function(id, name, params){
-		_arUsers[id].logic[name].apply(null, params);
+	_self.callFunction = function(address, name, params){
+		_Users[address].logic[name].apply(null, params);
 	}
 	
 	_self.getUsers = function(){
-		return _arUsers;
+		return _Users;
+	}
+	_self.getUsersArr = function(){
+		return Object.values( _Users );
 	}
 	
 	_self.getTagUser = function(address){
-		return _arTagUsers[address];
+		return _Users[address];
 	}
+
+	_self.getMaxUsers = function(){
+		return _maxUsers
+	}
+	_self.full = function(){
+		return (Object.values( _Users ).length >= _maxUsers)
+	}	
 	
 	return _self;
 }

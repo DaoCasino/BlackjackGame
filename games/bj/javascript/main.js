@@ -47,7 +47,7 @@ var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 
 var addressCurErc = "";
 
-var options_debug       = true;
+var options_debug       = false;
 var options_test        = false;
 var options_ethereum    = true;
 var options_mainet      = false;
@@ -64,7 +64,7 @@ var options_speedgame   = false;
 var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
-var options_save = true;
+var options_save = false;
 var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
@@ -576,7 +576,6 @@ function start() {
 		LoadBack = undefined;
 	}
 	addScreen("menu");
-	// addScreen("test");
 }
 
 function showMenu() {

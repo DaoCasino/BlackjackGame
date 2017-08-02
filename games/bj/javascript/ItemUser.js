@@ -26,22 +26,39 @@ ItemUser.prototype.init = function(prnt, ind) {
 	this._arNewCards = [];
 	this._ofsC = 22;
 	this._ofssSC = 80;
+	this._ofsP = 220;
 	this._timeNewCard = 0;
 	this._loadPlayerCard = 0;
 	this._loadSplitCard = 0;
 	this._lastSplitCard = 0;
 	this._lastPlayerCard = 0;
+	this._timeShowButtons = 0;
 	this._scaleCard = 0.75;
 	this._ind = ind;
+	this._myPoints = 0;
+	this._mySplitPoints = 0;
 	this._ang = rad(35);
 	if(ind){
 		this._ang = -rad(35);
 	}
+	// this._ang = 0
 	this._bSplit = false;
+	this._side = "right";
 	
 	this.addChild(this.chips_mc);
 	this.addChild(this.cards_mc);
 	this.addChild(this.gfx_mc);
+	
+	var b = this._ofsC * Math.tan(this._ang); // b = a ·tg(B)
+	var fontSize = 24;
+	this.tfMyPoints = addText("", fontSize, "#ffde00", "#000000", "right", 200, 4)
+	this.tfMyPoints.x = 0;
+	this.tfMyPoints.y = -this._ofsP + 1*b-this.tfMyPoints.height/2;
+	this.addChild(this.tfMyPoints);
+	this.tfMySplitPoints = addText("", fontSize, "#ffde00", "#000000", "right", 200, 4)
+	this.tfMySplitPoints.x = this.tfMyPoints.x+this._ofssSC;
+	this.tfMySplitPoints.y = -this._ofsP + 1*b-this.tfMySplitPoints.height/2;
+	this.addChild(this.tfMySplitPoints);
 }
 
 ItemUser.prototype.createObj = function(point, name, sc) {	
@@ -96,6 +113,63 @@ ItemUser.prototype.addHolderObj = function(obj){
 	obj.dead = true;
 	obj.x = _W + 150;
 	obj.y = _H + 50;
+}
+
+// POINTS
+ItemUser.prototype.showMyPoints = function(){
+	this._myPoints = this.getMyPoints();
+	if(this._myPoints > 0){
+		this.tfMyPoints.setText(this._myPoints);
+	} else {
+		this.tfMyPoints.setText("");
+	}
+}
+
+ItemUser.prototype.showMySplitPoints = function(){
+	this._mySplitPoints = this.getMySplitPoints();
+	if(this._mySplitPoints > 0){
+		this.tfMySplitPoints.setText(this._mySplitPoints);
+	} else {
+		this.tfMySplitPoints.setText("");
+	}
+}
+
+ItemUser.prototype.getMyPoints = function(){
+	var myPoints = 0;
+	var countAce = 0;
+	for (var i = 0; i < this._arMyPoints.length; i++) {
+		var curPoint = this._arMyPoints[i];
+		myPoints += curPoint;
+		if(curPoint == 11){
+			countAce ++;
+		}
+	}
+	
+	while(myPoints > 21 && countAce > 0){
+		countAce --;
+		myPoints -= 10;
+	}
+	
+	return myPoints;
+}
+
+ItemUser.prototype.getMySplitPoints = function(){
+	var mySplitPoints = 0;
+	var countAce = 0;
+	for (var i = 0; i < this._arMySplitPoints.length; i++) {
+		var curPoint = this._arMySplitPoints[i];
+		mySplitPoints += curPoint;
+		if(curPoint == 11){
+			countAce ++;
+		}
+	}
+	
+	while(mySplitPoints > 21 && countAce > 0){
+		countAce --;
+		mySplitPoints -= 10;
+	}
+	
+	return mySplitPoints;
 }
 
 // CHIPS
@@ -314,6 +388,9 @@ ItemUser.prototype.sendCard = function(obj){
 		card = this._cardSuit;
 	}
 	
+	this._timeShowButtons = TIME_SHOW_BTN + this._arNewCards.length*TIME_NEW_CARD;
+	this._prnt.updateShowBtn(this._timeShowButtons);
+	
 	var _self = this;
 	
 	if(card){
@@ -352,12 +429,21 @@ ItemUser.prototype.showPlayerCard = function(card){
 			card.x = this._lastPlayerCard*this._ofsC;
 			card.y = -40 + this._lastPlayerCard*b;
 		}
+		
 		card.rotation=this._ang;
+		if(this._side == "left"){
+			this.tfMyPoints.x = card.x - this._lastPlayerCard*this._ofsC+100;
+			this.tfMyPoints.y = -this._ofsP + card.y;
+		} else {
+			this.tfMyPoints.x = card.x - this._lastPlayerCard*this._ofsC-140;
+			this.tfMyPoints.y = -this._ofsP + card.y+70;
+		}
 		this.cards_mc.addChild(card);
 		this._lastPlayerCard++;
 		this._dealedCards.push(card);
 		this._arMyCards.push(card);
 		this._arMyPoints.push(card.point);
+		this.showMyPoints();
 		
 		return {x:card.x, y:card.y}
 	}
@@ -372,11 +458,19 @@ ItemUser.prototype.showPlayerSplitCard = function(card){
 		card.x = - this._ofssSC + count*this._ofsC;
 		card.y = -60 + count*b;
 		card.rotation=this._ang;
+		if(this._side == "left"){
+			this.tfMySplitPoints.x = card.x - (count-this._lastSplitCard)*this._ofsC+100;
+			this.tfMySplitPoints.y = -this._ofsP + card.y;
+		} else {
+			this.tfMySplitPoints.x = card.x - (count-this._lastSplitCard)*this._ofsC-140;
+			this.tfMySplitPoints.y = -this._ofsP + card.y+70;
+		}
 		this.cards_mc.addChild(card);
 		this._lastSplitCard++;
 		this._dealedCards.push(card);
 		this._arMySplitCards.push(card);
 		this._arMySplitPoints.push(card.point);
+		this.showMySplitPoints();
 		return {x:card.x, y:card.y}
 	}
 	
@@ -387,7 +481,6 @@ ItemUser.prototype.showPlayerSplitCard = function(card){
 ItemUser.prototype.responseServer = function(curGame) {
 	if(curGame.arMySplitCards && curGame.arMySplitCards.length > 0){
 		this._bSplit = true;
-		// this._prnt.secondUserSplit();
 		if(this._ind == 0){
 			this.y = _H/2+120;
 		} else if(this._ind == 1){

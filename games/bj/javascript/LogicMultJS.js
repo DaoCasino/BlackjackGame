@@ -72,7 +72,46 @@ var LogicMultJS = function(params){
 	_self.bjBet = function(_bet){
 		_idGame ++;
 		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
-		_objSpeedGame.method = "bjBet";
+		
+		_objSpeedGame.method       = "bjBet";
+		_objSpeedGame.result       = false;
+		_objSpeedGame.curGame      = {};
+		_objSpeedGame.betGame      = _bet;
+		_objSpeedGame.betSplitGame = 0;
+		
+		_money -= _bet;
+		
+		_objSpeedGame.money     = _money;
+		_objSpeedGame.insurance = false;
+		
+		_arMyCards       = [];
+		_arMySplitCards  = [];
+		_arHouseCards    = [];
+		_arMyPoints      = [];
+		_arMySplitPoints = [];
+		_arHousePoints   = [];
+		
+		_bStand          = false;
+		_bStandNecessary = false;
+		_bSplit          = false;
+
+		console.log('bjBet', _address)
+		
+		if(typeof _callback === 'function'){
+			_callback(_address, _objSpeedGame);
+		}
+	}
+	
+	_self.bjDealer = function(_s){
+		_objSpeedGame.method = "bjDealer";
+		dealCard(false, true, _s);
+		refreshGame(_s);
+	}
+	
+	_self.bjDeal = function(_s, _bet){
+		_objSpeedGame.method = "bjDeal";
+		_idGame ++;
+		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
 		_objSpeedGame.result = false;
 		_objSpeedGame.curGame = {};
 		_objSpeedGame.betGame = _bet;
@@ -90,13 +129,6 @@ var LogicMultJS = function(params){
 		_bStandNecessary = false;
 		_bSplit = false;
 		
-		if(typeof _callback === 'function'){
-			_callback(_address, _objSpeedGame);
-		}
-	}
-	
-	_self.bjDeal = function(_s, _bet){
-		_objSpeedGame.method = "bjDeal";
 		dealCard(true, true, _s, 15);
 		dealCard(false, true, _s, 16);
 		dealCard(true, true, _s, 17);

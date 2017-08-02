@@ -7,43 +7,40 @@ ItemUsers.prototype = Object.create(PIXI.Container.prototype);
 ItemUsers.prototype.constructor = ItemUsers;
 
 ItemUsers.prototype.init = function(_prnt) {
-	this._arUsers = [];
-	this._arHolder = [];
-	this._arNewCards = [];
+	this._prnt        = _prnt;
+	this._arUsers     = {};
+	this._arHolder    = [];
+	this._arNewCards  = [];
 	this._arHideCards = [];
 }
 
 ItemUsers.prototype.addUser = function(id) {
-	if(this._arUsers.length > 1){
+	var countUsers = Object.keys(this._arUsers).length
+
+	if(countUsers >= 2){
 		return false;
 	}
+
 	var offset = 550;
-	var user = new ItemUser(this, this._arUsers.length);
+	var user = new ItemUser(this, countUsers);
 	user.y = _H/2+160;
 	// test
 	// user.responseServer({"arMyCards":[12, 4],
 				// "arMySplitCards":[]});
-	// user.fillChips(valToken);
-	// user.fillChips(valToken, "split");
 	this.addChild(user);
 	this._arUsers[id] = user;
-	switch(this._arUsers.length){
-		case 1:
-			user.x = _W/2 - offset;
-			break;
-		case 2:
-			user.x = _W/2 + offset;
-			break;
+	if (Object.keys(this._arUsers).length==1) {
+		user.x = _W/2 - offset;
+		user._side = "left";
+	} else {
+		user.x = _W/2 + offset;
+		user._side = "right";
 	}
 }
 
-// ItemUsers.prototype.userSplit = function() {
-	// var user = this._arUsers[1];
-	// if(user && user._bSplit){
-		// user.y = _H/2+220;
-		// console.log("secondUserSplit 2:", user.y);
-	// }
-// }
+ItemUsers.prototype.updateShowBtn = function(timeShowButtons) {
+	this._prnt.updateShowBtn(timeShowButtons);
+}
 
 ItemUsers.prototype.getUser = function(id) {
 	var user = this._arUsers[id];

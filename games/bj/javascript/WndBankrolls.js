@@ -262,7 +262,7 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 						tfBank.y = -tfBank.height/2+2;
 						item.addChild(tfBank);
 					}
-					if(value.open_game){
+					if(value.close_game){
 						tfCountGame.setText(value.close_game);
 					}
 				}
