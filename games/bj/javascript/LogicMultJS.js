@@ -103,9 +103,15 @@ var LogicMultJS = function(params){
 	}
 	
 	_self.bjDealer = function(_s){
+		if (_self.bjDealerOK) return;
+		_self.bjDealerOK = true
+
 		_objSpeedGame.method = "bjDealer";
 		dealCard(false, true, _s);
 		refreshGame(_s);
+		if(typeof _callback === 'function'){
+			_callback(_address, _objSpeedGame);
+		}
 	}
 	
 	_self.bjDeal = function(_s, _bet){

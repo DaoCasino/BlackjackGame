@@ -1685,13 +1685,13 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 
 			if (_room.full()) {
 				roomFullCallback( _room.getUsersArr() )
+			} else {
+				str = getText( 'Wait '+_room.getMaxUsers()+' players' )
+				_prnt.showWndWarning(str);
 			}
 		}
 		
 		if (data.action=='call_game_function') {
-			console.log('call_game_function', data.user_id)
-			console.log(data.user_id==openkey)
-			
 			_idTurnUser = _room.getTagUser(data.user_id).id 
 			_prnt.refreshLogic();
 
@@ -1875,7 +1875,6 @@ ScrSpeedGame.prototype.openChannel = function(){
 		
 		Casino.startGame('BJ', addressContract, convertToken(_balanceSession), function(obj){
 			if(obj == true){
-				
 				if (options_multiplayer) {
 					console.log('wait players connected...')
 					_prnt.initRoom(function(){
@@ -1886,7 +1885,6 @@ ScrSpeedGame.prototype.openChannel = function(){
 				} else {
 					_prnt.setUserData()
 				}
-				
 			} else {
 				_prnt.showChips(true);
 				_balanceSession = 0;
@@ -2018,12 +2016,33 @@ ScrSpeedGame.prototype.clickBet = function(){
 }
 
 ScrSpeedGame.prototype.clickGeneralDeal = function(){
-	var ar = _room.getUsersArr();
-	var arUsers = ar.concat(ar);
-	var seed = makeID();
+	_startGame     = true;
 	_currentMethod = DEAL;
+
 	_idGame ++;
 	
+	var curUser = _room.getTagUser(openkey)
+
+	// 2 карты игроку
+	function Hit(){
+		var seed = makeID();
+		Casino.callGameFunction(_idGame, msgID(), 'bjHit', ['confirm('+seed+')', true]);
+		_prnt.signSeed(seed, function(result){
+			curUser.logic.bjHit(result, true);
+		});
+	}
+	Hit();Hit();
+
+	// 1 карта диллеру
+	if (curUser.id==0) {
+		var seed = makeID();
+		Casino.callGameFunction(_idGame, msgID(), 'bjDealer', [seed]);
+		curUser.logic.bjDealer(seed);	
+	}
+
+
+	return
+
 	for (var i = 0; i < arUsers.length; i++) {
 		var user = arUsers[i];
 		seed = makeID();
@@ -2541,8 +2560,21 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 		var userMc = _users.getUser(user.id);	
 		
 		if(objGame.method == "bjBet"){
-			console.log('fillChips', user.id, user.logic.getGame().betGame )
 			userMc.fillChips( user.logic.getGame().betGame )
+		}
+		
+		if(objGame.method == "bjHit"){
+		}
+		
+		if(objGame.method == "bjDealer"){
+			for(var name in objGame.curGame){
+				var obj = objGame.curGame[name];
+				if(name=="arHouseCards"){ 
+					_countHouseCard = obj.length;
+					arHouse = _prnt.addCard(name, _loadHouseCard, _countHouseCard, obj);
+					break;
+				}
+			}
 		}
 
 		if(objGame.method == "bjStand"){
@@ -2553,6 +2585,21 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 			userMc.responseServer(objGame.curGame);
 		}
 	}
+
+
+	// All users set bet
+	if(!_startGame && objGame.method == "bjBet"){
+		var betCnt = 0
+		_room.getUsersArr().forEach( function(user) {
+			if (user.logic.getGame().betGame) {
+				betCnt++
+			}
+			if (betCnt >= _room.getMaxUsers()) {
+				_prnt.clickGeneralDeal()
+			}
+		}) 
+	}
+		
 }
 
 // UPDATE

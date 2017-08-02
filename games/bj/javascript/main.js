@@ -65,7 +65,7 @@ var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
 var options_save = false;
-var options_multiplayer = true;
+var options_multiplayer = false;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
