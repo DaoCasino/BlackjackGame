@@ -61,9 +61,9 @@ var options_mobile      = true;
 var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
-var options_splitdouble = true;
-var options_split = true;
-var options_double = true;
+var options_splitdouble = false;
+var options_split = false;
+var options_double = false;
 var options_save = false;
 var options_multiplayer = true;
 

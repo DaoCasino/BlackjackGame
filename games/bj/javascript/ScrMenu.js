@@ -69,6 +69,7 @@ ScrMenu.prototype.init = function() {
 	this.addChild(tf1);
 	
 	this.interactive = true;
+	this.on('mouseup', this.touchHandler);
 	this.on('mousedown', this.touchHandler);
 	this.on('mousemove', this.touchHandler);
 	this.on('touchstart', this.touchHandler);
@@ -164,9 +165,9 @@ ScrMenu.prototype.touchHandler = function(evt){
 	}
 	var phase = evt.type;
 	
-	if(phase=='mousemove' || phase == 'touchmove' || phase == 'touchstart'){
+	if(phase=='mousemove' || phase == 'touchmove' || phase == 'touchstart' || phase == "mousedown"){
 		this.checkButtons(evt);
-	} else if (phase == 'mousedown' || phase == 'touchend') {
+	} else if (phase == 'mouseup' || phase == 'touchend') {
 		for (var i = 0; i < this._arButtons.length; i++) {
 			var item_mc = this._arButtons[i];
 			if(item_mc._selected){
@@ -182,6 +183,7 @@ ScrMenu.prototype.removeAllListener = function(){
 		this._wndList.removeAllListener();
 	}
 	this.interactive = false;
+	this.off('mouseup', this.touchHandler);
 	this.off('mousedown', this.touchHandler);
 	this.off('mousemove', this.touchHandler);
 	this.off('touchstart', this.touchHandler);

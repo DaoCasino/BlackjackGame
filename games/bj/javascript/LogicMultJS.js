@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.0
+ * v 1.0.2
  */
 
 var LogicMultJS = function(params){
@@ -94,8 +94,6 @@ var LogicMultJS = function(params){
 		_bStand          = false;
 		_bStandNecessary = false;
 		_bSplit          = false;
-
-		console.log('bjBet', _address)
 		
 		if(typeof _callback === 'function'){
 			_callback(_address, _objSpeedGame);
@@ -112,6 +110,18 @@ var LogicMultJS = function(params){
 		if(typeof _callback === 'function'){
 			_callback(_address, _objSpeedGame);
 		}
+	}
+	
+	_self.bjGeneralStand = function(_s, isMain){
+		_objSpeedGame.method = "bjGeneralStand";
+		_bStand = true;
+		
+		var val = 15;
+		while (_housePoints < 17 && val < 32) {
+			dealCard(false, true, _s, val);
+			val += 1;
+		}
+		refreshGame(_s);
 	}
 	
 	_self.bjDeal = function(_s, _bet){
@@ -250,6 +260,10 @@ var LogicMultJS = function(params){
 		return spriteName;
 	}
 	
+	_self.refreshGame = function(_s){
+		refreshGame(_s);
+	}
+	
 	function mixDeck(){
 		_arCards = [];
 		_objResult.mixing = true;
@@ -288,7 +302,6 @@ var LogicMultJS = function(params){
 		if (!isMain) {
 			return;
 		}
-		
 		_bStand = true;
 		
 		if(_myPoints > BLACKJACK &&
@@ -620,6 +633,21 @@ var LogicMultJS = function(params){
 		for (var i = 0; i < _arHouseCards.length; i++) {
 			var point = getPoint(_arHouseCards[i]);
 			_arHousePoints.push(point);
+		}
+	}
+	
+	_self.setDealerCards  = function(arHouseCards, value){
+		_arHouseCards = arHouseCards || [];
+		_objSpeedGame.curGame.arHouseCards = _arHouseCards;
+		_arHousePoints = [];
+		for (var i = 0; i < _arHouseCards.length; i++) {
+			var point = getPoint(_arHouseCards[i]);
+			_arHousePoints.push(point);
+		}
+		_housePoints = getHousePoints();
+		
+		if(value){
+			_bStand = true;
 		}
 	}
 	
