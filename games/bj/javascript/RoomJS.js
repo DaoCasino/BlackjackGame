@@ -10,7 +10,7 @@ var RoomJS = function(){
 	var _maxUsers = 3;
 	
 	_self.addUser = function(address, deposit, id, callback){
-		var params = {prnt:_self, balance:deposit, address:address, callback:callback};
+		var params = {prnt:_self, balance:deposit, address:address, callback:callback, bMultiplayer:true};
 		
 		var logic = new LogicMultJS(params);
 		

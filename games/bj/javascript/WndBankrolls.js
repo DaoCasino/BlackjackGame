@@ -179,9 +179,11 @@ WndBankrolls.prototype.show = function() {
 	
 	var i = 0;
 	for(var tag in ar){
-		var obj = ar[tag];
-		this.addBankroller(i, tag, obj);
-		i ++;
+		if(tag != undefined){
+			var obj = ar[tag];
+			this.addBankroller(i, tag, obj);
+			i ++;
+		}
 	}
 	
 	this.headScroll.visible = (this.listBanks.height > this.hMask);

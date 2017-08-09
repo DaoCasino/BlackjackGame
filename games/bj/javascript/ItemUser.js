@@ -115,6 +115,45 @@ ItemUser.prototype.addHolderObj = function(obj){
 	obj.y = _H + 50;
 }
 
+ItemUser.prototype.clearGame = function(){
+	this._bSplit = false;
+	this._loadPlayerCard = 0;
+	this._loadSplitCard = 0;
+	this._lastPlayerCard = 0;
+	this._lastSplitCard = 0;
+	this._myPoints = 0;
+	this._mySplitPoints = 0;
+	
+	this._arMyCards = [];
+	this._arMySplitCards = [];
+	this._arMyPoints = [];
+	this._arMySplitPoints = [];
+	this._arNewCards = [];
+	
+	this.clearChips();
+	this.clearSplitChips();
+	this.tfMyPoints.setText("");
+	this.tfMySplitPoints.setText("");
+	
+	var i = 0;
+	
+	for (i = 0; i < this._dealedCards.length; i++) {
+		var card = this._dealedCards[i];
+		this.cards_mc.removeChild(card);
+	}
+	for (i = 0; i < this._arHolder.length; i++) {
+		var mc = this._arHolder[i];
+		this.addHolderObj(mc);
+	}
+	
+	
+	this._dealedCards = [];
+	if(this._cardSuit){
+		this._cardSuit.width = this._cardSuit.w;
+		this._cardSuit.visible = false;
+	}
+}
+
 // POINTS
 ItemUser.prototype.showMyPoints = function(){
 	this._myPoints = this.getMyPoints();
