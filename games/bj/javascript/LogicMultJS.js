@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.7
+ * v 1.0.8
  */
 
 var LogicMultJS = function(params){
@@ -57,9 +57,7 @@ var LogicMultJS = function(params){
 		if(params.callback){
 			_callback = params.callback;
 		}
-		if(params.callback){
-			_bMultiplayer = params.bMultiplayer || false;
-		}
+		_bMultiplayer = params.bMultiplayer || false;
 		_balance = params.balance || 0;
 	}
 	

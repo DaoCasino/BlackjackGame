@@ -53,6 +53,7 @@ var _bClickApprove = false;
 var _bStandSplit = false;
 var _bEndTurnSplit = false;
 var _bGameOver = false;
+var _bСloseChannel = false;
 
 var _minBet = 5000000;
 var _maxBet = 500000000;
@@ -606,10 +607,6 @@ ScrSpeedGame.prototype.resetGame = function(){
 }
 
 ScrSpeedGame.prototype.clearGame = function(){
-	if(options_multiplayer && _bGameOver){
-		_users.clearUsers();
-	}
-	
 	_startGame = false;
 	_bStand = false;
 	_bSplit = false;
@@ -1387,14 +1384,22 @@ ScrSpeedGame.prototype.sendCard = function(obj){
 	
 	if(type == "player"){
 		coord = _prnt.showPlayerCard(card);
-		if(_betGame > 0 && (!options_multiplayer || 
-		(_idTurnUser == _myIdMult && _myPoints < BLACKJACK))){
-			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
+		if(_betGame > 0){
+			if(options_multiplayer){
+				if(_idTurnUser == _myIdMult){
+					if(_myPoints >= BLACKJACK && !_bSplit){
+					} else {
+						_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
+					}
+				}
+			} else {
+				_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
+			}
 		}
 	} else if(type == "split"){
 		coord = _prnt.showPlayerSplitCard(card);
 		if(_betGame > 0 && (!options_multiplayer || 
-		(_idTurnUser == _myIdMult && _myPoints < BLACKJACK))){
+		(_idTurnUser == _myIdMult))){
 			_timeShowButtons = TIME_SHOW_BTN + _prnt._arNewCards.length*TIME_NEW_CARD;
 		}
 	} else if(type == "house"){
@@ -1690,7 +1695,7 @@ ScrSpeedGame.prototype.getNameCard = function(cardIndex){
 }
 
 ScrSpeedGame.prototype.updateShowBtn = function(timeShowButtons) {
-	if(_idTurnUser == _myIdMult){
+	if(_idTurnUser == _myIdMult && _myPoints < BLACKJACK && !_bSplit){
 		_timeShowButtons = timeShowButtons;
 	}
 }
@@ -1723,6 +1728,12 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 		
 		var curUser = _room.getTagUser(data.user_id);
 		if (data.action=='call_game_function') {
+			if (data.name=='endGame' && !_bСloseChannel) {
+				_bСloseChannel = true;
+				_prnt.closeChannel();
+				_prnt.showChips(false);
+                return;
+            }
 			if (curUser) {
 				_prnt.refreshLogic(curUser.id);
 				_room.callFunction(data.user_id, data.name, data.args)
@@ -1878,6 +1889,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 		saveData();
 	} else {
 		_bWindow = false;
+		_bСloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_prnt.showWndWarning(str);
 		
@@ -1970,6 +1982,9 @@ ScrSpeedGame.prototype.closeChannel = function() {
 			_prnt.btnExit.alpha = 0.5;
 			var str = getText("close_channel_start").replace(new RegExp("SPL"), "\n");
 			_prnt.showWndWarning(str);
+			Casino.callGameFunction(_idGame, msgID(), 
+                'endGame', []
+            );
 			Casino.endGame(deposit, function(obj){
 				_wndWarning.visible = false;
 				if(obj == true){
@@ -2176,6 +2191,9 @@ ScrSpeedGame.prototype.clickStand = function(){
 
 ScrSpeedGame.prototype.clickMultStand = function(){
 	if(_bWindow){
+		return false;
+	}
+	if(_myIdMult != _idTurnUser){
 		return false;
 	}
 	
@@ -2643,6 +2661,7 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 		
 		switch(objGame.method){
 			case "bjBet":
+				userMc.clearGame();
 				userMc.fillChips(curUser.logic.getGame().betGame);
 				break;
 			case "bjDealer":
@@ -2659,9 +2678,16 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 				break;
 			case "bjMultStand":
 				_idTurnUser ++;
-				_prnt.updateShowBtn(1);
 				if(_idTurnUser >= _room.getUsersArr().length){
 					_prnt.clickDealerStand();
+				} else {
+					if(_idTurnUser == _myIdMult){
+						if(_myPoints < BLACKJACK){
+							_prnt.updateShowBtn(1);
+						} else {
+							_prnt.clickStand();
+						}
+					}
 				}
 				break;
 			case "bjDealerStand":
@@ -2726,6 +2752,10 @@ ScrSpeedGame.prototype.gameOver = function(){
 		_bGameOver = true;
 		_prnt.showChips(true);
 		_prnt.showButtons(false);
+		
+		 Casino.callGameFunction(_idGame, msgID(), 
+            'refreshGame', []
+        );
 		
 		_room.getUsersArr().forEach( function(user) {
 			user.logic.refreshGame();

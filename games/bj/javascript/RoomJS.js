@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.0
+ * v 1.0.1
  */
 
 var RoomJS = function(){
@@ -35,7 +35,9 @@ var RoomJS = function(){
 	}
 	
 	_self.callFunction = function(address, name, params){
-		_Users[address].logic[name].apply(null, params);
+		if(_Users[address].logic[name]){
+			_Users[address].logic[name].apply(null, params);
+		}
 	}
 	
 	_self.getUsers = function(){

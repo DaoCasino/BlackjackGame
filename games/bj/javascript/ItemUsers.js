@@ -47,10 +47,6 @@ ItemUsers.prototype.getUser = function(id) {
 	return user;
 }
 
-ItemUsers.prototype.clearUser = function(key) {
-	this._arUsers[key].clearGame();
-}
-
 ItemUsers.prototype.clearUsers = function() {
 	for(var key in this._arUsers){
 		this._arUsers[key].clearGame();
