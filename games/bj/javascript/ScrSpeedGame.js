@@ -865,6 +865,7 @@ ScrSpeedGame.prototype.showBankrolls = function showBankrolls(){
 ScrSpeedGame.prototype.closeBankrolls = function(){
 	_bWindow = false;
 	_wndList.visible = false;
+	_prnt.showWndBank();
 }
 
 ScrSpeedGame.prototype.showTextResult = function(_name, _x, _y) {
