@@ -19,10 +19,10 @@ var RoomJS = function(){
 		}
 
 		var user = {
-			address: address, 
-			deposit: deposit,
-			logic:   logic,
-			id:      id
+			address:    address, 
+			deposit:    deposit,
+			logic:      logic,
+			id:         id
 		}
 
 		if (!_Users[address]) {

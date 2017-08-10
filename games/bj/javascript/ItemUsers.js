@@ -14,7 +14,7 @@ ItemUsers.prototype.init = function(_prnt) {
 	this._arHideCards = [];
 }
 
-ItemUsers.prototype.addUser = function(id) {
+ItemUsers.prototype.addUser = function(address, id) {
 	var countUsers = Object.keys(this._arUsers).length
 
 	if(countUsers >= 2){
@@ -22,11 +22,8 @@ ItemUsers.prototype.addUser = function(id) {
 	}
 
 	var offset = 550;
-	var user = new ItemUser(this, countUsers);
+	var user = new ItemUser(this, countUsers, address);
 	user.y = _H/2+160;
-	// test
-	// user.responseServer({"arMyCards":[12, 4],
-				// "arMySplitCards":[]});
 	this.addChild(user);
 	this._arUsers[id] = user;
 	if (Object.keys(this._arUsers).length==1) {
@@ -36,6 +33,8 @@ ItemUsers.prototype.addUser = function(id) {
 		user.x = _W/2 + offset;
 		user._side = "right";
 	}
+	
+	return {x:user.x, y:user.y};
 }
 
 ItemUsers.prototype.updateShowBtn = function(timeShowButtons) {

@@ -1,12 +1,12 @@
-function ItemUser(prnt, ind) {
+function ItemUser(prnt, ind, address) {
 	PIXI.Container.call( this );
-	this.init(prnt, ind);
+	this.init(prnt, ind, address);
 }
 
 ItemUser.prototype = Object.create(PIXI.Container.prototype);
 ItemUser.prototype.constructor = ItemUser;
 
-ItemUser.prototype.init = function(prnt, ind) {
+ItemUser.prototype.init = function(prnt, ind, address) {
 	this.chips_mc = new PIXI.Container();
 	this.cards_mc = new PIXI.Container();
 	this.gfx_mc = new PIXI.Container();
@@ -59,6 +59,11 @@ ItemUser.prototype.init = function(prnt, ind) {
 	this.tfMySplitPoints.x = this.tfMyPoints.x+this._ofssSC;
 	this.tfMySplitPoints.y = -this._ofsP + 1*b-this.tfMySplitPoints.height/2;
 	this.addChild(this.tfMySplitPoints);
+	var adr = address.substr(0,8);
+	this.tfIdUser = addText(adr, fontSize, "#ffffff", "#000000", "center", 100, 4)
+	this.tfIdUser.x = 0;
+	this.tfIdUser.y = 40;
+	this.addChild(this.tfIdUser);
 }
 
 ItemUser.prototype.createObj = function(point, name, sc) {	

@@ -39,6 +39,7 @@
 	tweet="Tweet"
 	wait_players="Waiting for NUM players."
 	your_bet="Your bet:"
+	your_turn="YOUR TURN"
 	
 	hint_contract="Show contract"
 	hint_deal="To activate 'Deal' please choose a bet"

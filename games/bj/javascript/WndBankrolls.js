@@ -136,7 +136,7 @@ WndBankrolls.prototype.clearList = function() {
 
 WndBankrolls.prototype.show = function() {
 	this.clearList();
-	var ar = Casino.getBankrollers('BJ');
+	var ar = Casino.getBankrollers(gameCode);
 	var arAdr = Object.keys(ar);
 	var load = false;
 	
@@ -253,7 +253,7 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 		if(value){
 			if(tag == "stat"){
 				if(value.game){
-					if(value.game.code != "BJ"){
+					if(value.game.code != gameCode){
 						continue;
 					}
 					if(value.game.balance){
