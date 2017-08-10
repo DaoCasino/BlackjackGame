@@ -1,7 +1,8 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.10";
+var version = "v. 1.1.11";
 var metaCode = "blackjack_v1";
+var gameCode = "BJ";
 var login_obj = {};
 var language;
 var dataAnima = [];
@@ -61,10 +62,11 @@ var options_mobile      = true;
 var options_pause       = false;
 var options_fullscreen  = false;
 var options_speedgame   = false;
-var options_splitdouble = true;
-var options_split = true;
-var options_double = true;
-var options_save = true;
+var options_splitdouble = false;
+var options_split = false;
+var options_double = false;
+var options_save = false;
+var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -296,7 +298,7 @@ function handleComplete(evt) {
 	}
 	
 	// remove tile cub
-	addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
+	// addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
 	
 	infura = new Infura();
 	
@@ -411,6 +413,10 @@ function removeAllScreens() {
 		scrContainer.removeChild(ScreenMenu);
 		ScreenMenu = null;
 	}
+	if(ScreenTest){
+		scrContainer.removeChild(ScreenTest);
+		ScreenTest = null;
+	}
 	if(currentScreen){
 		scrContainer.removeChild(currentScreen);
 		currentScreen = null;
@@ -433,6 +439,9 @@ function update() {
 		}
 		if (ScreenSpeedGame) {
 			ScreenSpeedGame.update(diffTime);
+		}
+		if (ScreenTest) {
+			ScreenTest.update(diffTime);
 		}
 		
 		if(LoadBack){

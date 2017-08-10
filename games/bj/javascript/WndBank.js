@@ -121,7 +121,7 @@ WndBank.prototype.clickObj = function(item_mc, evt) {
 	
 	if(name == "btnGreen"){
 		if(this._callback){
-			this._callback(this._curBet);
+			this._callback(Math.round(this._curBet));
 		}
 		this._prnt.closeWindow(this);
 	} else if(name == "btnClose"){

@@ -136,7 +136,7 @@ WndBankrolls.prototype.clearList = function() {
 
 WndBankrolls.prototype.show = function() {
 	this.clearList();
-	var ar = Casino.getBankrollers('BJ');
+	var ar = Casino.getBankrollers(gameCode);
 	var arAdr = Object.keys(ar);
 	var load = false;
 	
@@ -179,9 +179,11 @@ WndBankrolls.prototype.show = function() {
 	
 	var i = 0;
 	for(var tag in ar){
-		var obj = ar[tag];
-		this.addBankroller(i, tag, obj);
-		i ++;
+		if(tag != undefined){
+			var obj = ar[tag];
+			this.addBankroller(i, tag, obj);
+			i ++;
+		}
 	}
 	
 	this.headScroll.visible = (this.listBanks.height > this.hMask);
@@ -251,7 +253,7 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 		if(value){
 			if(tag == "stat"){
 				if(value.game){
-					if(value.game.code != "BJ"){
+					if(value.game.code != gameCode){
 						continue;
 					}
 					if(value.game.balance){
@@ -262,8 +264,8 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 						tfBank.y = -tfBank.height/2+2;
 						item.addChild(tfBank);
 					}
-					if(value.open_game){
-						tfCountGame.setText(value.open_game);
+					if(value.close_game){
+						tfCountGame.setText(value.close_game);
 					}
 				}
 			}
