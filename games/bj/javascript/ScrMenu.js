@@ -138,11 +138,13 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		this.removeAllListener();
 		options_multiplayer = false;
 		gameCode = "BJ";
+		localStorage.game_code = gameCode;
 		showSpeedGame();
 	} else if(item_mc.name == "btnMultiplayer"){
 		this.removeAllListener();
 		options_multiplayer = true;
 		gameCode = "BJ_m";
+		localStorage.game_code = gameCode;
 		showSpeedGame();
 	}
 }
