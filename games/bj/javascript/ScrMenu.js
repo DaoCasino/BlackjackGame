@@ -20,21 +20,33 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
-	var btnSpeed = addButton("btnDefault", _W/2, _H/2+100);
-	btnSpeed.name = "btnSpeed";
-	btnSpeed.interactive = true;
-	btnSpeed.buttonMode=true;
-	btnSpeed.overSc = true;
-	this.addChild(btnSpeed);
-	this._arButtons.push(btnSpeed);
-	var tf = addText(getText("start"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	var btnSingle = addButton("btnDefault", _W/2, _H/2+100);
+	btnSingle.name = "btnSingle";
+	btnSingle.interactive = true;
+	btnSingle.buttonMode=true;
+	btnSingle.overSc = true;
+	this.addChild(btnSingle);
+	this._arButtons.push(btnSingle);
+	var tf = addText(getText("single_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
-	btnSpeed.addChild(tf);
+	btnSingle.addChild(tf);
+	
+	var btnMultiplayer = addButton("btnDefault", _W/2, _H/2+220);
+	btnMultiplayer.name = "btnMultiplayer";
+	btnMultiplayer.interactive = true;
+	btnMultiplayer.buttonMode=true;
+	btnMultiplayer.overSc = true;
+	this.addChild(btnMultiplayer);
+	this._arButtons.push(btnMultiplayer);
+	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	tf.x = 0;
+	tf.y = -tf.height/2;
+	btnMultiplayer.addChild(tf);
 	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
-	tfWait.x = btnSpeed.x;
-	tfWait.y = btnSpeed.y - tfWait.height;
+	tfWait.x = btnSingle.x;
+	tfWait.y = btnSingle.y - tfWait.height;
 	this.addChild(tfWait);
 	var loading = new ItemLoading(this);
 	loading.x = _W/2;
@@ -45,10 +57,10 @@ ScrMenu.prototype.init = function() {
 	tfWait.visible = false;
 	loading.visible = false;
 	
-	if(!options_debug){
-		_prnt.showBankrolls();
-		btnSpeed.visible = false;
-	}
+	// if(!options_debug){
+		// _prnt.showBankrolls();
+		// btnSingle.visible = false;
+	// }
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -122,8 +134,15 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		this.removeAllListener();
 		options_speedgame = false;
 		showGame();
-	} else if(item_mc.name == "btnSpeed"){
+	} else if(item_mc.name == "btnSingle"){
 		this.removeAllListener();
+		options_multiplayer = false;
+		gameCode = "BJ";
+		showSpeedGame();
+	} else if(item_mc.name == "btnMultiplayer"){
+		this.removeAllListener();
+		options_multiplayer = true;
+		gameCode = "BJ_m";
 		showSpeedGame();
 	}
 }
