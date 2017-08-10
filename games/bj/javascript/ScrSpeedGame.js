@@ -1787,7 +1787,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	_countBankrollers = _arBankrollers.length;
 	_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 	
-	if (_countBankrollers > 0) {
+	if (_countBankrollers > 0 && !options_multiplayer) {
 		_prnt.loadGame();
 	} else {
 		_prnt.showBankrolls();
