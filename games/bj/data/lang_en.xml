@@ -1,5 +1,7 @@
 ﻿<lang
+	address="Address"
 	balance="Balance"
+	bank="Bank"
 	cards="Cards"
 	cash_out="Cash out"
 	click_reset="Click the 'Reset data' button and refresh browser."
@@ -23,6 +25,7 @@
 	multiplayer_mode="Multiplayer"
 	open_channel="Open channel"
 	open_channel_start="Please wait. SPL Sending BETs into the game."
+	plays="Plays"
 	refresh="Refresh"
 	remove_bet="Remove bet"
 	reset_data="Reset data"

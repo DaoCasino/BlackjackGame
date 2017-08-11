@@ -1702,6 +1702,8 @@ ScrSpeedGame.prototype.getNameCard = function(cardIndex){
 ScrSpeedGame.prototype.updateShowBtn = function(timeShowButtons) {
 	if(_idTurnUser == _myIdMult && _myPoints < BLACKJACK && !_bSplit){
 		_timeShowButtons = timeShowButtons;
+		var it = new LevelInfo()
+		this.face_mc.addChild(it);
 	}
 }
 
@@ -3033,7 +3035,7 @@ ScrSpeedGame.prototype.removeAllListener = function(){
 	if(_wndList){
 		_wndList.removeAllListener();
 	}
-	
+	clearClips();
 	this.interactive = false;
 	this.off('mouseup', this.touchHandler);
 	this.off('mousedown', this.touchHandler);

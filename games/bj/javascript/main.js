@@ -4,6 +4,7 @@ var version = "v. 1.1.11";
 var metaCode = "blackjack_v1";
 var gameCode = "BJ";
 var login_obj = {};
+var arClips = [];
 var language;
 var dataAnima = [];
 var dataMovie = [];
@@ -19,6 +20,7 @@ var infura, soundManager, ks, sendingAddr;
 var passwordUser = "1234";
 var fontMain = "Arial";
 var fontDigital = "Digital-7";
+var fontArchivo = "Archivo Black";
 var stats; //для вывода статистики справа
 var valToken = 100000000; // 1 token
 var rndBg = String(Math.ceil(Math.random()*2));
@@ -109,6 +111,8 @@ function initGame() {
     }
 	
 	if(typeof console === "undefined"){ console = {}; }
+	
+	fontMain = fontArchivo;
 	
     //initialize the stage
     renderer = PIXI.autoDetectRenderer(_W, _H);
@@ -448,8 +452,27 @@ function update() {
 			LoadBack.loading.update(diffTime);
 		}
 		
+		for (var i = 0; i < arClips.length; i++) {
+			var clip = arClips[i];
+			if(clip){
+				clip.enter_frame();
+			}
+		}
+		
 		startTime = getTimer();
 	}
+}
+
+function clearClips() {
+	for (var i = 0; i < arClips.length; i++) {
+		var clip = arClips[i];
+		if(clip){
+			clip.removed_from_stage();
+			clip.die();
+		}
+	}
+	
+	arClips = [];
 }
 
 function saveData() {
@@ -897,6 +920,13 @@ function jiggle(t){
 	t.jdx = t.jdx * t.jdvstep + (t.jska - t.scale.x) * t.jdv
 	t.scale.x = Math.max(0.1, t.scale.x + t.jdx)
 	t.scale.y = t.scale.x
+}
+
+// remove value from array
+function removevalue(value, arr){
+	for (var i = 0; i < arr.length; i++){
+		arr[i] == value ? (arr = arr.splice(i, 1)) : (undefined);
+	}
 }
 
 function convertToken(value){
