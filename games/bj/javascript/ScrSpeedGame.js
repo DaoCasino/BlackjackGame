@@ -53,7 +53,7 @@ var _bClickApprove = false;
 var _bStandSplit = false;
 var _bEndTurnSplit = false;
 var _bGameOver = false;
-var _bСloseChannel = false;
+var _bCloseChannel = false;
 
 var _minBet = 5000000;
 var _maxBet = 500000000;
@@ -865,6 +865,8 @@ ScrSpeedGame.prototype.showBankrolls = function showBankrolls(){
 ScrSpeedGame.prototype.closeBankrolls = function(){
 	_bWindow = false;
 	_wndList.visible = false;
+	_countBankrollers = _wndList._arBankrollers.length;
+	_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 	_prnt.showWndBank();
 }
 
@@ -1731,7 +1733,7 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 		
 		var curUser = _room.getTagUser(data.user_id);
 		if (data.action=='call_game_function') {
-			if (data.name=='closeAllChannels' && !_bСloseChannel) {
+			if (data.name=='closeAllChannels' && !_bCloseChannel) {
 				_prnt.closeChannel();
 				_prnt.showChips(false);
                 return;
@@ -1749,11 +1751,13 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 
 ScrSpeedGame.prototype.initLogic = function(){
 	// init logic
-	_prnt.prnt = _prnt;
-	_prnt.balance = login_obj["deposit"];
-	_prnt.callback = _prnt.responseServer;
+	var params = {prnt:_prnt, 
+				balance:login_obj["deposit"], 
+				address:openkey, 
+				callback:_prnt.responseServer, 
+				bMultiplayer:false};
 	
-	_logic = new LogicJS(_prnt);
+	_logic = new LogicMultJS(params);
 }
 
 ScrSpeedGame.prototype.refreshLogic = function(id){
@@ -1788,7 +1792,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 	_countBankrollers = _arBankrollers.length;
 	_prnt.tfBankrollers.setText("Bankrollers: " + _countBankrollers);
 	
-	if (_countBankrollers > 0 && !options_multiplayer) {
+	if (_countBankrollers > 0) {
 		_prnt.loadGame();
 	} else {
 		_prnt.showBankrolls();
@@ -1798,7 +1802,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 ScrSpeedGame.prototype.loadGame = function(){
 	var load = false;
 
-	if(login_obj["addressBankroller"] && login_obj["openChannel"]){
+	if(login_obj["addressBankroller"] && login_obj["openChannel"] && !options_multiplayer){
 		var adr = login_obj["addressBankroller"];
 		if(_arBankrollers.indexOf(adr)>-1){
 			load = true;
@@ -1891,7 +1895,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 		saveData();
 	} else {
 		_bWindow = false;
-		_bСloseChannel = false;
+		_bCloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_prnt.showWndWarning(str);
 		
@@ -1903,7 +1907,8 @@ ScrSpeedGame.prototype.openChannel = function(){
 						_prnt.showUsers()
 					});
 				} else {
-					_prnt.setUserData()
+					_prnt.setUserData();
+					_prnt.showChips(true);
 				}
 			} else {
 				_prnt.showChips(true);
@@ -1969,10 +1974,10 @@ ScrSpeedGame.prototype.setUserData = function() {
 }
 
 ScrSpeedGame.prototype.closeChannel = function() {
-	if(_bСloseChannel){
+	if(_bCloseChannel){
 		return false;
 	}
-	_bСloseChannel = true;
+	_bCloseChannel = true;
 	
 	if(options_debug){
 		var deposit = _balanceSession - login_obj["deposit"];
@@ -2687,6 +2692,9 @@ ScrSpeedGame.prototype.responseServer = function(address, objGame) {
 			_prnt.gameOver();
 		}
 	} else {
+		if(!options_multiplayer){
+			return;
+		}
 		var curUser   = _room.getTagUser(address);
 		var userMc = _users.getUser(curUser.id);
 		

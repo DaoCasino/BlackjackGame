@@ -65,7 +65,7 @@ var options_speedgame   = false;
 var options_splitdouble = false;
 var options_split = false;
 var options_double = false;
-var options_save = false;
+var options_save = true;
 var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
@@ -89,10 +89,6 @@ if(options_rpc){
 		addressCurErc = "0x95a48dca999c89e4e284930d9b9af973a7481287";
 	}
 }
-
-// if(options_multiplayer){
-	// gameCode = "BJ_m";
-// }
 
 var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame
     || window.mozRequestAnimationFrame || window.oRequestAnimationFrame

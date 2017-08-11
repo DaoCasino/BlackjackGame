@@ -57,11 +57,8 @@ ScrMenu.prototype.init = function() {
 	tfWait.visible = false;
 	loading.visible = false;
 	
-	if(!options_debug){
-		// _prnt.showBankrolls();
-		// btnSingle.visible = false;
-		// btnMultiplayer.visible = false;
-	}
+	this.btnSingle = btnSingle;
+	this.btnMultiplayer = btnMultiplayer;
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -91,6 +88,9 @@ ScrMenu.prototype.init = function() {
 }
 
 ScrMenu.prototype.showBankrolls = function(){
+	this.btnSingle.visible = false;
+	this.btnMultiplayer.visible = false;
+	
 	this._wndList = new WndBankrolls(this, _prnt.startGame);
 	this._wndList.x = _W/2;
 	this._wndList.y = _H/2;
@@ -136,17 +136,16 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		options_speedgame = false;
 		showGame();
 	} else if(item_mc.name == "btnSingle"){
-		this.removeAllListener();
 		options_multiplayer = false;
 		gameCode = "BJ";
 		localStorage.game_code = gameCode;
-		showSpeedGame();
+		this.showBankrolls();
 	} else if(item_mc.name == "btnMultiplayer"){
-		this.removeAllListener();
 		options_multiplayer = true;
+		options_save = false;
 		gameCode = "BJ_m";
 		localStorage.game_code = gameCode;
-		showSpeedGame();
+		this.showBankrolls();
 	}
 }
 
