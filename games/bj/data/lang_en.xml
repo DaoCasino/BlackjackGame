@@ -43,6 +43,7 @@
 	timeout="Timeout."
 	tweet="Tweet"
 	wait_players="Waiting for NUM players."
+	wait_bets="Your BET will be available shortly."
 	your_bet="Your bet:"
 	your_turn="YOUR TURN"
 	

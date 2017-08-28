@@ -16,6 +16,7 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	this._arButtons = [];
 	this._arBankrollers = [];
 	this._arSelected = [];
+	this._strAdr = "";
 	this._posTfY = -72;
 	this._countBank = 1;
 	this._selectB = false;
@@ -41,6 +42,7 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	thinLine.moveTo(posLineX, this.stY)
 		   .lineTo(posLineX, this.endY);
 	this.addChild(thinLine);
+	this.thinLine = thinLine;
 	
 	var scrollZone = new PIXI.Container();
 	this.addChild(scrollZone);
@@ -110,6 +112,8 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	
 	this.btnOk = btnOk;
 	this.btnRefresh = btnRefresh;
+	this.headScroll.visible = false;
+	this.thinLine.visible = false;
 	
 	this.listBanks.y = this._posTfY;
 	this.addChild(this.listBanks);
@@ -147,9 +151,15 @@ WndBankrolls.prototype.clearList = function() {
 }
 
 WndBankrolls.prototype.show = function() {
-	this.clearList();
 	var ar = Casino.getBankrollers(gameCode);
 	var arAdr = Object.keys(ar);
+	
+	if(this._strAdr == arAdr.join()){
+		return;
+	}
+	
+	this.clearList();
+	this._strAdr = arAdr;
 	var load = false;
 	
 	// console.log("showBankrolls:", arAdr);
@@ -159,6 +169,7 @@ WndBankrolls.prototype.show = function() {
 	if(arAdr.length == 0){
 		this.tfTitle.setText(getText("search_bankrollers"));
 		this.headScroll.visible = false;
+		this.thinLine.visible = false;
 		this.btnOk.visible = false;
 		return;
 	}
@@ -193,12 +204,20 @@ WndBankrolls.prototype.show = function() {
 	for(var tag in ar){
 		if(tag != undefined){
 			var obj = ar[tag];
-			this.addBankroller(i, tag, obj);
-			i ++;
+			if(load){
+				if(tag == addressContract){
+					this.addBankroller(i, tag, obj);
+					i ++;
+				}
+			} else {
+				this.addBankroller(i, tag, obj);
+				i ++;
+			}
 		}
 	}
 	
 	this.headScroll.visible = (this.listBanks.height > this.hMask);
+	this.thinLine.visible = (this.listBanks.height > this.hMask);
 	
 	if(!this._selectB && this._arBankrollers.length > 0){
 		this._selectB = true;

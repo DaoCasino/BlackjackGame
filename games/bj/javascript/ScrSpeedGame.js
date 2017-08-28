@@ -54,6 +54,7 @@ var _bStandSplit = false;
 var _bEndTurnSplit = false;
 var _bGameOver = false;
 var _bCloseChannel = false;
+var _bWaitBet = false;
 
 var _minBet = 5000000;
 var _maxBet = 500000000;
@@ -215,13 +216,13 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.face_mc.addChild(icoEthereum);
 	// var icoTime = addObj("icoTime", 40, 40+stepY*2, scGui);
 	// this.face_mc.addChild(icoTime);
-	var btnFrame = addButton("btnFrame", 345, 38, 1, 1.2);
-	btnFrame.name = "btnKey";
-	btnFrame.interactive = true;
-	btnFrame.buttonMode=true;
-	this.face_mc.addChild(btnFrame);
-	this._arButtons.push(btnFrame);
-	this.btnFrame = btnFrame;
+	// var btnFrame = addButton("btnFrame", 345, 38, 1, 1.2);
+	// btnFrame.name = "btnKey";
+	// btnFrame.interactive = true;
+	// btnFrame.buttonMode=true;
+	// this.face_mc.addChild(btnFrame);
+	// this._arButtons.push(btnFrame);
+	// this.btnFrame = btnFrame;
 	
 	if(options_multiplayer){
 		this.icoCurUser = addObj("icoCurUser", _W/2, _H/2);
@@ -264,11 +265,11 @@ ScrSpeedGame.prototype.createGUI = function() {
 	// this.face_mc.addChild(this.tfTotalTime);
 	this.tfBankrollers = addText("", fontSize, "#ffffff", "#000000", "left", 400, 4)
 	this.tfBankrollers.x = icoKey.x - 10;
-	this.tfBankrollers.y = 40+stepY*2 + 38;
+	this.tfBankrollers.y = 40+stepY*1 + 38;
 	this.face_mc.addChild(this.tfBankrollers);
-	this.tfVers= addText(version, fontSize, "#ffffff", "#000000", "left", 400, 4)
-	this.tfVers.x = icoKey.x - 10;
-	this.tfVers.y = 40+stepY*2 - 12;
+	this.tfVers= addText(version, fontSize, "#ffffff", "#000000", "right", 400, 4)
+	this.tfVers.x = _W - 10;
+	this.tfVers.y = _H - this.tfVers.height/2 - 10;
 	this.face_mc.addChild(this.tfVers);
 	var strVer = "beta version";
 	if(options_speedgame){
@@ -281,6 +282,22 @@ ScrSpeedGame.prototype.createGUI = function() {
 	this.tfVers2.x = icoKey.x - 10;
 	this.tfVers2.y = _H - this.tfVers2.height;
 	this.face_mc.addChild(this.tfVers2);
+	
+	var btnFrame = new PIXI.Graphics();
+	btnFrame.lineStyle(3, 0xFFCC00, 1);
+	btnFrame.drawRect(-this.tfIdUser.width/2, -16, this.tfIdUser.width, 32);
+	btnFrame.w = btnFrame.width;
+	btnFrame.h = btnFrame.height;
+	btnFrame.x = this.tfIdUser.x + btnFrame.w/2 - 2;
+	btnFrame.y = this.tfIdUser.y + btnFrame.h/2 - 6;
+	btnFrame.name = "btnKey";
+	btnFrame.interactive = true;
+	btnFrame.buttonMode=true;
+	btnFrame.visible = false;
+	btnFrame._selected = false;
+	this.face_mc.addChild(btnFrame);
+	this._arButtons.push(btnFrame);
+	this.btnFrame = btnFrame;
 	
 	// desc text
 	this.tfYourBet = addText(getText("your_bet") + " 0", 40, "#ffde00", undefined, "left", 300, 4, fontDigital)
@@ -729,7 +746,7 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 		_prnt.showError(ERROR_BALANCE);
 		_betGame = oldBet;
 	} else if(_betGame > _balanceSession){
-		_prnt.showError(ERROR_BALANCE_BET);
+		_prnt.showError(ERROR_BALANCE_BET, _prnt.faucet);
 		_betGame = oldBet;
 	} else if(_betGame > maxBet){
 		_prnt.showError(ERROR_MAX_BET);
@@ -809,10 +826,10 @@ ScrSpeedGame.prototype.showError = function(value, callback) {
 			str = "ERROR! \n\n " + value + " \n\n " + getText("contact_support");
 			break;
 	}
-	_prnt.createWndInfo(str, callback);
 	if(_wndWarning){
 		_wndWarning.visible = false;
 	}
+	_prnt.createWndInfo(str, callback);
 }
 
 ScrSpeedGame.prototype.showInsurance = function() {
@@ -1707,6 +1724,13 @@ ScrSpeedGame.prototype.updateShowBtn = function(timeShowButtons) {
 	}
 }
 
+ScrSpeedGame.prototype.faucet = function() {
+	Casino.Api.addBets(openkey);
+	_bWaitBet = true;
+	var str = getText("wait_bets");
+	_prnt.showWndWarning(str);
+}
+
 // CHANNEL
 ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 	_room = new RoomJS();
@@ -1865,7 +1889,7 @@ ScrSpeedGame.prototype.loadDataGame = function(){
 	} else {
 		_prnt.initLogic();
 		_logic.loadGame(_objSpeedGame, _objResult);
-		_prnt.responseServer(_objSpeedGame);
+		_prnt.responseServer(openkey, _objSpeedGame);
 		_betGame = _objSpeedGame.betGame;
 		_betSplitGame = _objSpeedGame.betSplitGame;
 		if(_betGame > 0){
@@ -2017,7 +2041,9 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.isCashoutAvailable();
 					
 					_prnt.createWndInfo(getText("close_channel_end"), function(){
-						window.location.reload()
+						if(options_multiplayer){
+							window.location.reload();
+						}
 					}, "OK");
 
 					_prnt.showChips(true);
@@ -2349,7 +2375,7 @@ ScrSpeedGame.prototype.clickSplit = function(){
 	}
 	
 	if(_balanceSession < _betGame){
-		_prnt.showError(ERROR_BALANCE_BET);
+		_prnt.showError(ERROR_BALANCE_BET, _prnt.faucet);
 		return false;
 	}
 	
@@ -2366,33 +2392,33 @@ ScrSpeedGame.prototype.clickSplit = function(){
 		Casino.callGameFunction(_idGame, msgID(), 
 			'bjSplit', ['confirm('+seed+')']
 		);
-		this.signSeed(seed, function(result){_logic.bjSplit(result);});	
+		_prnt.signSeed(seed, function(result){_logic.bjSplit(result);});	
 	}
-	this.showButtons(false);
+	_prnt.showButtons(false);
 	
 	_bSplit = true;
 		login_obj["bSplit"] = _bSplit;
 		saveData();
 	_betSplitGame = _betGame;
-	this.fillChips(_betGame);
-	this.fillChips(_betGame, "split");
+	_prnt.fillChips(_betGame);
+	_prnt.fillChips(_betGame, "split");
 	var str = String(convertToken(_betGame));
-	this.tfMyBet.setText(str);
-	this.tfMyBet.x = _W/2 - _arCoords["ofssSC"];
-	this.tfSplitBet.setText(str);
+	_prnt.tfMyBet.setText(str);
+	_prnt.tfMyBet.x = _W/2 - _arCoords["ofssSC"];
+	_prnt.tfSplitBet.setText(str);
 	
-	this._arMySplitCards = [this._arMyCards[1]];
-	this._arMyCards = [this._arMyCards[0]];
+	_prnt._arMySplitCards = [_prnt._arMyCards[1]];
+	_prnt._arMyCards = [_prnt._arMyCards[0]];
 	
-	this._arMyCards[0].x = _W/2 - _arCoords["ofssSC"];
-	this._arMySplitCards[0].x = _W/2 + _arCoords["ofssSC"];
-	this.tfMyPoints.x = _W/2-_arCoords["ofssSC"];
-	this._arMyPoints = [this._arMyCards[0].point];
-	this._arMySplitPoints = [this._arMySplitCards[0].point];
-	this.showMyPoints();
-	this.showMySplitPoints();
-	this.darkCards(this._arMyCards, true);
-	this.darkCards(this._arMySplitCards, false);
+	_prnt._arMyCards[0].x = _W/2 - _arCoords["ofssSC"];
+	_prnt._arMySplitCards[0].x = _W/2 + _arCoords["ofssSC"];
+	_prnt.tfMyPoints.x = _W/2-_arCoords["ofssSC"];
+	_prnt._arMyPoints = [_prnt._arMyCards[0].point];
+	_prnt._arMySplitPoints = [_prnt._arMySplitCards[0].point];
+	_prnt.showMyPoints();
+	_prnt.showMySplitPoints();
+	_prnt.darkCards(_prnt._arMyCards, true);
+	_prnt.darkCards(_prnt._arMySplitCards, false);
 }
 
 ScrSpeedGame.prototype.clickInsurance = function(){
@@ -2835,6 +2861,11 @@ ScrSpeedGame.prototype.update = function(diffTime){
 			_wndWarning.visible = false;
 		}
 	}
+	if(_bWaitBet && _balance > 0){
+		_bWaitBet = false;
+		_wndWarning.visible = false;
+		_prnt.showChips();
+	}
 	
 	if(_wndWarning){
 		if(_wndWarning.visible){
@@ -2932,6 +2963,8 @@ ScrSpeedGame.prototype.clickCell = function(item_mc) {
 		this.fullscreen();
 	} else if(item_mc.name == "btnKey" || item_mc.name == "icoKey"){
 		copyToClipboard(openkey);
+		this.btnFrame._selected = false;
+		this.btnFrame.visible = false;
 	} else if(item_mc.name == "btnShare"){
 		this.shareFB();
 	} else if(item_mc.name == "btnTweet"){
@@ -2966,10 +2999,13 @@ ScrSpeedGame.prototype.checkButtons = function(evt){
 	for (var i = 0; i < this._arButtons.length; i++) {
 		var item_mc = this._arButtons[i];
 		if(hit_test_rec(item_mc, item_mc.w, item_mc.h, _mouseX, _mouseY) &&
-		item_mc.visible && item_mc.dead != true){
+		((item_mc.visible && item_mc.dead != true) || item_mc.name == "btnKey")){
 			if(item_mc.disabled != true && item_mc.alpha == 1){
 				if(item_mc._selected == false){
 					item_mc._selected = true;
+					if(item_mc.name == "btnKey"){
+						item_mc.visible = true;
+					}
 					if(item_mc.over){
 						item_mc.over.visible = true;
 					} else if(item_mc.overSc){
@@ -2977,7 +3013,7 @@ ScrSpeedGame.prototype.checkButtons = function(evt){
 						item_mc.scale.y = 1.1*item_mc.sc;
 					}
 					if(item_mc.name == "icoKey"){
-						this.btnFrame.over.visible = true;
+						this.btnFrame.visible = true;
 					}
 				}
 				if(item_mc.hint2){
@@ -2989,6 +3025,9 @@ ScrSpeedGame.prototype.checkButtons = function(evt){
 		} else {
 			if(item_mc._selected){
 				item_mc._selected = false;
+				if(item_mc.name == "btnKey"){
+					item_mc.visible = false;
+				}
 				if(item_mc.over){
 					item_mc.over.visible = false;
 				} else if(item_mc.overSc){
@@ -2996,7 +3035,7 @@ ScrSpeedGame.prototype.checkButtons = function(evt){
 					item_mc.scale.y = 1*item_mc.sc;
 				}
 				if(item_mc.name == "icoKey"){
-					this.btnFrame.over.visible = false;
+					this.btnFrame.visible = false;
 				}
 			}
 		}

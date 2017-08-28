@@ -20,6 +20,11 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
+	var tfVers= addText(version, 24, "#ffffff", "#000000", "right", 400, 4)
+	tfVers.x = _W - 10;
+	tfVers.y = _H - tfVers.height/2 - 10;
+	this.addChild(tfVers);
+	
 	var btnSingle = addButton("btnDefault", _W/2, _H/2+100);
 	btnSingle.name = "btnSingle";
 	btnSingle.interactive = true;
@@ -142,6 +147,9 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		this.showBankrolls();
 	} else if(item_mc.name == "btnMultiplayer"){
 		options_multiplayer = true;
+		options_splitdouble = false;
+		options_split = false;
+		options_double = false;
 		options_save = false;
 		gameCode = "BJ_m";
 		localStorage.game_code = gameCode;
