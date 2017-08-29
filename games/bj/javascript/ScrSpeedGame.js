@@ -2457,7 +2457,7 @@ ScrSpeedGame.prototype.clickReset = function(){
 }
 
 ScrSpeedGame.prototype.checkResult = function(objResult){
-	if(_prnt._arUsersResult[_myIdMult]){
+	if(_prnt._arUsersResult[_myIdMult] && options_multiplayer){
 		return false;
 	}
 	_prnt._arUsersResult[_myIdMult] = true;

@@ -6,10 +6,10 @@ function WndBankrolls(_prnt, callback) {
 WndBankrolls.prototype = Object.create(PIXI.Container.prototype);
 WndBankrolls.prototype.constructor = WndBankrolls;
 
-var _this;
+var _thisWndBankrollsWndBankrolls;
 
 WndBankrolls.prototype.init = function(_prnt, callback) {
-	_this = this;
+	_thisWndBankrolls = this;
 	this.listBanks = new PIXI.Container();
 	this._prnt = _prnt;
 	this._callback = callback;
@@ -374,13 +374,13 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 }
 
 WndBankrolls.prototype.mouseWheel = function(evt){
-	var count = Math.max(_this._countBank - 5, 1);
-	var offset = -_this.distSc/count;
-	var mouseY = _this.headScroll.y + offset;
+	var count = Math.max(_thisWndBankrolls._countBank - 5, 1);
+	var offset = -_thisWndBankrolls.distSc/count;
+	var mouseY = _thisWndBankrolls.headScroll.y + offset;
 	if(evt.deltaY > 0){
-		mouseY = _this.headScroll.y - offset;
+		mouseY = _thisWndBankrolls.headScroll.y - offset;
 	}
-	_this.scrollHead(mouseY);
+	_thisWndBankrolls.scrollHead(mouseY);
 }
 
 WndBankrolls.prototype.mouseBtn = function(evt){
@@ -476,5 +476,5 @@ WndBankrolls.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
-	window.addEventListener('wheel', this.mouseWheel);
+	window.removeEventListener('wheel', this.mouseWheel);
 }
