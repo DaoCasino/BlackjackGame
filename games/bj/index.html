@@ -13,11 +13,27 @@
 				  families: ['Digital-7']
 				}
 			});
+		  WebFont.load({
+			custom: {
+			  families: ['Archivo Black']
+			}
+		  });
 		</script>
 		
 		<!--CSS style import-->
 		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="/css/preloader.css" lazyload>
+		<!-- <link rel="stylesheet" href="/css/preloader.css" lazyload> -->
+		
+		<style type="text/css">
+			@import url("http://fast.fonts.net/t/1.css?apiType=css&projectid=420aa0be-8d83-4acb-a13a-9bd9d4649d11");
+			@font-face {
+				font-family: 'Archivo Black';
+				src: url('fonts/ArchivoBlack-Regular.eot?#iefix') format('embedded-opentype'),  url('fonts/ArchivoBlack-Regular.otf')  format('opentype'),
+					 url('fonts/ArchivoBlack-Regular.woff') format('woff'), url('fonts/ArchivoBlack-Regular.ttf')  format('truetype'), url('fonts/ArchivoBlack-Regular.svg#ArchivoBlack-Regular') format('svg');
+				font-weight: normal;
+				font-style: normal;
+			}
+		</style>
 		
 		<script>
 		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -71,7 +87,8 @@
 		<script type="text/javascript" src="javascript/web3.sha3.js"></script>
 		
 		<!-- <script src="http://localhost:8888/static/js/bundle.js"></script> -->
-		<script src="https://platform.dao.casino/api/lib/DC.js?v=1.4"></script>
+		<script src="https://platform.dao.casino/api/lib/DC.js?v=1.5"></script>
+		<!-- <script src="javascript/DC.js"></script> -->
 
 		<script>
 			document.addEventListener("DOMContentLoaded", function(){
@@ -85,8 +102,8 @@
 		<script src="javascript/tweenjs-0.6.2.min.js"></script>
 		<script src="javascript/ResizeManager.js"></script>
 		
-		<script src="javascript/configuration.js"></script>
-		<script src="../../../js/configuration.js"></script>
+		<!-- <script src="javascript/configuration.js"></script> -->
+		<!-- <script src="../../../js/configuration.js"></script> -->
 
 		<!-- <script src="javascript/lightwallet.min.js"></script> -->
 		<!-- <script src="../../../js/erc20call.js"></script> -->
@@ -94,25 +111,33 @@
 		<script src="javascript/visibly.js"></script>
 		
 		<!-- main program -->
+		<script src="javascript/MovieClip.js"></script>
 		<script src="javascript/Infura.js"></script>
 		<script src="javascript/Contract.js"></script>
 		<script src="javascript/LogicJS.js"></script>
+		<script src="javascript/LogicMultJS.js"></script>
+		<script src="javascript/RoomJS.js"></script>
 		<script src="javascript/daoLang.js"></script>
 		<script src="javascript/tooltip.js"></script>
+		<script src="javascript/LevelInfo.js"></script>
 		<script src="javascript/main.js"></script>
 		<script src="javascript/erc20call.js"></script>
 		<script src="javascript/ItemLoading.js"></script>
 		<script src="javascript/ItemMixing.js"></script>
+		<script src="javascript/ItemUser.js"></script>
+		<script src="javascript/ItemUsers.js"></script>
 		<script src="javascript/ScrMenu.js"></script>
 		<script src="javascript/ScrGame.js"></script>
-		<script src="javascript/ScrSpeedGame.js"></script>
+		<script src="javascript/ScrSpeedGame.js?v=1.0"></script>
+		<script src="javascript/ScrTest.js"></script>
 		<script src="javascript/WndBank.js"></script>
 		<script src="javascript/WndBankrolls.js"></script>
 		<script src="javascript/WndHistory.js"></script>
 		<script src="javascript/WndInfo.js"></script>
 		<script src="javascript/WndInsurance.js"></script>
 	</head>
-	<body id="preloadko" onload="initGame()">
+	<!-- <body id="preloadko" onload="initGame()"> -->
+	<body onload="initGame()">
 		<script>
 		  window.fbAsyncInit = function() {
 			FB.init({

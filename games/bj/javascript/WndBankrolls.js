@@ -6,17 +6,18 @@ function WndBankrolls(_prnt, callback) {
 WndBankrolls.prototype = Object.create(PIXI.Container.prototype);
 WndBankrolls.prototype.constructor = WndBankrolls;
 
-var _this;
+var _thisWndBankrollsWndBankrolls;
 
 WndBankrolls.prototype.init = function(_prnt, callback) {
-	_this = this;
+	_thisWndBankrolls = this;
 	this.listBanks = new PIXI.Container();
 	this._prnt = _prnt;
 	this._callback = callback;
 	this._arButtons = [];
 	this._arBankrollers = [];
 	this._arSelected = [];
-	this._posTfY = -112;
+	this._strAdr = "";
+	this._posTfY = -72;
 	this._countBank = 1;
 	this._selectB = false;
 	
@@ -25,14 +26,14 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	rect.alpha = 0.5;
 	this.addChild(rect);
 	
-	var bg = addObj("wndInfo",0,0,1,0.45,0.3);
+	var bg = addObj("wndInfo",0,0,1,0.55,0.3);
 	this.addChild(bg);
 	
 	var loading = new ItemLoading(this);
 	this.addChild(loading);
 	this.loading = loading;
 	
-	var posLineX = 370;
+	var posLineX = 450;
 	this.stY = -120;
 	this.endY = 90;
 	this.distSc = Math.abs(this.stY) + this.endY;
@@ -41,6 +42,7 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	thinLine.moveTo(posLineX, this.stY)
 		   .lineTo(posLineX, this.endY);
 	this.addChild(thinLine);
+	this.thinLine = thinLine;
 	
 	var scrollZone = new PIXI.Container();
 	this.addChild(scrollZone);
@@ -89,7 +91,19 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	tfTitle.y = -160 - tfTitle.height/2;
 	this.addChild(tfTitle);
 	this.tfTitle = tfTitle;
-	var tfOk = addText("OK", 26, "#FFFFFF", undefined, "center", 350)
+	var tfAdr = addText(getText("address"), 24, "#FFFFFF", undefined, "center", 350)
+	tfAdr.x = -160;
+	tfAdr.y = -110 - tfAdr.height/2;
+	this.addChild(tfAdr);
+	var tfBank = addText(getText("bank"), 24, "#FFFFFF", undefined, "left", 350)
+	tfBank.x = 130;
+	tfBank.y = tfAdr.y;
+	this.addChild(tfBank);
+	var tfPlays = addText(getText("plays"), 24, "#FFFFFF", undefined, "left", 350)
+	tfPlays.x = 255;
+	tfPlays.y = tfAdr.y;
+	this.addChild(tfPlays);
+	var tfOk = addText("OK", 24, "#FFFFFF", undefined, "center", 350)
 	tfOk.y = - tfOk.height/2;
 	btnOk.addChild(tfOk);
 	var tfRefresh = addText(getText("refresh"), 26, "#FFFFFF", undefined, "center", 350)
@@ -98,16 +112,18 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	
 	this.btnOk = btnOk;
 	this.btnRefresh = btnRefresh;
+	this.headScroll.visible = false;
+	this.thinLine.visible = false;
 	
 	this.listBanks.y = this._posTfY;
 	this.addChild(this.listBanks);
 	
-	this.hMask = 200;
+	this.hMask = 160;
 	var zoneMask = new PIXI.Graphics();
 	zoneMask.alpha= 0.5;
-	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 700, this.hMask).endFill();
-	zoneMask.x = -30-zoneMask.width/2;
-	zoneMask.y = -29-zoneMask.height/2;
+	zoneMask.beginFill(0xFF0000).drawRect(0, 0, 860, this.hMask).endFill();
+	zoneMask.x = -50-zoneMask.width/2;
+	zoneMask.y = -9-zoneMask.height/2;
 	this.addChild(zoneMask);
 	
 	this.listBanks.mask = zoneMask;
@@ -135,9 +151,15 @@ WndBankrolls.prototype.clearList = function() {
 }
 
 WndBankrolls.prototype.show = function() {
-	this.clearList();
-	var ar = Casino.getBankrollers('BJ');
+	var ar = Casino.getBankrollers(gameCode);
 	var arAdr = Object.keys(ar);
+	
+	if(this._strAdr == arAdr.join()){
+		return;
+	}
+	
+	this.clearList();
+	this._strAdr = arAdr;
 	var load = false;
 	
 	// console.log("showBankrolls:", arAdr);
@@ -147,6 +169,7 @@ WndBankrolls.prototype.show = function() {
 	if(arAdr.length == 0){
 		this.tfTitle.setText(getText("search_bankrollers"));
 		this.headScroll.visible = false;
+		this.thinLine.visible = false;
 		this.btnOk.visible = false;
 		return;
 	}
@@ -179,17 +202,22 @@ WndBankrolls.prototype.show = function() {
 	
 	var i = 0;
 	for(var tag in ar){
-		var obj = ar[tag];
-		// this.addBankroller(i, tag, obj);
-		// i ++;
-		
-		// remove this
-		if(tag == arAdr[0]){
-			this.addBankroller(0, tag, obj);
+		if(tag != undefined){
+			var obj = ar[tag];
+			if(load){
+				if(tag == addressContract){
+					this.addBankroller(i, tag, obj);
+					i ++;
+				}
+			} else {
+				this.addBankroller(i, tag, obj);
+				i ++;
+			}
 		}
 	}
 	
 	this.headScroll.visible = (this.listBanks.height > this.hMask);
+	this.thinLine.visible = (this.listBanks.height > this.hMask);
 	
 	if(!this._selectB && this._arBankrollers.length > 0){
 		this._selectB = true;
@@ -207,9 +235,9 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 	var item = new PIXI.Container();
 	item.name = "bankroller";
 	item.id = adr;
-	item.x = -30;
+	item.x = -50;
 	item.y = 1+i*40;
-	item.w = 700;
+	item.w = 860;
 	item.h = 35;
 	item._selected = false;
 	item.interactive = true;
@@ -241,14 +269,14 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 	item.addChild(bgOver);
 	
 	var tfName = addText(adr, 20, "#FFFFFF", undefined, "left", 400)
-	tfName.x = -320;
+	tfName.x = -400;
 	tfName.y = -tfName.height/2+2;
 	item.addChild(tfName);
 	var tfCountGame = addText("0", 20, "#2AE1FF", undefined, "left", 100)
-	tfCountGame.x = 270;
+	tfCountGame.x = 330;
 	tfCountGame.y = -tfCountGame.height/2+2;
 	item.addChild(tfCountGame);
-	var icoGames = addObj("icoCountGame", 250, 0, 0.8);
+	var icoGames = addObj("icoCountGame", 310, 0, 0.8);
 	item.addChild(icoGames);
 	
 	for(var tag in obj){
@@ -256,19 +284,19 @@ WndBankrolls.prototype.addBankroller = function(i, adr, obj){
 		if(value){
 			if(tag == "stat"){
 				if(value.game){
-					if(value.game.code != "BJ"){
+					if(value.game.code != gameCode){
 						continue;
 					}
 					if(value.game.balance){
-						var icoBet = addObj("icoCountBet", 160, 0, 0.9);
+						var icoBet = addObj("icoCountBet", 190, 0, 0.9);
 						item.addChild(icoBet);
 						var tfBank = addText(toFixed(value.game.balance, 2), 20, "#4AFF2F", undefined, "left", 100)
-						tfBank.x = 180;
+						tfBank.x = 210;
 						tfBank.y = -tfBank.height/2+2;
 						item.addChild(tfBank);
 					}
-					if(value.open_game){
-						tfCountGame.setText(value.open_game);
+					if(value.close_game){
+						tfCountGame.setText(value.close_game);
 					}
 				}
 			}
@@ -346,13 +374,13 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 }
 
 WndBankrolls.prototype.mouseWheel = function(evt){
-	var count = Math.max(_this._countBank - 5, 1);
-	var offset = -_this.distSc/count;
-	var mouseY = _this.headScroll.y + offset;
+	var count = Math.max(_thisWndBankrolls._countBank - 5, 1);
+	var offset = -_thisWndBankrolls.distSc/count;
+	var mouseY = _thisWndBankrolls.headScroll.y + offset;
 	if(evt.deltaY > 0){
-		mouseY = _this.headScroll.y - offset;
+		mouseY = _thisWndBankrolls.headScroll.y - offset;
 	}
-	_this.scrollHead(mouseY);
+	_thisWndBankrolls.scrollHead(mouseY);
 }
 
 WndBankrolls.prototype.mouseBtn = function(evt){
@@ -448,5 +476,5 @@ WndBankrolls.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
-	window.addEventListener('wheel', this.mouseWheel);
+	window.removeEventListener('wheel', this.mouseWheel);
 }

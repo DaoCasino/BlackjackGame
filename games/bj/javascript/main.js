@@ -1,8 +1,10 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.10";
+var version = "v. 1.1.11";
 var metaCode = "blackjack_v1";
+var gameCode = "BJ";
 var login_obj = {};
+var arClips = [];
 var language;
 var dataAnima = [];
 var dataMovie = [];
@@ -18,6 +20,7 @@ var infura, soundManager, ks, sendingAddr;
 var passwordUser = "1234";
 var fontMain = "Arial";
 var fontDigital = "Digital-7";
+var fontArchivo = "Archivo Black";
 var stats; //для вывода статистики справа
 var valToken = 100000000; // 1 token
 var rndBg = String(Math.ceil(Math.random()*2));
@@ -65,6 +68,7 @@ var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
 var options_save = true;
+var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
 var ERROR_KEYTHEREUM = 1;
@@ -107,6 +111,8 @@ function initGame() {
     }
 	
 	if(typeof console === "undefined"){ console = {}; }
+	
+	fontMain = fontArchivo;
 	
     //initialize the stage
     renderer = PIXI.autoDetectRenderer(_W, _H);
@@ -296,7 +302,7 @@ function handleComplete(evt) {
 	}
 	
 	// remove tile cub
-	addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
+	// addCSSRule(document.styleSheets[2], "#preloadko", "background-image: none", 1);
 	
 	infura = new Infura();
 	
@@ -411,6 +417,10 @@ function removeAllScreens() {
 		scrContainer.removeChild(ScreenMenu);
 		ScreenMenu = null;
 	}
+	if(ScreenTest){
+		scrContainer.removeChild(ScreenTest);
+		ScreenTest = null;
+	}
 	if(currentScreen){
 		scrContainer.removeChild(currentScreen);
 		currentScreen = null;
@@ -434,13 +444,35 @@ function update() {
 		if (ScreenSpeedGame) {
 			ScreenSpeedGame.update(diffTime);
 		}
+		if (ScreenTest) {
+			ScreenTest.update(diffTime);
+		}
 		
 		if(LoadBack){
 			LoadBack.loading.update(diffTime);
 		}
 		
+		for (var i = 0; i < arClips.length; i++) {
+			var clip = arClips[i];
+			if(clip){
+				clip.enter_frame();
+			}
+		}
+		
 		startTime = getTimer();
 	}
+}
+
+function clearClips() {
+	for (var i = 0; i < arClips.length; i++) {
+		var clip = arClips[i];
+		if(clip){
+			clip.removed_from_stage();
+			clip.die();
+		}
+	}
+	
+	arClips = [];
 }
 
 function saveData() {
@@ -888,6 +920,13 @@ function jiggle(t){
 	t.jdx = t.jdx * t.jdvstep + (t.jska - t.scale.x) * t.jdv
 	t.scale.x = Math.max(0.1, t.scale.x + t.jdx)
 	t.scale.y = t.scale.x
+}
+
+// remove value from array
+function removevalue(value, arr){
+	for (var i = 0; i < arr.length; i++){
+		arr[i] == value ? (arr = arr.splice(i, 1)) : (undefined);
+	}
 }
 
 function convertToken(value){

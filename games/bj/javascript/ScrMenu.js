@@ -20,21 +20,38 @@ ScrMenu.prototype.init = function() {
 	this.bg.scale.y =  _H/this.bg.h;
 	this.addChild(this.bg);
 	
-	var btnSpeed = addButton("btnDefault", _W/2, _H/2+100);
-	btnSpeed.name = "btnSpeed";
-	btnSpeed.interactive = true;
-	btnSpeed.buttonMode=true;
-	btnSpeed.overSc = true;
-	this.addChild(btnSpeed);
-	this._arButtons.push(btnSpeed);
-	var tf = addText(getText("start"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	var tfVers= addText(version, 24, "#ffffff", "#000000", "right", 400, 4)
+	tfVers.x = _W - 10;
+	tfVers.y = _H - tfVers.height/2 - 10;
+	this.addChild(tfVers);
+	
+	var btnSingle = addButton("btnDefault", _W/2, _H/2+100);
+	btnSingle.name = "btnSingle";
+	btnSingle.interactive = true;
+	btnSingle.buttonMode=true;
+	btnSingle.overSc = true;
+	this.addChild(btnSingle);
+	this._arButtons.push(btnSingle);
+	var tf = addText(getText("single_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
 	tf.x = 0;
 	tf.y = -tf.height/2;
-	btnSpeed.addChild(tf);
+	btnSingle.addChild(tf);
+	
+	var btnMultiplayer = addButton("btnDefault", _W/2, _H/2+220);
+	btnMultiplayer.name = "btnMultiplayer";
+	btnMultiplayer.interactive = true;
+	btnMultiplayer.buttonMode=true;
+	btnMultiplayer.overSc = true;
+	this.addChild(btnMultiplayer);
+	this._arButtons.push(btnMultiplayer);
+	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	tf.x = 0;
+	tf.y = -tf.height/2;
+	btnMultiplayer.addChild(tf);
 	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
-	tfWait.x = btnSpeed.x;
-	tfWait.y = btnSpeed.y - tfWait.height;
+	tfWait.x = btnSingle.x;
+	tfWait.y = btnSingle.y - tfWait.height;
 	this.addChild(tfWait);
 	var loading = new ItemLoading(this);
 	loading.x = _W/2;
@@ -42,13 +59,18 @@ ScrMenu.prototype.init = function() {
 	this.addChild(loading);
 	this.loading = loading;
 	
-	btnSpeed.visible = false;
+	tfWait.visible = false;
+	loading.visible = false;
 	
-	setTimeout(function(){
-		_prnt.showBankrolls();
-		tfWait.visible = false;
-		loading.visible = false;
-	}, 5000);
+	this.btnSingle = btnSingle;
+	this.btnMultiplayer = btnMultiplayer;
+	
+	btnSingle.visible = false;
+	btnMultiplayer.visible = false;
+	options_multiplayer = false;
+	gameCode = "BJ";
+	localStorage.game_code = gameCode;
+	this.showBankrolls();
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -69,6 +91,7 @@ ScrMenu.prototype.init = function() {
 	this.addChild(tf1);
 	
 	this.interactive = true;
+	this.on('mouseup', this.touchHandler);
 	this.on('mousedown', this.touchHandler);
 	this.on('mousemove', this.touchHandler);
 	this.on('touchstart', this.touchHandler);
@@ -77,19 +100,20 @@ ScrMenu.prototype.init = function() {
 }
 
 ScrMenu.prototype.showBankrolls = function(){
-	if(options_debug){
-		this.startGame();
-	} else {
-		this._wndList = new WndBankrolls(this, _prnt.startGame);
-		this._wndList.x = _W/2;
-		this._wndList.y = _H/2;
-		this.addChild(this._wndList);
-		this._wndList.show();
-	}
+	this.btnSingle.visible = false;
+	this.btnMultiplayer.visible = false;
+	
+	this._wndList = new WndBankrolls(this, _prnt.startGame);
+	this._wndList.x = _W/2;
+	this._wndList.y = _H/2;
+	this.addChild(this._wndList);
+	this._wndList.show();
 }
 
 ScrMenu.prototype.startGame = function(){
-	_prnt._wndList.visible = false;
+	if(_prnt._wndList){
+		_prnt._wndList.visible = false;
+	}
 	_prnt.removeAllListener();
 	showSpeedGame();
 }
@@ -123,9 +147,20 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		this.removeAllListener();
 		options_speedgame = false;
 		showGame();
-	} else if(item_mc.name == "btnSpeed"){
-		this.removeAllListener();
-		showSpeedGame();
+	} else if(item_mc.name == "btnSingle"){
+		options_multiplayer = false;
+		gameCode = "BJ";
+		localStorage.game_code = gameCode;
+		this.showBankrolls();
+	} else if(item_mc.name == "btnMultiplayer"){
+		options_multiplayer = true;
+		options_splitdouble = false;
+		options_split = false;
+		options_double = false;
+		options_save = false;
+		gameCode = "BJ_m";
+		localStorage.game_code = gameCode;
+		this.showBankrolls();
 	}
 }
 
@@ -166,9 +201,9 @@ ScrMenu.prototype.touchHandler = function(evt){
 	}
 	var phase = evt.type;
 	
-	if(phase=='mousemove' || phase == 'touchmove' || phase == 'touchstart'){
+	if(phase=='mousemove' || phase == 'touchmove' || phase == 'touchstart' || phase == "mousedown"){
 		this.checkButtons(evt);
-	} else if (phase == 'mousedown' || phase == 'touchend') {
+	} else if (phase == 'mouseup' || phase == 'touchend') {
 		for (var i = 0; i < this._arButtons.length; i++) {
 			var item_mc = this._arButtons[i];
 			if(item_mc._selected){
@@ -184,6 +219,7 @@ ScrMenu.prototype.removeAllListener = function(){
 		this._wndList.removeAllListener();
 	}
 	this.interactive = false;
+	this.off('mouseup', this.touchHandler);
 	this.off('mousedown', this.touchHandler);
 	this.off('mousemove', this.touchHandler);
 	this.off('touchstart', this.touchHandler);

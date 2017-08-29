@@ -1,10 +1,10 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.13
+ * v 1.0.8
  */
 
-var LogicJS = function(params){
+var LogicMultJS = function(params){
 	var _self = this;
 
 	var BLACKJACK = 21;
@@ -40,6 +40,9 @@ var LogicJS = function(params){
 	var _bStand = false;
 	var _bStandNecessary = false;
 	var _bSplit = false;
+	var _bMultiplayer = false;
+	var _bDealerStart = false;
+	var _bDealerEnd = false;
 	
 	var _prnt;
 	var _callback;
@@ -49,11 +52,12 @@ var LogicJS = function(params){
 			_prnt = params.prnt;
 		}
 		if(params.address){
-			_address = params._address;
+			_address = params.address;
 		}
 		if(params.callback){
 			_callback = params.callback;
 		}
+		_bMultiplayer = params.bMultiplayer || false;
 		_balance = params.balance || 0;
 	}
 	
@@ -69,6 +73,7 @@ var LogicJS = function(params){
 	
 	mixDeck();
 	
+	// single methods
 	_self.bjDeal = function(_s, _bet){
 		_objSpeedGame.method = "bjDeal";
 		_idGame ++;
@@ -151,6 +156,98 @@ var LogicJS = function(params){
 		_objResult.profit -= _bet;
 	}
 	
+	// multiplayer methods
+	_self.bjBet = function(_bet){
+		_idGame ++;
+		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
+		
+		_objSpeedGame.method       = "bjBet";
+		_objSpeedGame.result       = false;
+		_objSpeedGame.curGame      = {};
+		_objSpeedGame.betGame      = _bet;
+		_objSpeedGame.betSplitGame = 0;
+		
+		_money -= _bet;
+		
+		_objSpeedGame.money     = _money;
+		_objSpeedGame.insurance = false;
+		
+		_arMyCards       = [];
+		_arMySplitCards  = [];
+		_arHouseCards    = [];
+		_arMyPoints      = [];
+		_arMySplitPoints = [];
+		_arHousePoints   = [];
+		
+		_bStand          = false;
+		_bStandNecessary = false;
+		_bSplit          = false;
+		
+		if(typeof _callback === 'function'){
+			_callback(_address, _objSpeedGame);
+		}
+	}
+	
+	_self.bjDealer = function(_s){
+		if (_bDealerStart) return;
+		_bDealerStart = true;
+		_bDealerEnd = false;
+
+		_objSpeedGame.method = "bjDealer";
+		dealCard(false, true, _s);
+		refreshGame(_s);
+	}
+	
+	_self.bjDealerStand = function(_s, isMain){
+		if (_bDealerEnd) return;
+		_bDealerStart = false;
+		_bDealerEnd = true;
+		
+		_objSpeedGame.method = "bjDealerStand";
+		_bStand = true;
+		
+		var val = 15;
+		while (_housePoints < 17 && val < 32) {
+			dealCard(false, true, _s, val);
+			val += 1;
+		}
+		refreshGame(_s);
+	}
+	
+	_self.bjMultStand = function(_s, isMain){
+		_objSpeedGame.method = "bjMultStand";
+		
+		_bSplit = false;
+		if (!isMain) {
+			return;
+		}
+		_bStand = true;
+		
+		if(typeof _callback === 'function'){
+			_callback(_address, _objSpeedGame);
+		}
+	}
+	
+	_self.bjMultDouble = function(_s, isMain){
+		_objSpeedGame.method = "bjMultDouble";
+		dealCard(true, isMain, _s);
+		
+		if(isMain){
+			_bStand = true;
+			_money -= _objSpeedGame.betGame;
+			_objResult.profit -= _objSpeedGame.betGame;
+			_objSpeedGame.betGame *= 2;
+		} else {
+			_bSplit = false;
+			_money -= _objSpeedGame.betSplitGame;
+			_objResult.profit -= _objSpeedGame.betSplitGame;
+			_objSpeedGame.betSplitGame *= 2;
+		}
+		_objSpeedGame.money = _money;
+		refreshGame(_s);
+	}
+	
+	// get methods
 	_self.makeID = function(){
 		var count = 64;
 		var str = "0x";
@@ -205,6 +302,10 @@ var LogicJS = function(params){
 		return spriteName;
 	}
 	
+	_self.refreshGame = function(_s){
+		refreshGame(_s);
+	}
+	
 	function mixDeck(){
 		_arCards = [];
 		_objResult.mixing = true;
@@ -243,7 +344,6 @@ var LogicJS = function(params){
 		if (!isMain) {
 			return;
 		}
-		
 		_bStand = true;
 		
 		if(_myPoints > BLACKJACK &&
@@ -283,7 +383,11 @@ var LogicJS = function(params){
 				_arMyCards.push(newCard);
 				// console.log("dealClient: Main", newCard, getNameCard(newCard));
 				if(_myPoints >= BLACKJACK && !_bSplit){
-					stand(isMain, seed);
+					if(_bMultiplayer){
+						_bStand = true;
+					} else {
+						stand(isMain, seed);
+					}
 				}
 			} else {
 				_arMySplitPoints.push(point);
@@ -382,7 +486,11 @@ var LogicJS = function(params){
 					_objSpeedGame.result = true;
 				} else {
 					_bStandNecessary = true;
-					_self.bjStand(_s, isMain);
+					if(_bMultiplayer){
+						_self.bjMultStand(_s, isMain);
+					} else {
+						_self.bjStand(_s, isMain);
+					}
 					return false;
 				}
 			}
@@ -575,6 +683,21 @@ var LogicJS = function(params){
 		for (var i = 0; i < _arHouseCards.length; i++) {
 			var point = getPoint(_arHouseCards[i]);
 			_arHousePoints.push(point);
+		}
+	}
+	
+	_self.setDealerCards  = function(arHouseCards, value){
+		_arHouseCards = arHouseCards || [];
+		_objSpeedGame.curGame.arHouseCards = _arHouseCards;
+		_arHousePoints = [];
+		for (var i = 0; i < _arHouseCards.length; i++) {
+			var point = getPoint(_arHouseCards[i]);
+			_arHousePoints.push(point);
+		}
+		_housePoints = getHousePoints();
+		
+		if(value){
+			_bStand = true;
 		}
 	}
 	
