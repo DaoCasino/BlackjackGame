@@ -1881,8 +1881,10 @@ ScrSpeedGame.prototype.loadGame = function(){
 ScrSpeedGame.prototype.loadDataGame = function(){
 	if(_objSpeedGame.result || _objSpeedGame.curGame.arMyCards == undefined){
 		var money = _objSpeedGame.money;
+		var result = _objSpeedGame.result;
 		_prnt.resetObjGame();
 		_prnt.initLogic();
+		_objSpeedGame.result = result;
 		_objSpeedGame.money = money;
 		_logic.loadGame(_objSpeedGame, _objResult);
 		_prnt.showChips(true);
@@ -1924,7 +1926,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 		_bCloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_prnt.showWndWarning(str);
-		
+		console.log("openChannel");
 		Casino.startGame(gameCode, addressContract, _balanceSession, function(obj){
 			if(obj == true){
 				if (options_multiplayer) {
@@ -2003,7 +2005,6 @@ ScrSpeedGame.prototype.closeChannel = function() {
 	if(_bCloseChannel){
 		return false;
 	}
-	_bCloseChannel = true;
 	
 	if(options_debug){
 		var deposit = _balanceSession - login_obj["deposit"];
@@ -2013,6 +2014,7 @@ ScrSpeedGame.prototype.closeChannel = function() {
 		_prnt.resetObjGame();
 		_prnt.resetGame();
 		_prnt.showChips(true);
+		_bCloseChannel = true;
 		_prnt._arHistory.push({name:"end_channel", profit:deposit});
 		login_obj["arHistory"] = _prnt._arHistory;
 		saveData();
@@ -2023,15 +2025,19 @@ ScrSpeedGame.prototype.closeChannel = function() {
 			_prnt.showButtons(false);
 			_prnt.showChips(false);
 			_prnt.btnExit.alpha = 0.5;
+			_bCloseChannel = true;
 			var str = getText("close_channel_start").replace(new RegExp("SPL"), "\n");
 			_prnt.showWndWarning(str);
 			
-			Casino.callGameFunction(_idGame, msgID(), 
-                'closeAllChannels', []
-            );
-			
+			if(options_multiplayer){
+				Casino.callGameFunction(_idGame, msgID(), 
+					'closeAllChannels', []
+				);
+			}
+			console.log("Casino.endGame:", convertToken(deposit));
 			Casino.endGame(deposit, function(obj){
 				_wndWarning.visible = false;
+				console.log("endGame:", obj);
 				if(obj == true){
 					sessionIsOver = true;
 					login_obj["openChannel"] = false;
@@ -2039,10 +2045,12 @@ ScrSpeedGame.prototype.closeChannel = function() {
 					_prnt.resetObjGame();
 					_prnt.resetGame();
 					_prnt.isCashoutAvailable();
-					
+					console.log("close_channel_end");
 					_prnt.createWndInfo(getText("close_channel_end"), function(){
+						console.log("close_channel_end: !!!!");
 						if(options_multiplayer){
 							window.location.reload();
+							return;
 						}
 					}, "OK");
 
