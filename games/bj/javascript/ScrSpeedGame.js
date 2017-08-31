@@ -90,6 +90,7 @@ var _currentMethod = -1;
 var _idGame = localStorage._idGame || 0;
 var _idTurnUser = 0;
 var _myIdMult = 0;
+var _idTutor = 0;
 
 var _dealedCards = [];
 var _arBankrollers = [];
@@ -481,6 +482,22 @@ ScrSpeedGame.prototype.createBtn = function() {
 	this.isCashoutAvailable();
 }
 
+ScrSpeedGame.prototype.showTutorial = function() {
+	if(login_obj["tutor_bet"] != true){
+		_idTutor = 1;
+		_prnt.showTooltip(undefined, getText("tutor_bet"), _W/2-550, _H/2+270);
+	} else if(login_obj["tutor_deal"] != true){
+		_idTutor = 2;
+		_prnt.showTooltip(_prnt.btnDeal, getText("tutor_deal"), _prnt.btnDeal.x, _prnt.btnDeal.y);
+	} else if(login_obj["tutor_nextgame"] != true && _balanceSession >= _minBet && !_startGame){
+		_idTutor = 3;
+		_prnt.showTooltip(undefined, getText("tutor_nextgame"), _W/2-550, _H/2+270);
+	} else if(login_obj["tutor_closechannel"] != true && _balanceSession >= 0 && !_startGame){
+		_idTutor = 4;
+		_prnt.showTooltip(_prnt.btnExit, getText("tutor_closechannel"), _prnt.btnExit.x, _prnt.btnExit.y);
+	}
+}
+
 ScrSpeedGame.prototype.showWndInsurance = function(str, callback) {
 	if(_bWindow){
 		return false;
@@ -783,6 +800,18 @@ ScrSpeedGame.prototype.clickChip = function(item_mc){
 	}
 	_betGameOld = _betGame;
 	_prnt.sendChip(item_mc, _betGame);
+	
+	if(_prnt.tooltip && (_idTutor == 1 || _idTutor == 3 || _idTutor == 4)){
+		_prnt.tooltip.visible = false;
+		if(_idTutor == 3){
+			login_obj["tutor_nextgame"] = true;
+			_idTutor = 0;
+		}
+		if(_idTutor == 4){
+			login_obj["tutor_closechannel"] = true;
+			_idTutor = 0;
+		}
+	}
 }
 
 ScrSpeedGame.prototype.showSmartContract = function() {
@@ -978,12 +1007,12 @@ ScrSpeedGame.prototype.showTooltip = function(item, str, _x, _y) {
 	}
 	if(this.tooltip.y - h/2 < 20){
 		this.tooltip.y = 20 + h/2;
-		if(hit_test_rec(item, w, h, this.tooltip.x, this.tooltip.y)){
+		if(item && hit_test_rec(item, w, h, this.tooltip.x, this.tooltip.y)){
 			this.tooltip.y += this.tooltip.height;
 		}
 	} else if(this.tooltip.y + h/2 > _H-20){
 		this.tooltip.y = _W-20 - h/2;
-		if(hit_test_rec(item, w, h, this.tooltip.x, this.tooltip.y)){
+		if(item && hit_test_rec(item, w, h, this.tooltip.x, this.tooltip.y)){
 			this.tooltip.y -= this.tooltip.height;
 		}
 	}
@@ -1253,6 +1282,11 @@ ScrSpeedGame.prototype.fillChips = function(value, type, _y){
 		} else if(setBet > 0){
 			setBet = 0;
 		}
+	}
+	
+	if(_idTutor == 1){
+		login_obj["tutor_bet"] = true;
+		_prnt.showTutorial();
 	}
 }
 
@@ -1812,6 +1846,7 @@ ScrSpeedGame.prototype.getBankrolls = function(){
 		}
 		sessionIsOver = false;
 		_prnt.showChips(true);
+		_prnt.showTutorial();
 		return false;
 	}
 	_arBankrollers = Object.keys(Casino.getBankrollers(gameCode));
@@ -1926,7 +1961,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 		_bCloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_prnt.showWndWarning(str);
-		console.log("openChannel");
+		
 		Casino.startGame(gameCode, addressContract, _balanceSession, function(obj){
 			if(obj == true){
 				if (options_multiplayer) {
@@ -1937,6 +1972,7 @@ ScrSpeedGame.prototype.openChannel = function(){
 				} else {
 					_prnt.setUserData();
 					_prnt.showChips(true);
+					_prnt.showTutorial();
 				}
 			} else {
 				_prnt.showChips(true);
@@ -2076,6 +2112,16 @@ ScrSpeedGame.prototype.closeChannel = function() {
 			return false;
 		}
 	}
+	
+	if(_prnt.tooltip && (_idTutor == 3 || _idTutor == 4)){
+		_idTutor = 0;
+		_prnt.tooltip.visible = false;
+		if(_idTutor == 3){
+			login_obj["tutor_nextgame"] = true;
+		} else if(_idTutor == 4){
+			login_obj["tutor_closechannel"] = true;
+		}
+	}
 }
 
 // ACTION
@@ -2178,6 +2224,12 @@ ScrSpeedGame.prototype.clickDeal = function(){
 		}
 		this.clearBet();
 		this.showChips(true);
+	}
+	
+	if(this.tooltip && _idTutor == 2){
+		this.tooltip.visible = false;
+		login_obj["tutor_deal"] = true;
+		_idTutor = 0;
 	}
 }
 
@@ -2510,6 +2562,7 @@ ScrSpeedGame.prototype.checkResult = function(objResult){
 		_prnt.showChips(true);
 		_prnt.showButtons(false);
 		_prnt.isCashoutAvailable();
+		_prnt.showTutorial();
 	}
 	
 	if(objResult.mixing && _balanceSession > 0){
@@ -3000,7 +3053,7 @@ ScrSpeedGame.prototype.clickCell = function(item_mc) {
 ScrSpeedGame.prototype.checkButtons = function(evt){
 	_mouseX = evt.data.global.x;
 	_mouseY = evt.data.global.y;
-	if(this.tooltip){
+	if(this.tooltip && !_idTutor){
 		this.tooltip.visible = false;
 	}
 	
@@ -3024,10 +3077,10 @@ ScrSpeedGame.prototype.checkButtons = function(evt){
 						this.btnFrame.visible = true;
 					}
 				}
-				if(item_mc.hint2){
+				if(item_mc.hint2 && !_idTutor){
 					this.showTooltip(item_mc, item_mc.hint2, item_mc.x, item_mc.y);
 				}
-			} else if(item_mc.hint){
+			} else if(item_mc.hint && !_idTutor){
 				this.showTooltip(item_mc, item_mc.hint, item_mc.x, item_mc.y);
 			}
 		} else {
