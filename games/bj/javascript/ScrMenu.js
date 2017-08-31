@@ -25,29 +25,29 @@ ScrMenu.prototype.init = function() {
 	tfVers.y = _H - tfVers.height/2 - 10;
 	this.addChild(tfVers);
 	
-	var btnSingle = addButton("btnDefault", _W/2, _H/2+100);
+	var btnSingle = addButton("btnSingle", _W/2 - 140, _H/2+170);
 	btnSingle.name = "btnSingle";
 	btnSingle.interactive = true;
 	btnSingle.buttonMode=true;
 	btnSingle.overSc = true;
 	this.addChild(btnSingle);
 	this._arButtons.push(btnSingle);
-	var tf = addText(getText("single_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
-	tf.x = 0;
-	tf.y = -tf.height/2;
-	btnSingle.addChild(tf);
+	// var tf = addText(getText("single_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	// tf.x = 0;
+	// tf.y = -tf.height/2;
+	// btnSingle.addChild(tf);
 	
-	var btnMultiplayer = addButton("btnDefault", _W/2, _H/2+220);
+	var btnMultiplayer = addButton("btnMultiplayer", _W/2 + 140, _H/2+170);
 	btnMultiplayer.name = "btnMultiplayer";
 	btnMultiplayer.interactive = true;
 	btnMultiplayer.buttonMode=true;
 	btnMultiplayer.overSc = true;
 	this.addChild(btnMultiplayer);
 	this._arButtons.push(btnMultiplayer);
-	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
-	tf.x = 0;
-	tf.y = -tf.height/2;
-	btnMultiplayer.addChild(tf);
+	// var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
+	// tf.x = 0;
+	// tf.y = -tf.height/2;
+	// btnMultiplayer.addChild(tf);
 	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
 	tfWait.x = btnSingle.x;
