@@ -6,7 +6,10 @@ function WndHistory(_prnt) {
 WndHistory.prototype = Object.create(PIXI.Container.prototype);
 WndHistory.prototype.constructor = WndHistory;
 
+var _thisWndHistory;
+
 WndHistory.prototype.init = function(_prnt) {
+	_thisWndHistory = this;
 	this._prnt = _prnt;
 	this._callback = undefined;
 	this._arButtons =[];
@@ -23,6 +26,7 @@ WndHistory.prototype.init = function(_prnt) {
 	var posLineX = 400;
 	var stY = -190;
 	var endY = 260;
+	this.distSc = Math.abs(stY) + endY;
 	var thinLine = new PIXI.Graphics();
 	thinLine.lineStyle(2, 0xffffff)
 	thinLine.moveTo(posLineX, stY)
@@ -106,6 +110,7 @@ WndHistory.prototype.init = function(_prnt) {
 	this.on('touchstart', this.touchHandler);
 	this.on('touchmove', this.touchHandler);
 	this.on('touchend', this.touchHandler);
+	window.addEventListener('wheel', this.mouseWheel);
 }
 
 WndHistory.prototype.show = function(ar) {
@@ -182,12 +187,25 @@ WndHistory.prototype.clickObj = function(item_mc, evt) {
 	if(name == "btnClose"){
 		this._prnt.closeWindow(this);
 	} else if(name == "scrollZone"){
-		this.scrollHead(evt);
+		this.mouseBtn(evt);
 	}
 }
 
-WndHistory.prototype.scrollHead = function(evt){
+WndHistory.prototype.mouseWheel = function(evt){
+	var offset = _thisWndHistory.hMask - _thisWndHistory.tfName.height;
+	var mouseY = _thisWndHistory.headScroll.y + offset;
+	if(evt.deltaY > 0){
+		mouseY = _thisWndHistory.headScroll.y - offset;
+	}
+	_thisWndHistory.scrollHead(mouseY);
+}
+
+WndHistory.prototype.mouseBtn = function(evt){
 	var mouseY = evt.data.global.y - this.y;
+	this.scrollHead(mouseY);
+}
+
+WndHistory.prototype.scrollHead = function(mouseY){
 	var posY = Math.max(mouseY, -190);
 	posY = Math.min(posY, 260);
 	this.headScroll.y = posY;
@@ -275,4 +293,5 @@ WndHistory.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
+	window.removeEventListener('wheel', this.mouseWheel);
 }

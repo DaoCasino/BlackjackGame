@@ -1,5 +1,7 @@
 ﻿<lang
+	address="Address"
 	balance="Balance"
+	bank="Bank"
 	cards="Cards"
 	cash_out="Cash out"
 	click_reset="Click the 'Reset data' button and refresh browser."
@@ -23,6 +25,7 @@
 	multiplayer_mode="Multiplayer"
 	open_channel="Open channel"
 	open_channel_start="Please wait. SPL Sending BETs into the game."
+	plays="Plays"
 	refresh="Refresh"
 	remove_bet="Remove bet"
 	reset_data="Reset data"
@@ -40,6 +43,7 @@
 	timeout="Timeout."
 	tweet="Tweet"
 	wait_players="Waiting for NUM players."
+	wait_bets="Your BET will be available shortly."
 	your_bet="Your bet:"
 	your_turn="YOUR TURN"
 	
@@ -48,6 +52,11 @@
 	hint_double="To play 'Double'  on hard 9-11 points"
 	hint_remove="To 'Remove' please choose a bet"
 	hint_split="To play 'Split' wait for dealt a pair"
+	
+	tutor_bet="Please choose a bet"
+	tutor_deal="Now click 'Deal'"
+	tutor_nextgame="You can start a new game. Please choose a bet"
+	tutor_closechannel="You can withdraw tokens if you want to quit the game"
 	
 	error_key="The key is not valid."
 	error_bank="No money in the bank. Please contact to administrator."
