@@ -25,29 +25,29 @@ ScrMenu.prototype.init = function() {
 	tfVers.y = _H - tfVers.height/2 - 10;
 	this.addChild(tfVers);
 	
-	var btnSingle = addButton("btnDefault", _W/2, _H/2+100);
+	var btnSingle = addButton("btnSingle", _W/2 - 140, _H/2+170);
 	btnSingle.name = "btnSingle";
 	btnSingle.interactive = true;
 	btnSingle.buttonMode=true;
 	btnSingle.overSc = true;
 	this.addChild(btnSingle);
 	this._arButtons.push(btnSingle);
-	var tf = addText(getText("single_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
-	tf.x = 0;
-	tf.y = -tf.height/2;
-	btnSingle.addChild(tf);
+	var tf = addText(getText("single_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
+	tf.x = btnSingle.x;
+	tf.y = btnSingle.y + btnSingle.h/2+tf.height/2;
+	this.addChild(tf);
 	
-	var btnMultiplayer = addButton("btnDefault", _W/2, _H/2+220);
+	var btnMultiplayer = addButton("btnMultiplayer", _W/2 + 140, _H/2+170);
 	btnMultiplayer.name = "btnMultiplayer";
 	btnMultiplayer.interactive = true;
 	btnMultiplayer.buttonMode=true;
 	btnMultiplayer.overSc = true;
 	this.addChild(btnMultiplayer);
 	this._arButtons.push(btnMultiplayer);
-	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", undefined, "center", 350, 2)
-	tf.x = 0;
-	tf.y = -tf.height/2;
-	btnMultiplayer.addChild(tf);
+	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
+	tf.x = btnMultiplayer.x;
+	tf.y = btnMultiplayer.y + btnMultiplayer.h/2+tf.height/2;
+	this.addChild(tf);
 	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
 	tfWait.x = btnSingle.x;
@@ -65,12 +65,12 @@ ScrMenu.prototype.init = function() {
 	this.btnSingle = btnSingle;
 	this.btnMultiplayer = btnMultiplayer;
 	
-	btnSingle.visible = false;
-	btnMultiplayer.visible = false;
-	options_multiplayer = false;
-	gameCode = "BJ";
-	localStorage.game_code = gameCode;
-	this.showBankrolls();
+	// btnSingle.visible = false;
+	// btnMultiplayer.visible = false;
+	// options_multiplayer = false;
+	// gameCode = "BJ";
+	// localStorage.game_code = gameCode;
+	// this.showBankrolls();
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
