@@ -65,12 +65,12 @@ ScrMenu.prototype.init = function() {
 	this.btnSingle = btnSingle;
 	this.btnMultiplayer = btnMultiplayer;
 	
-	// btnSingle.visible = false;
-	// btnMultiplayer.visible = false;
-	// options_multiplayer = false;
-	// gameCode = "BJ";
-	// localStorage.game_code = gameCode;
-	// this.showBankrolls();
+	btnSingle.visible = false;
+	btnMultiplayer.visible = false;
+	options_multiplayer = false;
+	gameCode = "BJ";
+	localStorage.game_code = gameCode;
+	this.showBankrolls();
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
