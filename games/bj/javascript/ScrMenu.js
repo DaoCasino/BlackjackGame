@@ -32,10 +32,10 @@ ScrMenu.prototype.init = function() {
 	btnSingle.overSc = true;
 	this.addChild(btnSingle);
 	this._arButtons.push(btnSingle);
-	var tf = addText(getText("single_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
-	tf.x = btnSingle.x;
-	tf.y = btnSingle.y + btnSingle.h/2+tf.height/2;
-	this.addChild(tf);
+	var tfSingle = addText(getText("single_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
+	tfSingle.x = btnSingle.x;
+	tfSingle.y = btnSingle.y + btnSingle.h/2+tfSingle.height/2;
+	this.addChild(tfSingle);
 	
 	var btnMultiplayer = addButton("btnMultiplayer", _W/2 + 140, _H/2+170);
 	btnMultiplayer.name = "btnMultiplayer";
@@ -44,10 +44,10 @@ ScrMenu.prototype.init = function() {
 	btnMultiplayer.overSc = true;
 	this.addChild(btnMultiplayer);
 	this._arButtons.push(btnMultiplayer);
-	var tf = addText(getText("multiplayer_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
-	tf.x = btnMultiplayer.x;
-	tf.y = btnMultiplayer.y + btnMultiplayer.h/2+tf.height/2;
-	this.addChild(tf);
+	var tfMultiplayer = addText(getText("multiplayer_mode"), 24, "#FFFFFF", "#000000", "center", 350, 4)
+	tfMultiplayer.x = btnMultiplayer.x;
+	tfMultiplayer.y = btnMultiplayer.y + btnMultiplayer.h/2+tfMultiplayer.height/2;
+	this.addChild(tfMultiplayer);
 	
 	var tfWait = addText("Please wait. \n Loading game.", 26, "#FFCC00", "#000000", "center", 500, 3)
 	tfWait.x = btnSingle.x;
@@ -64,13 +64,20 @@ ScrMenu.prototype.init = function() {
 	
 	this.btnSingle = btnSingle;
 	this.btnMultiplayer = btnMultiplayer;
+	this.tfSingle = tfSingle;
+	this.tfMultiplayer = tfMultiplayer;
 	
-	// btnSingle.visible = false;
-	// btnMultiplayer.visible = false;
-	// options_multiplayer = false;
-	// gameCode = "BJ";
-	// localStorage.game_code = gameCode;
-	// this.showBankrolls();
+	btnSingle.visible = false;
+	btnMultiplayer.visible = false;
+	tfSingle.visible = false;
+	tfMultiplayer.visible = false;
+	options_multiplayer = true;
+	if(options_debug){
+		options_multiplayer = false;
+	}
+	gameCode = "BJ_m";
+	localStorage.game_code = gameCode;
+	this.showBankrolls();
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -102,6 +109,8 @@ ScrMenu.prototype.init = function() {
 ScrMenu.prototype.showBankrolls = function(){
 	this.btnSingle.visible = false;
 	this.btnMultiplayer.visible = false;
+	this.tfSingle.visible = false;
+	this.tfMultiplayer.visible = false;
 	
 	this._wndList = new WndBankrolls(this, _prnt.startGame);
 	this._wndList.x = _W/2;
@@ -115,7 +124,8 @@ ScrMenu.prototype.startGame = function(){
 		_prnt._wndList.visible = false;
 	}
 	_prnt.removeAllListener();
-	showSpeedGame();
+	// showSpeedGame();
+	showGame();
 }
 
 // UPDATE
