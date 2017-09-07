@@ -1786,21 +1786,15 @@ var ScrGame = function(){
 		
 		var countLast = _room.getMaxUsers() - _room.getUsersArr().length;
 		var str = getText("wait_players").replace(new RegExp("NUM"), countLast);
-		// _self.showWndWarning(str);
-		
-		// 1. определять, попал ли игрок в начатую игру (ждать завершения или нет)
 
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
-			console.log('onGameStateChange',data.action, data.name)
 			if (data.action=='room_users') {
 				var data_users = {}
 				room_game_wait = false;
 				for(var k in data.users){
-					data_users[data.users[k].address] = data.users[k]
-
-					console.log('user:', k, data.users[k].play)
+					data_users[data.users[k].address] = data.users[k];
 					
 					if (data.users[k].play && data.users[k].address!=openkey) {
 						room_game_wait = true;
@@ -1811,16 +1805,11 @@ var ScrGame = function(){
 									data.users[k].id, 
 									_self.responseServer);
 				}
-
-				console.log(data_users)
-				console.log(data_users[openkey])
-				console.log(data_users[openkey].play)
 				
 				if (data_users[openkey].betGame > 0) {
 					room_game_wait = false
 				}
-
-				console.log('room_game_wait', room_game_wait, prev_room_game_wait)
+				
 				if (prev_room_game_wait == room_game_wait) {
 					return
 				}
@@ -1832,7 +1821,6 @@ var ScrGame = function(){
 					_self.showWndWarning(str);
 					return;
 				} else {
-					console.log('roomFullCallback')
 					roomFullCallback(_room.getUsersArr())
 				}
 			}
@@ -1844,7 +1832,7 @@ var ScrGame = function(){
 					_self.showChips(false);
 					return;
 				}
-				console.log('onGameStateChange',data.user_id, data.args)
+				
 				if (curUser) {
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(data.user_id, data.name, data.args)
@@ -1915,7 +1903,6 @@ var ScrGame = function(){
 	}
 	
 	_self.showUsers = function() {
-		console.log("showUsers");
 		var users = _room.getUsers()
 		var user = users[openkey];
 		var pt;
@@ -1929,7 +1916,6 @@ var ScrGame = function(){
 			if (user.id!=users[k].id) {
 				if(_users.getTagUser(users[k].address)){
 				}else{
-					console.log("addUser MC");
 					pt = _users.addUser(users[k].address, users[k].id);
 					pt.y += 120;
 					_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
@@ -2001,7 +1987,6 @@ var ScrGame = function(){
 	}
 	
 	_self.closeChannel = function() {
-		console.log("closeChannel");
 		if(_bCloseChannel){
 			return false;
 		}
@@ -2034,10 +2019,8 @@ var ScrGame = function(){
 						// 'closeAllChannels', []
 					// );
 				// }
-				console.log("Casino.endGame:", convertToken(deposit));
 				Casino.endGame(deposit, function(obj){
 					_wndWarning.visible = false;
-					console.log("endGame:", obj);
 					if(obj == true){
 						sessionIsOver = true;
 						login_obj["openChannel"] = false;
@@ -2045,9 +2028,7 @@ var ScrGame = function(){
 						_self.resetObjGame();
 						_self.resetGame();
 						_self.isCashoutAvailable();
-						console.log("close_channel_end");
 						_self.createWndInfo(getText("close_channel_end"), function(){
-							console.log("close_channel_end: !!!!");
 							// if(options_multiplayer){
 								// window.location.reload();
 								// return;
@@ -2298,8 +2279,8 @@ var ScrGame = function(){
 					}
 					break;
 				case "bjMultStand":
+					_idTurnUser ++;
 					// if(_idTurnUser >= _room.getUsersArr().length){
-					console.log("bjMultStand;", _myIdMult, _idTurnUser, _countPlayers);
 					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					} else {
@@ -2379,7 +2360,6 @@ var ScrGame = function(){
 	}
 
 	_self.gameOver = function(){
-		console.log("gameOver:", _bGameOver);
 		if(!_bGameOver){
 			_bGameOver = true;
 			_self.showChips(true);
@@ -2567,7 +2547,6 @@ var ScrGame = function(){
 			if(_balancePlEth > 0){
 				_arHistory.push({name:"start_game"});
 				_countPlayers = _room.getUsersArr().length;
-				console.log("_countPlayers:", _countPlayers);
 				if(_countPlayers > 1){
 					this.clickBet();
 				} else {
