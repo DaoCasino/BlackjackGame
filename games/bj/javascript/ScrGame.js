@@ -54,6 +54,7 @@ var ScrGame = function(){
 	var _maxBet = 500000000;
 
 	var _countBankrollers = 0;
+	var _countPlayers = 1;
 	var _balance = 0;
 	var _balanceSession = 0;
 	var _balancePlEth = 0;
@@ -815,7 +816,7 @@ var ScrGame = function(){
 	}
 
 	_self.showWndBank = function() {
-		if(_balancePlEth < 0.1){
+		if(_balancePlEth < 0.01){
 			_self.showError(ERROR_BALANCE);
 			infura.sendRequest("getBalance", openkey, _callback);
 			return;
@@ -1579,7 +1580,10 @@ var ScrGame = function(){
 			return false;
 		}
 		_arUsersResult[_myIdMult] = true;
-		
+		if(_room.getUsersArr().length > 1){
+			_self.showUsers();
+		}
+
 		var _xM = _W/2;
 		var _xS = _W/2 + _arCoords["ofssSC"];
 		var _y = _H/2 - 50;
@@ -1609,11 +1613,12 @@ var ScrGame = function(){
 			_self.tfSplitBet.setText(strResultS);
 		}
 		
-		if(options_multiplayer && _room.getUsersArr().length > 1){
+		if(_countPlayers > 1){
 			_idTurnUser ++;
 			var delay = (_arNewCards.length+1)*TIME_NEW_CARD;
 			_self.updateShowBtn(delay);
-			if(_idTurnUser >= _room.getUsersArr().length){
+			// if(_idTurnUser >= _room.getUsersArr().length){
+			if(_idTurnUser >= _countPlayers){
 				_self.clickDealerStand();
 			}
 		} else {
@@ -1777,7 +1782,6 @@ var ScrGame = function(){
 
 	// CHANNEL
 	_self.initRoom = function(roomFullCallback){
-		console.log("initRoom");
 		_room = new RoomJS();
 		
 		var countLast = _room.getMaxUsers() - _room.getUsersArr().length;
@@ -1786,17 +1790,51 @@ var ScrGame = function(){
 		
 		// 1. определять, попал ли игрок в начатую игру (ждать завершения или нет)
 
+		var room_game_wait = false;
+		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
+			console.log('onGameStateChange',data.action, data.name)
 			if (data.action=='room_users') {
+				var data_users = {}
+				room_game_wait = false;
 				for(var k in data.users){
+					data_users[data.users[k].address] = data.users[k]
+
+					console.log('user:', k, data.users[k].play)
+					
+					if (data.users[k].play && data.users[k].address!=openkey) {
+						room_game_wait = true;
+					}
+
 					_room.addUser(data.users[k].address, 
 									data.users[k].deposit, 
 									data.users[k].id, 
 									_self.responseServer);
 				}
-				
 
-				roomFullCallback(_room.getUsersArr())				
+				console.log(data_users)
+				console.log(data_users[openkey])
+				console.log(data_users[openkey].play)
+				
+				if (data_users[openkey].betGame > 0) {
+					room_game_wait = false
+				}
+
+				console.log('room_game_wait', room_game_wait, prev_room_game_wait)
+				if (prev_room_game_wait == room_game_wait) {
+					return
+				}
+				
+				prev_room_game_wait = room_game_wait;
+				
+				if (room_game_wait) {
+					str = getText("Wait, the new game will open soon.");
+					_self.showWndWarning(str);
+					return;
+				} else {
+					console.log('roomFullCallback')
+					roomFullCallback(_room.getUsersArr())
+				}
 			}
 			
 			var curUser = _room.getTagUser(data.user_id);
@@ -1806,6 +1844,7 @@ var ScrGame = function(){
 					_self.showChips(false);
 					return;
 				}
+				console.log('onGameStateChange',data.user_id, data.args)
 				if (curUser) {
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(data.user_id, data.name, data.args)
@@ -1835,7 +1874,9 @@ var ScrGame = function(){
 	_self.refreshLogic = function(id){
 		if(_room && options_multiplayer && id >= 0){
 			var ar = _room.getUsersArr();
-			_logic = ar[id].logic;
+			if(ar.length>0){
+				_logic = ar[id].logic;
+			}
 		}
 	}
 
@@ -1874,6 +1915,7 @@ var ScrGame = function(){
 	}
 	
 	_self.showUsers = function() {
+		console.log("showUsers");
 		var users = _room.getUsers()
 		var user = users[openkey];
 		var pt;
@@ -1882,12 +1924,16 @@ var ScrGame = function(){
 		_idTurnUser = 0
 
 		_self.refreshLogic(_myIdMult);
-
+		
 		for(var k in users){
 			if (user.id!=users[k].id) {
-				pt = _users.addUser(users[k].address, users[k].id);
-				pt.y += 120;
-				_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
+				if(_users.getTagUser(users[k].address)){
+				}else{
+					console.log("addUser MC");
+					pt = _users.addUser(users[k].address, users[k].id);
+					pt.y += 120;
+					_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
+				}
 			} else {
 				_arUsersCoord[users[k].id] = {x:_W/2, y:_self.seat.y+90};
 			}
@@ -2201,7 +2247,7 @@ var ScrGame = function(){
 			}
 			
 			if(_objSpeedGame.result && _objSpeedGame.betGame > 0){
-				if(!options_multiplayer || _room.getUsersArr().length == 1){
+				if(_countPlayers == 1){
 					_arHistory.push({name:"end_game", balance:_balanceSession});
 				}
 				var delay = (_arNewCards.length+1)*TIME_NEW_CARD;
@@ -2229,13 +2275,15 @@ var ScrGame = function(){
 			if(!options_multiplayer){
 				return;
 			}
-			var curUser   = _room.getTagUser(address);
+			var curUser = _room.getTagUser(address);
 			var userMc = _users.getUser(curUser.id);
 			
 			switch(objGame.method){
 				case "bjBet":
-					userMc.clearGame();
-					userMc.fillChips(curUser.logic.getGame().betGame);
+					if(userMc){
+						userMc.clearGame();
+						userMc.fillChips(curUser.logic.getGame().betGame);
+					}
 					break;
 				case "bjDealer":
 					_self.updateDealer(objGame, false);
@@ -2250,7 +2298,9 @@ var ScrGame = function(){
 					}
 					break;
 				case "bjMultStand":
-					if(_idTurnUser >= _room.getUsersArr().length){
+					// if(_idTurnUser >= _room.getUsersArr().length){
+					console.log("bjMultStand;", _myIdMult, _idTurnUser, _countPlayers);
+					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					} else {
 						if(_idTurnUser == _myIdMult){
@@ -2281,12 +2331,15 @@ var ScrGame = function(){
 					break;
 			}
 			
-			userMc.responseServer(objGame.curGame);
+			if (userMc) {
+				userMc.responseServer(objGame.curGame);
+			}
 			
 			if(objGame.result && objGame.betGame > 0){
 				var delay = (_arNewCards.length+1)*TIME_NEW_CARD;
 				_idTurnUser ++;
-				if(_idTurnUser >= _room.getUsersArr().length){
+				// if(_idTurnUser >= _room.getUsersArr().length){
+				if(_idTurnUser >= _countPlayers){
 					_self.clickDealerStand();
 				}
 				
@@ -2302,14 +2355,20 @@ var ScrGame = function(){
 		// All users set bet
 		if(!_startGame && objGame.method == "bjBet"){
 			var betCnt = 0
+			var countUsers = 0;
 			_room.getUsersArr().forEach( function(user) {
 				if (user.logic.getGame().betGame) {
 					betCnt++;
 				}
-				if (betCnt >= _room.getMaxUsers()) {
-					_self.clickGeneralDeal()
+				if (user.logic.getGame().play != true) {
+					countUsers++;
 				}
 			}) 
+				
+			// if (betCnt >= _room.getMaxUsers()) {
+			if (betCnt >= countUsers) {
+				_self.clickGeneralDeal()
+			}
 		}
 	}
 
@@ -2507,7 +2566,9 @@ var ScrGame = function(){
 		_countBankrollers > 0){
 			if(_balancePlEth > 0){
 				_arHistory.push({name:"start_game"});
-				if(options_multiplayer && _room.getUsersArr().length > 1){
+				_countPlayers = _room.getUsersArr().length;
+				console.log("_countPlayers:", _countPlayers);
+				if(_countPlayers > 1){
 					this.clickBet();
 				} else {
 					this.btnDeal.alpha = 0.5;
@@ -2581,7 +2642,7 @@ var ScrGame = function(){
 			return false;
 		}
 		
-		if(options_multiplayer && _room.getUsersArr().length > 1){
+		if(_countPlayers > 1){
 			_self.clickMultStand();
 			return false;
 		}
@@ -2645,7 +2706,8 @@ var ScrGame = function(){
 				if(isMain){
 					_self.showButtons(false);
 					_idTurnUser ++;
-					if(_idTurnUser >= _room.getUsersArr().length){
+					// if(_idTurnUser >= _room.getUsersArr().length){
+					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					}
 				} else {
@@ -2676,7 +2738,7 @@ var ScrGame = function(){
 		if(_bWindow){
 			return false;
 		}
-		if(options_multiplayer && _room.getUsersArr().length > 1){
+		if(_countPlayers > 1){
 			_self.clickMultDouble();
 			return false;
 		}
@@ -2855,7 +2917,7 @@ var ScrGame = function(){
 			_self.showWndBank();
 			_betGame = oldBet;
 			return false;
-		} else if(_balancePlEth < 0.1){
+		} else if(_balancePlEth < 0.01){
 			_self.showError(ERROR_BALANCE);
 			_betGame = oldBet;
 		} else if(_betGame > _balanceSession){

@@ -13,6 +13,7 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	
 	this._prnt = prnt;
 	this._cardSuit;
+	this._address = address;
 	this._arChips = [];
 	this._arSplitChips = [];
 	this._arWinChips = [];

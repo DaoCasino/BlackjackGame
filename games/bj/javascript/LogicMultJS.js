@@ -63,6 +63,7 @@ var LogicMultJS = function(params){
 	
 	var _objSpeedGame = {method:"",
 						result:false, 
+						play:false, 
 						idGame:-1, 
 						curGame:{}, 
 						betGame:0, 
@@ -78,7 +79,8 @@ var LogicMultJS = function(params){
 		_objSpeedGame.method = "bjDeal";
 		_idGame ++;
 		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
-		_objSpeedGame.result = false;
+		_objSpeedGame.result  = false;
+		_objSpeedGame.play    = true;
 		_objSpeedGame.curGame = {};
 		_objSpeedGame.betGame = _bet;
 		_objSpeedGame.betSplitGame = 0;
@@ -193,6 +195,7 @@ var LogicMultJS = function(params){
 		_bDealerStart = true;
 		_bDealerEnd = false;
 
+		_objSpeedGame.play = true;
 		_objSpeedGame.method = "bjDealer";
 		dealCard(false, true, _s);
 		refreshGame(_s);
@@ -202,7 +205,7 @@ var LogicMultJS = function(params){
 		if (_bDealerEnd) return;
 		_bDealerStart = false;
 		_bDealerEnd = true;
-		
+
 		_objSpeedGame.method = "bjDealerStand";
 		_bStand = true;
 		
@@ -497,6 +500,8 @@ var LogicMultJS = function(params){
 		}
 		
 		if(_objSpeedGame.result){
+			_objSpeedGame.play = false
+
 			_money += betWin;
 			_objSpeedGame.money = _money;
 			_objResult.profit += betWin;
