@@ -10,6 +10,9 @@ var RoomJS = function(){
 	var _maxUsers = 3;
 	
 	_self.addUser = function(address, deposit, id, callback){
+		if (_Users[address]) {
+			return _Users[address];
+		}
 		var params = {prnt:_self, balance:deposit, address:address, callback:callback, bMultiplayer:true};
 		
 		var logic = new LogicMultJS(params);
@@ -33,7 +36,7 @@ var RoomJS = function(){
 
 		return user;
 	}
-	
+
 	_self.callFunction = function(address, name, params){
 		if(_Users[address].logic[name]){
 			_Users[address].logic[name].apply(null, params);
