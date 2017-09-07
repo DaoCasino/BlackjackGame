@@ -1806,8 +1806,10 @@ var ScrGame = function(){
 									_self.responseServer);
 				}
 				
-				if (data_users[openkey].betGame > 0) {
-					room_game_wait = false
+				if (data_users[openkey]) {
+					if (data_users[openkey].betGame > 0) {
+						room_game_wait = false
+					}
 				}
 				
 				if (prev_room_game_wait == room_game_wait) {
