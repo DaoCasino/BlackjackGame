@@ -1650,16 +1650,18 @@ var ScrGame = function(){
 		var objResult = curUser.logic.getResult();
 		var userMc    = _users.getUser(curUser.id);
 		
-		var _xM = userMc.x;
-		var _xS = _xM + userMc._ofssSC;
-		var _y  = userMc.y - 100;
-		
-		if(userMc._mySplitPoints > 0){
-			_xM = _xM - userMc._ofssSC;
-		}
-		_self.showTextResult(objResult.main, _xM, _y);
-		if(userMc._mySplitPoints > 0){
-			_self.showTextResult(objResult.split, _xS, _y);
+		if(userMc){
+			var _xM = userMc.x;
+			var _xS = _xM + userMc._ofssSC;
+			var _y  = userMc.y - 100;
+			
+			if(userMc._mySplitPoints > 0){
+				_xM = _xM - userMc._ofssSC;
+			}
+			_self.showTextResult(objResult.main, _xM, _y);
+			if(userMc._mySplitPoints > 0){
+				_self.showTextResult(objResult.split, _xS, _y);
+			}
 		}
 	}
 	
@@ -1811,7 +1813,7 @@ var ScrGame = function(){
 						room_game_wait = false
 					}
 				}
-				
+				_self.showUsers();
 				if (prev_room_game_wait == room_game_wait) {
 					return
 				}
