@@ -64,6 +64,7 @@ ScrMenu.prototype.init = function() {
 	
 	this.btnSingle = btnSingle;
 	this.btnMultiplayer = btnMultiplayer;
+
 	this.tfSingle = tfSingle;
 	this.tfMultiplayer = tfMultiplayer;
 	
@@ -76,6 +77,7 @@ ScrMenu.prototype.init = function() {
 		options_multiplayer = false;
 	}
 	gameCode = "BJ_m";
+
 	localStorage.game_code = gameCode;
 	this.showBankrolls();
 	
