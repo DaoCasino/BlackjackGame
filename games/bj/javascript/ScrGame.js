@@ -1920,8 +1920,27 @@ var ScrGame = function(){
 			console.log("hideUser:",  user_id);
 			_room.removeUser(user_id);
 		}
-		if(_users.getTagUser(user_id)){
-			_users.removeUser(user_id);
+		// if(_users.getTagUser(user_id)){
+			// _users.removeUser(user_id);
+		// }
+		_users.removeUsers();
+		_self.refreshUsers();
+	}
+	
+	_self.refreshUsers = function() {
+		var users = _room.getUsers();
+		
+		for(var k in users){
+			if (openkey != users[k].address) {
+				if(_users.getTagUser(users[k].address)){
+				}else{
+					pt = _users.addUser(users[k].address, users[k].id);
+					pt.y += 120;
+					_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
+				}
+			} else {
+				_arUsersCoord[users[k].id] = {x:_W/2, y:_self.seat.y+90};
+			}
 		}
 	}
 	
@@ -1938,19 +1957,7 @@ var ScrGame = function(){
 		_myIdMult = user.id;
 
 		_self.refreshLogic(_myIdMult);
-		
-		for(var k in users){
-			if (user.id!=users[k].id) {
-				if(_users.getTagUser(users[k].address)){
-				}else{
-					pt = _users.addUser(users[k].address, users[k].id);
-					pt.y += 120;
-					_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
-				}
-			} else {
-				_arUsersCoord[users[k].id] = {x:_W/2, y:_self.seat.y+90};
-			}
-		}
+		_self.refreshUsers();
 		
 		_self.showChips(true);
 	}
@@ -2058,7 +2065,6 @@ var ScrGame = function(){
 						_self.isCashoutAvailable();
 						_self.createWndInfo(getText("close_channel_end"), function(){
 							if(options_multiplayer){
-								console.log("!!!!!!!!!!!");
 								window.location.reload();
 								// _self.removeAllListener();
 								// showGame();

@@ -61,6 +61,13 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	this.tfMySplitPoints.y = -this._ofsP + 1*b-this.tfMySplitPoints.height/2;
 	this.addChild(this.tfMySplitPoints);
 	var adr = address.substr(0,8);
+	if(address == "0xb929a0aa958686e5d1166c999c16ed2b3343a050"){
+		adr = "J0x"
+	} else if(address == "0x777fb951984ae56f41090e697d39620fd9f27e97"){
+		adr = "kellas"
+	} else if(address == "0x7910076b46bd632309960318f742bcea10f3cb76"){
+		adr = "noxon"
+	}
 	this.tfIdUser = addText(adr, fontSize, "#ffffff", "#000000", "center", 100, 4)
 	this.tfIdUser.x = 0;
 	this.tfIdUser.y = 40;

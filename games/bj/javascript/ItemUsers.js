@@ -10,9 +10,6 @@ ItemUsers.prototype.init = function(_prnt) {
 	this._prnt        = _prnt;
 	this._arUsers     = {};
 	this._arTagUsers     = {};
-	this._arHolder    = [];
-	this._arNewCards  = [];
-	this._arHideCards = [];
 }
 
 ItemUsers.prototype.addUser = function(address, id) {
@@ -59,12 +56,23 @@ ItemUsers.prototype.removeUser = function(address) {
 	user = undefined;
 	delete(this._arUsers[address]);
 	delete(this._arTagUsers[address]);
+	this.refreshIDs
 }
 
 ItemUsers.prototype.clearUsers = function() {
 	for(var key in this._arUsers){
 		this._arUsers[key].clearGame();
 	}
+}
+
+ItemUsers.prototype.removeUsers = function() {
+	for(var key in this._arUsers){
+		var user = this._arUsers[key];
+		user.clearGame();
+		this.removeChild(user);
+	}
+	this._arUsers = {};
+	this._arTagUsers = {};
 }
 
 // SERVER
