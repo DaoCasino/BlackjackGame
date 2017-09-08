@@ -1,8 +1,8 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.13";
+var version = "v. 1.1.12";
 var metaCode = "blackjack_v1";
-var gameCode = "BJ_m";
+var gameCode = "BJ";
 var login_obj = {};
 var arClips = [];
 var language;
@@ -67,7 +67,7 @@ var options_speedgame   = false;
 var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
-var options_save = false;
+var options_save = true;
 var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
@@ -295,7 +295,6 @@ function handleComplete(evt) {
 	if(options_debug){
 		version = version + " arcade"
 		options_save = false;
-		options_multiplayer = false;
 	} else if(options_rpc){
 		version = version + " testrpc"
 	} else if(options_testnet){
@@ -993,7 +992,7 @@ function visGame() {
 	
 	if(currentScreen){
 		if(ScreenGame){
-			// ScreenGame.resetTimer();
+			ScreenGame.resetTimer();
 		}
 	}
 }
