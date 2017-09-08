@@ -1792,6 +1792,11 @@ var ScrGame = function(){
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
+            var user_id = data.user_id
+            if (data.action=='close_game_channel') {
+                _self.hideUser(user_id);
+				return;
+            }
 			if (data.action=='room_users') {
 				var data_users = {}
 				room_game_wait = false;
@@ -1829,7 +1834,7 @@ var ScrGame = function(){
 				}
 			}
 			
-			var curUser = _room.getTagUser(data.user_id);
+			var curUser = _room.getTagUser(user_id);
 			if (data.action=='call_game_function') {
 				if (data.name=='closeAllChannels' && !_bCloseChannel) {
 					_self.closeChannel();
@@ -1839,9 +1844,9 @@ var ScrGame = function(){
 				
 				if (curUser) {
 					_self.refreshLogic(curUser.id);
-					_room.callFunction(data.user_id, data.name, data.args)
+					_room.callFunction(user_id, data.name, data.args)
 				} else {
-					str = getText("error_user_offline").replace(new RegExp("VALUE"), data.user_id);
+					str = getText("error_user_offline").replace(new RegExp("VALUE"), user_id);
 					_self.showError(str);
 				}
 			}
@@ -1866,7 +1871,7 @@ var ScrGame = function(){
 	_self.refreshLogic = function(id){
 		if(_room && options_multiplayer && id >= 0){
 			var ar = _room.getUsersArr();
-			if(ar.length>0){
+			if(ar.length > 0 && ar[id]){
 				_logic = ar[id].logic;
 			}
 		}
@@ -1906,13 +1911,25 @@ var ScrGame = function(){
 		}
 	}
 	
+	_self.hideUser = function(user_id) {
+		_room.removeUser(user_id);
+		if(_users.getTagUser(user_id)){
+			_users.removeUser(user_id);
+		}
+	}
+	
 	_self.showUsers = function() {
 		var users = _room.getUsers()
 		var user = users[openkey];
 		var pt;
 		
+		if (!user) { 
+			console.log('User '+openkey+' - undefined')
+			return 
+		}
+
 		_myIdMult   = user.id
-		_idTurnUser = 0
+		// _idTurnUser = 0;
 
 		_self.refreshLogic(_myIdMult);
 		
@@ -1963,6 +1980,7 @@ var ScrGame = function(){
 			if(obj == true){
 				if (options_multiplayer) {
 					_self.initRoom(function(arUsers){
+						_idTurnUser = 0;
 						_self.setUserData();
 						_self.showUsers();
 						_self.showTutorial();
@@ -2529,7 +2547,7 @@ var ScrGame = function(){
 		_self.icoCurUser.visible = false;
 		
 		var curUser = _room.getTagUser(openkey);
-		if (curUser.id==0) {
+		if (curUser && curUser.id==0) {
 			var seed = makeID();
 			Casino.callGameFunction(_idGame, msgID(), 'bjDealerStand', [seed]);
 			curUser.logic.bjDealerStand(seed);
@@ -2551,6 +2569,7 @@ var ScrGame = function(){
 			if(_balancePlEth > 0){
 				_arHistory.push({name:"start_game"});
 				_countPlayers = _room.getUsersArr().length;
+				console.log("clickDeal:", _countPlayers);
 				if(_countPlayers > 1){
 					this.clickBet();
 				} else {
