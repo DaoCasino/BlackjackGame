@@ -44,8 +44,27 @@ var RoomJS = function(){
 		}
 	}
 	
+	_self.disableUser = function(address){
+		_Users[address].id = -1
+		_Users[address].disabled = true
+		_self.refreshIDs()
+	}
+
 	_self.removeUser = function(address){
 		delete(_Users[address]);
+		_self.refreshIDs()
+	}
+
+	_self.refreshIDs = function(){
+		var num = 0
+		for(var addr in _Users){
+			if (_Users[addr].disabled) {
+				continue;
+			}
+
+			_Users[addr].id = num
+			num++
+		}
 	}
 	
 	_self.getUsers = function(){

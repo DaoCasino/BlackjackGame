@@ -2059,9 +2059,9 @@ var ScrGame = function(){
 						_self.createWndInfo(getText("close_channel_end"), function(){
 							if(options_multiplayer){
 								console.log("!!!!!!!!!!!");
-								// window.location.reload();
-								_self.removeAllListener();
-								showGame();
+								window.location.reload();
+								// _self.removeAllListener();
+								// showGame();
 								return;
 							}
 						}, "OK");
