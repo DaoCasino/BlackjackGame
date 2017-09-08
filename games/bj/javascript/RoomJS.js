@@ -10,6 +10,7 @@ var RoomJS = function(){
 	var _maxUsers = 3;
 	
 	_self.addUser = function(address, deposit, id, callback){
+		console.log("RoomJS addUser:", _Users[address], address);
 		if (_Users[address]) {
 			return _Users[address];
 		}
