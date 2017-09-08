@@ -110,7 +110,7 @@ WndHistory.prototype.init = function(_prnt) {
 	this.on('touchstart', this.touchHandler);
 	this.on('touchmove', this.touchHandler);
 	this.on('touchend', this.touchHandler);
-	// window.addEventListener('wheel', this.mouseWheel);
+	window.addEventListener('wheel', this.mouseWheel);
 }
 
 WndHistory.prototype.show = function(ar) {
@@ -293,5 +293,5 @@ WndHistory.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
-	// window.removeEventListener('wheel', this.mouseWheel);
+	window.removeEventListener('wheel', this.mouseWheel);
 }
