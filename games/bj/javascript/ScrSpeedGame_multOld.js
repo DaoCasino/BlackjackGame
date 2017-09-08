@@ -1772,7 +1772,7 @@ ScrSpeedGame.prototype.initRoom = function(roomFullCallback){
 	var countLast = _room.getMaxUsers() - _room.getUsersArr().length;
 	var str = getText("wait_players").replace(new RegExp("NUM"), countLast);
 	_prnt.showWndWarning(str);
-	
+
 	Casino.onGameStateChange(function(data){
 		if (data.action=='room_users') {
 			for(var k in data.users){
