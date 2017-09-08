@@ -2051,10 +2051,12 @@ var ScrGame = function(){
 						_self.resetGame();
 						_self.isCashoutAvailable();
 						_self.createWndInfo(getText("close_channel_end"), function(){
-							// if(options_multiplayer){
+							if(options_multiplayer){
 								// window.location.reload();
-								// return;
-							// }
+								_self.removeAllListener();
+								showGame();
+								return;
+							}
 						}, "OK");
 						
 						_self.showChips(true);
