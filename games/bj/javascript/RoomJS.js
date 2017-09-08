@@ -43,6 +43,10 @@ var RoomJS = function(){
 		}
 	}
 	
+	_self.removeUser = function(address){
+		delete(_Users[address]);
+	}
+	
 	_self.getUsers = function(){
 		return _Users;
 	}

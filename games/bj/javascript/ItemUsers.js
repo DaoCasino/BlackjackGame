@@ -52,6 +52,15 @@ ItemUsers.prototype.getTagUser = function(address) {
 	return this._arTagUsers[address];
 }
 
+ItemUsers.prototype.removeUser = function(address) {
+	var user = this._arTagUsers[address];
+	user.clearGame();
+	this.removeChild(user);
+	user = undefined;
+	delete(this._arUsers[address]);
+	delete(this._arTagUsers[address]);
+}
+
 ItemUsers.prototype.clearUsers = function() {
 	for(var key in this._arUsers){
 		this._arUsers[key].clearGame();
