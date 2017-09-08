@@ -13,6 +13,7 @@ var RoomJS = function(){
 		if (_Users[address]) {
 			return _Users[address];
 		}
+		console.log("addUser: id=", id);
 		var params = {prnt:_self, balance:deposit, address:address, callback:callback, bMultiplayer:true};
 		
 		var logic = new LogicMultJS(params);

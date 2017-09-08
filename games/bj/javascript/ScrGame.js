@@ -905,6 +905,9 @@ var ScrGame = function(){
 	}
 	
 	_self.showChips = function(value) {
+		if(options_multiplayer && _bCloseChannel){
+			return;
+		}
 		var a = 0.5;
 		var alpha = a;
 		
@@ -1434,6 +1437,7 @@ var ScrGame = function(){
 				
 				if(_betGame > 0 && (type == "player" || type == "split")){
 					if(options_multiplayer){
+						console.log("sendCard:", _myIdMult, _idTurnUser)
 						if(_myIdMult == _idTurnUser && _myPoints < BLACKJACK /*&& !_bSplit*/){
 							_timeShowButtons = TIME_SHOW_BTN + _arNewCards.length*TIME_NEW_CARD;
 						}
@@ -1912,7 +1916,10 @@ var ScrGame = function(){
 	}
 	
 	_self.hideUser = function(user_id) {
-		_room.removeUser(user_id);
+		if(_room.getTagUser(user_id)){
+			console.log("hideUser:",  user_id);
+			_room.removeUser(user_id);
+		}
 		if(_users.getTagUser(user_id)){
 			_users.removeUser(user_id);
 		}
@@ -1928,8 +1935,7 @@ var ScrGame = function(){
 			return 
 		}
 
-		_myIdMult   = user.id
-		// _idTurnUser = 0;
+		_myIdMult = user.id;
 
 		_self.refreshLogic(_myIdMult);
 		
@@ -2052,6 +2058,7 @@ var ScrGame = function(){
 						_self.isCashoutAvailable();
 						_self.createWndInfo(getText("close_channel_end"), function(){
 							if(options_multiplayer){
+								console.log("!!!!!!!!!!!");
 								// window.location.reload();
 								_self.removeAllListener();
 								showGame();
@@ -2059,7 +2066,7 @@ var ScrGame = function(){
 							}
 						}, "OK");
 						
-						_self.showChips(true);
+						// _self.showChips(true);
 						_arHistory.push({name:"end_channel", profit:deposit});
 						infura.sendRequest("getBalance", openkey, _callback);
 						Casino.Account.getBetsBalance(_self.getBalancePlayer);
@@ -2281,11 +2288,14 @@ var ScrGame = function(){
 				return;
 			}
 			var curUser = _room.getTagUser(address);
-			var userMc = _users.getUser(curUser.id);
+			var userMc;
+			if(curUser){
+				userMc = _users.getUser(curUser.id);
+			}
 			
 			switch(objGame.method){
 				case "bjBet":
-					if(userMc){
+					if(userMc && curUser){
 						userMc.clearGame();
 						userMc.fillChips(curUser.logic.getGame().betGame);
 					}
@@ -2349,11 +2359,13 @@ var ScrGame = function(){
 				}
 				
 				_self.updateShowBtn(delay);
-				createjs.Tween.get({}).wait(delay).call(function(){
-										_self.checkUserResult(curUser);
-										objGame.betGame = 0;
-										objGame.betSplitGame = 0;
-									});
+				if(curUser){
+					createjs.Tween.get({}).wait(delay).call(function(){
+											_self.checkUserResult(curUser);
+											objGame.betGame = 0;
+											objGame.betSplitGame = 0;
+										});
+				}
 			}
 		}
 		
