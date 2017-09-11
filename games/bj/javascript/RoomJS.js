@@ -10,7 +10,6 @@ var RoomJS = function(){
 	var _maxUsers = 3;
 	
 	_self.addUser = function(address, deposit, id, callback){
-		console.log("RoomJS addUser:", _Users[address], address);
 		if (_Users[address]) {
 			return _Users[address];
 		}
@@ -35,8 +34,9 @@ var RoomJS = function(){
 		}
 
 		_Users[address].callback = callback
-
-		return user;
+		_self.mixDeck()
+		
+		return user
 	}
 
 	_self.callFunction = function(address, name, params){
@@ -67,6 +67,17 @@ var RoomJS = function(){
 			num++
 		}
 	}
+	_self.mixDeck = function(){
+		var num = 0
+		for(var addr in _Users){
+			if (_Users[addr].disabled) {
+				continue;
+			}
+
+			_Users[addr].logic.mixDeck();
+			num++
+		}
+	}
 	
 	_self.getUsers = function(){
 		return _Users;
@@ -74,7 +85,6 @@ var RoomJS = function(){
 	_self.getUsersArr = function(){
 		return Object.values( _Users );
 	}
-	
 	_self.getTagUser = function(address){
 		return _Users[address];
 	}

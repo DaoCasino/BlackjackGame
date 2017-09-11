@@ -85,7 +85,7 @@ var ScrGame = function(){
 	var _currentMethod = -1;
 	var _idGame = localStorage._idGame || 0;
 	var _idTurnUser = 0;
-	var _myIdMult = 0;
+	var _myIDmult = 0;
 	var _idTutor = 0;
 	
 	var unit = [];
@@ -111,7 +111,6 @@ var ScrGame = function(){
 		
 		_callback = _self.response;
 		_self.resetObjGame();
-		
 		_self.createLayers();
 		_self.createArrays();
 		_self.createBooleans();
@@ -819,6 +818,7 @@ var ScrGame = function(){
 		if(_balancePlEth < 0.01){
 			_self.showError(ERROR_BALANCE);
 			infura.sendRequest("getBalance", openkey, _callback);
+			_self.showChips(true);
 			return;
 		}
 		if(_wndBank == undefined){
@@ -1437,8 +1437,7 @@ var ScrGame = function(){
 				
 				if(_betGame > 0 && (type == "player" || type == "split")){
 					if(options_multiplayer){
-						console.log("sendCard:", _myIdMult, _idTurnUser)
-						if(_myIdMult == _idTurnUser && _myPoints < BLACKJACK /*&& !_bSplit*/){
+						if(_myIDmult == _idTurnUser && _myPoints < BLACKJACK /*&& !_bSplit*/){
 							_timeShowButtons = TIME_SHOW_BTN + _arNewCards.length*TIME_NEW_CARD;
 						}
 					} else {
@@ -1535,7 +1534,7 @@ var ScrGame = function(){
 	}
 	
 	_self.updateShowBtn = function(timeShowButtons) {
-		if(_idTurnUser == _myIdMult && _myPoints < BLACKJACK && !_bSplit){
+		if(_idTurnUser == _myIDmult && _myPoints < BLACKJACK && !_bSplit){
 			_timeShowButtons = timeShowButtons;
 			var it = new LevelInfo()
 			face_mc.addChild(it);
@@ -1580,12 +1579,14 @@ var ScrGame = function(){
 	
 	// RESULT
 	_self.checkResult = function(objResult){
-		if(_arUsersResult[_myIdMult] && options_multiplayer){
+		if(_arUsersResult[_myIDmult] && options_multiplayer){
 			return false;
 		}
-		_arUsersResult[_myIdMult] = true;
-		if(_room.getUsersArr().length > 1){
-			_self.showUsers();
+		_arUsersResult[_myIDmult] = true;
+		if(_room){
+			if(_room.getUsersArr().length > 1){
+				_self.showUsers();
+			}
 		}
 
 		var _xM = _W/2;
@@ -1728,6 +1729,7 @@ var ScrGame = function(){
 	}
 	
 	_self.getCard = function(cardIndex){
+		// 0 - 51
 		var cardType = Math.floor(cardIndex / 4);
 		var cardSymbol = String(cardType);
 		var point = cardType;
@@ -1786,17 +1788,22 @@ var ScrGame = function(){
 		return cardSymbol;
 	}
 
+	_self.getObjGame = function(){
+		return _objSpeedGame;
+	}
+
 	// CHANNEL
 	_self.initRoom = function(roomFullCallback){
 		_room = new RoomJS();
-		
+		_self.room = _room;
 		var countLast = _room.getMaxUsers() - _room.getUsersArr().length;
 		var str = getText("wait_players").replace(new RegExp("NUM"), countLast);
 
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
-            var user_id = data.user_id
+            var user_id = data.user_id;
+
             if (data.action=='close_game_channel') {
                 _self.hideUser(user_id);
 				return;
@@ -1847,6 +1854,9 @@ var ScrGame = function(){
 				}
 				
 				if (curUser) {
+					if(data.name == "bjDealer"){
+						console.log('onGameStateChange', curUser.id, data.args);
+					}
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(user_id, data.name, data.args)
 				} else {
@@ -1917,7 +1927,6 @@ var ScrGame = function(){
 	
 	_self.hideUser = function(user_id) {
 		if(_room.getTagUser(user_id)){
-			console.log("hideUser:",  user_id);
 			_room.removeUser(user_id);
 		}
 		// if(_users.getTagUser(user_id)){
@@ -1925,6 +1934,7 @@ var ScrGame = function(){
 		// }
 		_users.removeUsers();
 		_self.refreshUsers();
+		_countPlayers = _room.getUsersArr().length;
 	}
 	
 	_self.refreshUsers = function() {
@@ -1934,7 +1944,7 @@ var ScrGame = function(){
 			if (openkey != users[k].address) {
 				if(_users.getTagUser(users[k].address)){
 				}else{
-					pt = _users.addUser(users[k].address, users[k].id);
+					var pt = _users.addUser(users[k].address, users[k].id);
 					pt.y += 120;
 					_arUsersCoord[users[k].id] = {x:pt.x, y:pt.y};
 				}
@@ -1947,16 +1957,16 @@ var ScrGame = function(){
 	_self.showUsers = function() {
 		var users = _room.getUsers()
 		var user = users[openkey];
-		var pt;
 		
 		if (!user) { 
 			console.log('User '+openkey+' - undefined')
 			return 
 		}
 
-		_myIdMult = user.id;
+		console.log('set _myIDmult', user.id)
+		_myIDmult = user.id;
 
-		_self.refreshLogic(_myIdMult);
+		_self.refreshLogic(_myIDmult);
 		_self.refreshUsers();
 		
 		_self.showChips(true);
@@ -2004,6 +2014,7 @@ var ScrGame = function(){
 					_self.showTutorial();
 				}
 			} else {
+				console.log("startGame:", obj);
 				_self.showChips(true);
 				_balanceSession = 0;
 				Casino.Account.getBetsBalance(_self.getBalancePlayer);
@@ -2039,7 +2050,7 @@ var ScrGame = function(){
 			login_obj["arHistory"] = _arHistory;
 			saveData();
 		} else if(login_obj["openChannel"] && _objSpeedGame.result && _logic){
-			_self.refreshLogic(_myIdMult);
+			_self.refreshLogic(_myIDmult);
 			if(_logic.getResult()){
 				var deposit = _balanceSession - login_obj["deposit"];
 				_self.showButtons(false);
@@ -2226,7 +2237,7 @@ var ScrGame = function(){
 			var arSplit = [];
 			var arHouse = [];
 			_self.tfStatus.setText("");
-			_self.refreshLogic(_myIdMult);
+			_self.refreshLogic(_myIDmult);
 			_objSpeedGame = objGame;
 			_objSpeedGame.curGame = objGame.curGame;
 			_balanceSession = _logic.getBalance();
@@ -2285,6 +2296,9 @@ var ScrGame = function(){
 
 			saveData();
 			
+			if(objGame.method == "bjDealer"){
+				console.log("bjDealer Main:", objGame.curGame.arHouseCards);
+			}
 			if(objGame.method == "bjDealerStand"){
 				_self.updateDealer(objGame, true);
 				_self.gameOver();
@@ -2324,7 +2338,7 @@ var ScrGame = function(){
 					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					} else {
-						if(_idTurnUser == _myIdMult){
+						if(_idTurnUser == _myIDmult){
 							if(_myPoints < BLACKJACK){
 								_self.updateShowBtn(1);
 							} else {
@@ -2527,7 +2541,7 @@ var ScrGame = function(){
 		_self.btnDeal.alpha = 0.5;
 		_self.btnClear.alpha = 0.5;
 		_self.btnExit.alpha = 0.5;
-		_self.refreshLogic(_myIdMult);
+		_self.refreshLogic(_myIDmult);
 		
 		if(options_debug){
 			_logic.bjBet(_betGame);
@@ -2588,8 +2602,9 @@ var ScrGame = function(){
 		_countBankrollers > 0){
 			if(_balancePlEth > 0){
 				_arHistory.push({name:"start_game"});
-				_countPlayers = _room.getUsersArr().length;
-				console.log("clickDeal:", _countPlayers);
+				if(_room){
+					_countPlayers = _room.getUsersArr().length;
+				}
 				if(_countPlayers > 1){
 					this.clickBet();
 				} else {
@@ -2707,7 +2722,7 @@ var ScrGame = function(){
 		if(_bWindow){
 			return false;
 		}
-		if(_myIdMult != _idTurnUser){
+		if(_myIDmult != _idTurnUser){
 			return false;
 		}
 		
@@ -2942,12 +2957,15 @@ var ScrGame = function(){
 		} else if(_balancePlEth < 0.01){
 			_self.showError(ERROR_BALANCE);
 			_betGame = oldBet;
+			_self.showChips(true);
 		} else if(_betGame > _balanceSession){
 			_self.showError(ERROR_BALANCE_BET, _self.faucet);
 			_betGame = oldBet;
+			_self.showChips(true);
 		} else if(_betGame > _maxBet){
 			_self.showError(ERROR_MAX_BET);
 			_betGame = oldBet;
+			_self.showChips(true);
 		} else {
 			var str = "Your bet: " + String(convertToken(_betGame));
 			_self.tfYourBet.setText(str);
@@ -3007,7 +3025,7 @@ var ScrGame = function(){
 			item_mc.scale.y = 1*item_mc.sc;
 		}
 		
-		this.refreshLogic(_myIdMult);
+		this.refreshLogic(_myIDmult);
 		
 		if(item_mc.name == "btnDeal"){
 			this.clickDeal();

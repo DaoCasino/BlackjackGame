@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.13";
+var version = "v. 1.1.14";
 var metaCode = "blackjack_v1";
 var gameCode = "BJ_m";
 var login_obj = {};
@@ -81,6 +81,9 @@ var ERROR_DEAL = 7;
 var ERROR_MAX_BET = 8;
 var ERROR_BANKROLLER = 9;
 var ERROR_BALANCE_BET = 10;
+
+var TIME_NEW_CARD  = 600;
+var TIME_SHOW_BTN  = 300;
 
 if(options_rpc){
 	addressCurErc = addressRpcErc;

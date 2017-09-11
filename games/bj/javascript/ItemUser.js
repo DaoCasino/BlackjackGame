@@ -45,6 +45,7 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	// this._ang = 0
 	this._bSplit = false;
 	this._side = "right";
+	this.scrGame = prnt._prnt;
 	
 	this.addChild(this.chips_mc);
 	this.addChild(this.cards_mc);
@@ -258,6 +259,9 @@ ItemUser.prototype.fillChips = function(value, type){
 	var posX = 0;
 	var startY = 0;
 	var left = false;
+	
+	var _objSpeedGame = this.scrGame.getObjGame();
+	
 	if(_objSpeedGame){
 		if(_objSpeedGame.betSplitGame > 0){
 			left = true;
@@ -329,6 +333,7 @@ ItemUser.prototype.addChip = function(name, x, y, type) {
 	} else if(type == "splitWin"){
 		array = this._arWinSplitChips;
 	}
+	var _scaleChip = 0.45;
 	var chip = addObj(name, x, y, _scaleChip);
 	this.chips_mc.addChild(chip);
 	array.push(chip);
