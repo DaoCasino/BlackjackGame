@@ -56,7 +56,6 @@ ItemUsers.prototype.removeUser = function(address) {
 	user = undefined;
 	delete(this._arUsers[address]);
 	delete(this._arTagUsers[address]);
-	this.refreshIDs
 }
 
 ItemUsers.prototype.clearUsers = function() {
