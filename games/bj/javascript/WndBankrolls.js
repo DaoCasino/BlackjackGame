@@ -135,7 +135,7 @@ WndBankrolls.prototype.init = function(_prnt, callback) {
 	this.on('touchstart', this.touchHandler);
 	this.on('touchmove', this.touchHandler);
 	this.on('touchend', this.touchHandler);
-	// window.addEventListener('wheel', this.mouseWheel);
+	window.addEventListener('wheel', this.mouseWheel);
 }
 
 WndBankrolls.prototype.clearList = function() {
@@ -376,6 +376,7 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 WndBankrolls.prototype.mouseWheel = function(evt){
 	var count = Math.max(_thisWndBankrolls._countBank - 5, 1);
 	var offset = -_thisWndBankrolls.distSc/count;
+	offset = -80;
 	var mouseY = _thisWndBankrolls.headScroll.y + offset;
 	if(evt.deltaY > 0){
 		mouseY = _thisWndBankrolls.headScroll.y - offset;
@@ -476,5 +477,5 @@ WndBankrolls.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
-	// window.removeEventListener('wheel', this.mouseWheel);
+	window.removeEventListener('wheel', this.mouseWheel);
 }

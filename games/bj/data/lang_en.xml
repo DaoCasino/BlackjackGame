@@ -70,4 +70,5 @@
 	error_channel_allready_open="Channel allready open."
 	error_game_allready_started="Game allready started."
 	error_user_offline="User VALUE offline."
+	error_channel_not_closed="The previous time, the channel was not closed. Reset the game."
 />

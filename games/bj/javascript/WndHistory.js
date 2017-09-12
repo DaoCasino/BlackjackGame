@@ -110,7 +110,7 @@ WndHistory.prototype.init = function(_prnt) {
 	this.on('touchstart', this.touchHandler);
 	this.on('touchmove', this.touchHandler);
 	this.on('touchend', this.touchHandler);
-	// window.addEventListener('wheel', this.mouseWheel);
+	window.addEventListener('wheel', this.mouseWheel);
 }
 
 WndHistory.prototype.show = function(ar) {
@@ -193,6 +193,7 @@ WndHistory.prototype.clickObj = function(item_mc, evt) {
 
 WndHistory.prototype.mouseWheel = function(evt){
 	var offset = _thisWndHistory.hMask - _thisWndHistory.tfName.height;
+	offset = -100;
 	var mouseY = _thisWndHistory.headScroll.y + offset;
 	if(evt.deltaY > 0){
 		mouseY = _thisWndHistory.headScroll.y - offset;
@@ -269,7 +270,8 @@ WndHistory.prototype.touchHandler = function(evt){
 	if(phase=='mousemove' || phase == 'touchmove' || 
 	phase == 'touchstart' || phase == 'mousedown'){
 		if(this._pressHead){
-			this.scrollHead(evt);
+			// this.scrollHead(evt);
+			this.mouseBtn(evt);
 			return;
 		}
 		this.checkButtons(evt);
@@ -293,5 +295,5 @@ WndHistory.prototype.removeAllListener = function(){
 	this.off('touchstart', this.touchHandler);
 	this.off('touchmove', this.touchHandler);
 	this.off('touchend', this.touchHandler);
-	// window.removeEventListener('wheel', this.mouseWheel);
+	window.removeEventListener('wheel', this.mouseWheel);
 }

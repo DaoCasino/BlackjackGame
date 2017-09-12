@@ -322,7 +322,6 @@ var LogicMultJS = function(params){
 				id = 0;
 			}
 		}
-		console.log("mixDeck:", _arCards.length);
 	}
 	
 	function refreshGame(_s){

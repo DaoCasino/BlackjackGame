@@ -45,7 +45,7 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -225,6 +225,7 @@ var ScrGame = function(){
 		_bGameOver = false;
 		_bCloseChannel = false;
 		_bWaitBet = false;
+		_bMixing = false;
 	}
 	
 	_self.createGUI = function(){
@@ -1657,6 +1658,15 @@ var ScrGame = function(){
 			_self.showWndWarning(str);
 		}
 		
+		if(_bMixing){
+			_bMixing = false;
+			_room.mixDeck();
+			_mixingCard.visible = true;
+			_timeMixing = 3000;
+			var str = getText("mixed_decks").replace(new RegExp("SPL"), "\n");
+			_self.showWndWarning(str);
+		}
+		
 		if(_balanceSession == 0){
 			_self.closeChannel();
 			_self.showChips(false);
@@ -1826,7 +1836,11 @@ var ScrGame = function(){
 				return;
             }
 			if (data.action=='user_connected') {
-				_room.mixDeck();
+				if(_startGame){
+					_bMixing = true;
+				} else {
+					_room.mixDeck();
+				}
             }
 			if (data.action=='room_users') {
 				var data_users = {}
@@ -1857,11 +1871,14 @@ var ScrGame = function(){
 				prev_room_game_wait = room_game_wait;
 				
 				if (room_game_wait) {
-					str = getText("Wait, the new game will open soon.");
-					_self.showWndWarning(str);
+					if(!_bCloseChannel){
+						str = getText("Wait, the new game will open soon.");
+						_self.showWndWarning(str);
+					}
 					return;
 				} else {
 					roomFullCallback(_room.getUsersArr())
+					_room.mixDeck();
 				}
 			}
 			
@@ -1979,11 +1996,10 @@ var ScrGame = function(){
 		var user = users[openkey];
 		
 		if (!user) { 
-			console.log('User '+openkey+' - undefined')
+			_self.showError(getText("error_channel_not_closed"), _self.clickReset);
 			return 
 		}
-
-		console.log('set _myIDmult', user.id)
+		
 		_myIDmult = user.id;
 
 		_self.refreshLogic(_myIDmult);
@@ -2316,9 +2332,6 @@ var ScrGame = function(){
 
 			saveData();
 			
-			if(objGame.method == "bjDealer"){
-				console.log("bjDealer Main:", objGame.curGame.arHouseCards);
-			}
 			if(objGame.method == "bjDealerStand"){
 				_self.updateDealer(objGame, true);
 				_self.gameOver();
