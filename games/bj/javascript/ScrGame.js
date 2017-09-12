@@ -968,6 +968,23 @@ var ScrGame = function(){
 		if(!options_multiplayer){
 			this.isCashoutAvailable();
 		}
+		this.showSplDoubButtons();
+	}
+	
+	_self.showSplDoubButtons = function() {
+		if(options_multiplayer && _room){
+			var value = true;
+			if(_room.getUsersArr().length > 1){
+				value = false;
+			}
+			
+			if(options_split){
+				_self.btnSplit.visible = value;
+			}
+			if(options_double){
+				_self.btnDouble.visible = value;
+			}
+		}
 	}
 	
 	_self.showPlayerCard = function(card){
@@ -1808,6 +1825,9 @@ var ScrGame = function(){
                 _self.hideUser(user_id);
 				return;
             }
+			if (data.action=='user_connected') {
+				_room.mixDeck();
+            }
 			if (data.action=='room_users') {
 				var data_users = {}
 				room_game_wait = false;
@@ -1817,7 +1837,7 @@ var ScrGame = function(){
 					if (data.users[k].play && data.users[k].address!=openkey) {
 						room_game_wait = true;
 					}
-
+					
 					_room.addUser(data.users[k].address, 
 									data.users[k].deposit, 
 									data.users[k].id, 

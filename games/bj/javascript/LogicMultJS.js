@@ -191,7 +191,6 @@ var LogicMultJS = function(params){
 	}
 	
 	_self.bjDealer = function(_s){
-		console.log("LOGIC bjDealer:", _s);
 		if (_bDealerStart) return;
 		_bDealerStart = true;
 		_bDealerEnd = false;
@@ -310,8 +309,6 @@ var LogicMultJS = function(params){
 		refreshGame(_s);
 	}
 	
-	_self.mixDeck = mixDeck;
-	
 	function mixDeck(){
 		_arCards = [];
 		_objResult.mixing = true;
@@ -325,6 +322,7 @@ var LogicMultJS = function(params){
 				id = 0;
 			}
 		}
+		console.log("mixDeck:", _arCards.length);
 	}
 	
 	function refreshGame(_s){
@@ -337,7 +335,7 @@ var LogicMultJS = function(params){
 		_objSpeedGame.curGame = {"arMyCards":_arMyCards,
 				"arMySplitCards":_arMySplitCards,
 				"arHouseCards":_arHouseCards}
-		console.log("LOGIC refreshGame", _arHouseCards);
+				
 		if(typeof _callback === 'function'){
 			_callback(_address, _objSpeedGame);
 		}
@@ -411,7 +409,7 @@ var LogicMultJS = function(params){
 			_arHousePoints.push(point);
 			_housePoints = getHousePoints();
 			_arHouseCards.push(newCard);
-			console.log("dealClient: House", newCard, getNameCard(newCard));
+			// console.log("dealClient: House", newCard, getNameCard(newCard));
 		}
 	}
 	
@@ -531,16 +529,11 @@ var LogicMultJS = function(params){
 		if(val != undefined){
 			hash = [hash[val]];
 		}
-		if(_objSpeedGame.method == "bjDealer"){
-			console.log("LOGIC _arCards.length:", _arCards.length);
-		}
+		console.log("LOGIC _arCards.length:", _arCards.length);
 		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
 		var id = _arCards[rand];
 		_arCards.splice(rand, 1);
 		
-		if(_objSpeedGame.method == "bjDealer"){
-			console.log("LOGIC createCard:", cardNumber, rand, id);
-		}
 		return id;
 	}
 	
@@ -579,12 +572,7 @@ var LogicMultJS = function(params){
 		
 		return myPoints;
 	}
-
-	_self.getMyPoints      = getMyPoints;
-	_self.getPoint         = getPoint;
-	_self.getMySplitPoints = getMySplitPoints;
-	_self.getHousePoints   = getHousePoints;
-
+	
 	function getMySplitPoints(){
 		var mySplitPoints = 0;
 		var countAce = 0;
@@ -695,7 +683,6 @@ var LogicMultJS = function(params){
 	}
 	
 	_self.setDealerCards  = function(arHouseCards, value){
-		console.log("LOGIC setDealerCards:", arHouseCards);
 		_arHouseCards = arHouseCards || [];
 		_objSpeedGame.curGame.arHouseCards = _arHouseCards;
 		_arHousePoints = [];
@@ -709,6 +696,12 @@ var LogicMultJS = function(params){
 			_bStand = true;
 		}
 	}
+	
+	_self.getMyPoints      = getMyPoints;
+	_self.getPoint         = getPoint;
+	_self.getMySplitPoints = getMySplitPoints;
+	_self.getHousePoints   = getHousePoints;
+	_self.mixDeck = mixDeck;
 	
 	return _self;
 }
