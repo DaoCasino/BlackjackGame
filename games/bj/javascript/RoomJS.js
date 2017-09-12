@@ -68,6 +68,7 @@ var RoomJS = function(){
 		}
 	}
 	_self.mixDeck = function(){
+		console.log("ROOM mixDeck");
 		var num = 0
 		for(var addr in _Users){
 			if (_Users[addr].disabled) {
