@@ -18,7 +18,7 @@ var RoomJS = function(){
 		
 		var logic = new LogicMultJS(params);
 		
-		if (!id) {
+		if (typeof id === 'undefined') {
 			id = Object.keys(_Users).length
 		}
 
