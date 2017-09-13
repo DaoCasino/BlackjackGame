@@ -1595,6 +1595,26 @@ var ScrGame = function(){
 		return false;
 	}
 	
+	_self.checkBetUsers = function() {
+		// All users set bet
+		if(!_startGame){
+			var betCnt = 0
+			var countUsers = 0;
+			_room.getUsersArr().forEach( function(user) {
+				if (user.logic.getGame().betGame) {
+					betCnt++;
+				}
+				if (user.logic.getGame().play != true) {
+					countUsers++;
+				}
+			}) 
+			
+			if (betCnt >= countUsers) {
+				_self.clickGeneralDeal()
+			}
+		}
+	}
+	
 	// RESULT
 	_self.checkResult = function(objResult){
 		if(_arUsersResult[_myIDmult] && options_multiplayer){
@@ -1836,6 +1856,7 @@ var ScrGame = function(){
 
             if (data.action=='close_game_channel') {
                 _self.hideUser(user_id);
+				_self.checkBetUsers();
 				return;
             }
 			if (data.action=='user_connected') {
@@ -1885,18 +1906,15 @@ var ScrGame = function(){
 				}
 			}
 			
-			var curUser = _room.getTagUser(user_id);
-			if (data.action=='call_game_function') {
-				if (data.name=='closeAllChannels' && !_bCloseChannel) {
+			if (data.action=='call_game_function' && !_bCloseChannel) {
+				var curUser = _room.getTagUser(user_id);
+				if (data.name=='closeAllChannels') {
 					_self.closeChannel();
 					_self.showChips(false);
 					return;
 				}
 				
 				if (curUser) {
-					if(data.name == "bjDealer"){
-						console.log('onGameStateChange', curUser.id, data.args);
-					}
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(user_id, data.name, data.args)
 				} else {
@@ -2423,25 +2441,9 @@ var ScrGame = function(){
 				}
 			}
 		}
-		console.log("responseServer:", objGame.method, _countPlayers);
 		
-		// All users set bet
-		if(!_startGame && objGame.method == "bjBet"){
-			var betCnt = 0
-			var countUsers = 0;
-			_room.getUsersArr().forEach( function(user) {
-				if (user.logic.getGame().betGame) {
-					betCnt++;
-				}
-				if (user.logic.getGame().play != true) {
-					countUsers++;
-				}
-			}) 
-			
-			console.log("betCnt:", betCnt, countUsers);
-			if (betCnt >= countUsers) {
-				_self.clickGeneralDeal()
-			}
+		if(objGame.method == "bjBet"){
+			_self.checkBetUsers();
 		}
 	}
 
