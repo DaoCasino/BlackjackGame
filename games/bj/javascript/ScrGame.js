@@ -1679,6 +1679,7 @@ var ScrGame = function(){
 		}
 		_arUsersResult[curUser.id] = true;
 		
+		var objGame = curUser.logic.getGame();
 		var objResult = curUser.logic.getResult();
 		var userMc    = _users.getUser(curUser.id);
 		
@@ -1694,6 +1695,8 @@ var ScrGame = function(){
 			if(userMc._mySplitPoints > 0){
 				_self.showTextResult(objResult.split, _xS, _y);
 			}
+			objGame.betGame = 0;
+			objGame.betSplitGame = 0;
 		}
 	}
 	
@@ -2267,6 +2270,7 @@ var ScrGame = function(){
 	// SERVER
 	_self.responseServer = function(address, objGame) {
 		// show action
+		
 		if(address == openkey){
 			var balanceSession = _balanceSession;
 			var arMy = [];
@@ -2367,7 +2371,6 @@ var ScrGame = function(){
 					break;
 				case "bjMultStand":
 					_idTurnUser ++;
-					// if(_idTurnUser >= _room.getUsersArr().length){
 					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					} else {
@@ -2406,7 +2409,6 @@ var ScrGame = function(){
 			if(objGame.result && objGame.betGame > 0){
 				var delay = (_arNewCards.length+1)*TIME_NEW_CARD;
 				_idTurnUser ++;
-				// if(_idTurnUser >= _room.getUsersArr().length){
 				if(_idTurnUser >= _countPlayers){
 					_self.clickDealerStand();
 				}
@@ -2421,6 +2423,7 @@ var ScrGame = function(){
 				}
 			}
 		}
+		console.log("responseServer:", objGame.method, _countPlayers);
 		
 		// All users set bet
 		if(!_startGame && objGame.method == "bjBet"){
@@ -2434,8 +2437,8 @@ var ScrGame = function(){
 					countUsers++;
 				}
 			}) 
-				
-			// if (betCnt >= _room.getMaxUsers()) {
+			
+			console.log("betCnt:", betCnt, countUsers);
 			if (betCnt >= countUsers) {
 				_self.clickGeneralDeal()
 			}

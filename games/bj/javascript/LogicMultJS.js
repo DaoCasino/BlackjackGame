@@ -528,7 +528,7 @@ var LogicMultJS = function(params){
 		if(val != undefined){
 			hash = [hash[val]];
 		}
-		console.log("LOGIC _arCards.length:", _arCards.length);
+		
 		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
 		var id = _arCards[rand];
 		_arCards.splice(rand, 1);
