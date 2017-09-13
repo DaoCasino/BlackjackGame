@@ -613,6 +613,11 @@ var ScrGame = function(){
 		var chip = addObj(name, x, y, _scaleChip);
 		chips_mc.addChild(chip);
 		array.push(chip);
+		if(type == "mainWin"){
+			chip.visible = false;
+		} else if(type == "splitWin"){
+			chip.visible = false;
+		}
 	}
 	
 	_self.addHolderObj = function(obj){
@@ -1196,10 +1201,11 @@ var ScrGame = function(){
 		var delay = _arNewCards.length+1;
 		var tf = _self.createObj({x:_x, y:_y}, _name);
 		tf.alpha = 0;
-		createjs.Tween.get(tf).wait(1000*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
+		createjs.Tween.get(tf).wait(TIME_NEW_CARD*delay).to({y:_y, alpha:1},300).to({y:_y-50},500);
 	}
 
 	_self.showResult = function(_name, _x, _y, type, bet) {
+		var delay = _arNewCards.length+1;
 		_self.showTextResult(_name, _x, _y);
 		
 		var array = _arChips;
@@ -1219,14 +1225,16 @@ var ScrGame = function(){
 			
 			for (var i = 0; i < array2.length; i++) {
 				var chip = array2[i];
+				chip.visible = true;
 				_x = chip.x;
 				_y = _H+100+i*12;
-				createjs.Tween.get(chip).to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
 			}
 		}
 		
 		for (var i = 0; i < array.length; i++) {
 			var chip = array[i];
+			chip.visible = true;
 			_x = chip.x;
 			_y = _H + 100+i*12;
 			if(_name == "lose" || _name == "bust"){
@@ -1237,11 +1245,11 @@ var ScrGame = function(){
 				_arHouseCards.length == 2){
 					_y = _H + 100+i*12;
 				}
-				createjs.Tween.get(chip).to({x:_x, y:_y, alpha:0},speed*2);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:_y, alpha:0},speed*2);
 			} else if(_name == "push"){
-				createjs.Tween.get(chip).to({x:_x, y:_y},speed*2);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:_y},speed*2);
 			} else {
-				createjs.Tween.get(chip).wait(speed).to({x:_x, y:_y},speed);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).wait(speed).to({x:_x, y:_y},speed);
 			}
 		}
 	}
@@ -1595,11 +1603,32 @@ var ScrGame = function(){
 		return false;
 	}
 	
+	_self.checkBetUsers = function() {
+		// All users set bet
+		if(!_startGame){
+			var betCnt = 0
+			var countUsers = 0;
+			_room.getUsersArr().forEach( function(user) {
+				if (user.logic.getGame().betGame) {
+					betCnt++;
+				}
+				if (user.logic.getGame().play != true) {
+					countUsers++;
+				}
+			}) 
+			
+			if (betCnt >= countUsers) {
+				_self.clickGeneralDeal()
+			}
+		}
+	}
+	
 	// RESULT
 	_self.checkResult = function(objResult){
 		if(_arUsersResult[_myIDmult] && options_multiplayer){
 			return false;
 		}
+		
 		_arUsersResult[_myIDmult] = true;
 		if(_room){
 			if(_room.getUsersArr().length > 1){
@@ -1640,7 +1669,6 @@ var ScrGame = function(){
 			_idTurnUser ++;
 			var delay = (_arNewCards.length+1)*TIME_NEW_CARD;
 			_self.updateShowBtn(delay);
-			// if(_idTurnUser >= _room.getUsersArr().length){
 			if(_idTurnUser >= _countPlayers){
 				_self.clickDealerStand();
 			}
@@ -1836,6 +1864,7 @@ var ScrGame = function(){
 
             if (data.action=='close_game_channel') {
                 _self.hideUser(user_id);
+				_self.checkBetUsers();
 				return;
             }
 			if (data.action=='user_connected') {
@@ -1885,18 +1914,15 @@ var ScrGame = function(){
 				}
 			}
 			
-			var curUser = _room.getTagUser(user_id);
-			if (data.action=='call_game_function') {
-				if (data.name=='closeAllChannels' && !_bCloseChannel) {
+			if (data.action=='call_game_function' && !_bCloseChannel) {
+				var curUser = _room.getTagUser(user_id);
+				if (data.name=='closeAllChannels') {
 					_self.closeChannel();
 					_self.showChips(false);
 					return;
 				}
 				
 				if (curUser) {
-					if(data.name == "bjDealer"){
-						console.log('onGameStateChange', curUser.id, data.args);
-					}
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(user_id, data.name, data.args)
 				} else {
@@ -2423,25 +2449,9 @@ var ScrGame = function(){
 				}
 			}
 		}
-		console.log("responseServer:", objGame.method, _countPlayers);
 		
-		// All users set bet
-		if(!_startGame && objGame.method == "bjBet"){
-			var betCnt = 0
-			var countUsers = 0;
-			_room.getUsersArr().forEach( function(user) {
-				if (user.logic.getGame().betGame) {
-					betCnt++;
-				}
-				if (user.logic.getGame().play != true) {
-					countUsers++;
-				}
-			}) 
-			
-			console.log("betCnt:", betCnt, countUsers);
-			if (betCnt >= countUsers) {
-				_self.clickGeneralDeal()
-			}
+		if(objGame.method == "bjBet"){
+			_self.checkBetUsers();
 		}
 	}
 
