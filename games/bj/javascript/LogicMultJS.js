@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.9
+ * v 1.0.10
  */
 
 var LogicMultJS = function(params){
@@ -338,7 +338,7 @@ var LogicMultJS = function(params){
 		if(typeof _callback === 'function'){
 			_callback(_address, _objSpeedGame);
 		}
-		
+		//old
 		if(_objSpeedGame.result){
 			// console.log("Game Over", _objResult.profit, _money);
 			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
@@ -532,9 +532,9 @@ var LogicMultJS = function(params){
 		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
 		var id = _arCards[rand];
 		_arCards.splice(rand, 1);
-		if(_address == openkey){
-			console.log("createCard:", _arCards.length);
-		}
+		// console.log("createCard:", _arCards.length, _address);
+		
+		// var id = _prnt.createCard(cardNumber, val); // new
 		return id;
 	}
 	
