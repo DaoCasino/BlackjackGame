@@ -494,6 +494,9 @@ function saveData() {
 
 function loadData() {
 	if(isLocalStorageAvailable()){
+		localStorage.removeItem('channel_id');
+		localStorage.removeItem('contract_address');
+		
 		if(options_rpc){
 			// openkey = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
 			// privkey = "d3b6b98613ce7bd4636c5c98cc17afb0403d690f9c2b646726e08334583de101";

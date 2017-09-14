@@ -62,7 +62,9 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	this.tfMySplitPoints.y = -this._ofsP + 1*b-this.tfMySplitPoints.height/2;
 	this.addChild(this.tfMySplitPoints);
 	var adr = address.substr(0,8);
-	if(address == "0xb929a0aa958686e5d1166c999c16ed2b3343a050"){
+	if(address == "0xb929a0aa958686e5d1166c999c16ed2b3343a050" ||
+	address == "0x0f276d053a59639e7d5f58d4c653b95c5c815f5b" ||
+	address == "0x5a38f2dc66109d77bbca290d9ffa9c4f9fcc7227"){
 		adr = "J0x"
 	} else if(address == "0x777fb951984ae56f41090e697d39620fd9f27e97"){
 		adr = "kellas"
