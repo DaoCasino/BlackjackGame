@@ -614,9 +614,9 @@ var ScrGame = function(){
 		chips_mc.addChild(chip);
 		array.push(chip);
 		if(type == "mainWin"){
-			chip.visible = false;
+			chip.alpha = 0;
 		} else if(type == "splitWin"){
-			chip.visible = false;
+			chip.alpha = 0;
 		}
 	}
 	
@@ -787,6 +787,9 @@ var ScrGame = function(){
 	
 	// SHOW
 	_self.showTutorial = function() {
+		if(_bCloseChannel){
+			return false;
+		}
 		if(login_obj["tutor_bet"] != true){
 			_idTutor = 1;
 			_self.showTooltip(undefined, getText("tutor_bet"), _W/2-550, _H/2+270);
@@ -939,7 +942,7 @@ var ScrGame = function(){
 		var a = 0.5;
 		var alpha = a;
 		
-		if(value && (!_objSpeedGame.result)){
+		if(value && !_objSpeedGame.result){
 			alpha = 1;
 		}
 		
@@ -1225,16 +1228,15 @@ var ScrGame = function(){
 			
 			for (var i = 0; i < array2.length; i++) {
 				var chip = array2[i];
-				chip.visible = true;
 				_x = chip.x;
 				_y = _H+100+i*12;
-				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({alpha:1},50).
+									to({x:_x, y:(_y-150)/2},speed).to({x:_x, y:_y},speed);
 			}
 		}
 		
 		for (var i = 0; i < array.length; i++) {
 			var chip = array[i];
-			chip.visible = true;
 			_x = chip.x;
 			_y = _H + 100+i*12;
 			if(_name == "lose" || _name == "bust"){
@@ -1245,11 +1247,14 @@ var ScrGame = function(){
 				_arHouseCards.length == 2){
 					_y = _H + 100+i*12;
 				}
-				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:_y, alpha:0},speed*2);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({alpha:1},50).
+										to({x:_x, y:_y, alpha:0},speed*2);
 			} else if(_name == "push"){
-				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({x:_x, y:_y},speed*2);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).to({alpha:1},50).
+										to({x:_x, y:_y},speed*2);
 			} else {
-				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).wait(speed).to({x:_x, y:_y},speed);
+				createjs.Tween.get(chip).wait(TIME_NEW_CARD*delay).wait(speed).to({alpha:1},50).
+										to({x:_x, y:_y},speed);
 			}
 		}
 	}
@@ -2001,6 +2006,9 @@ var ScrGame = function(){
 		_users.removeUsers();
 		_self.refreshUsers();
 		_countPlayers = _room.getUsersArr().length;
+		if(_countPlayers < 2 && _self.icoCurUser){
+			_self.icoCurUser.visible = false;
+		}
 	}
 	
 	_self.refreshUsers = function() {
@@ -2125,11 +2133,6 @@ var ScrGame = function(){
 				var str = getText("close_channel_start").replace(new RegExp("SPL"), "\n");
 				_self.showWndWarning(str);
 				
-				// if(options_multiplayer){
-					// Casino.callGameFunction(_idGame, msgID(), 
-						// 'closeAllChannels', []
-					// );
-				// }
 				Casino.endGame(deposit, function(obj){
 					_wndWarning.visible = false;
 					if(obj == true){
@@ -2148,7 +2151,6 @@ var ScrGame = function(){
 							}
 						}, "OK");
 						
-						// _self.showChips(true);
 						_arHistory.push({name:"end_channel", profit:deposit});
 						infura.sendRequest("getBalance", openkey, _callback);
 						Casino.Account.getBetsBalance(_self.getBalancePlayer);
