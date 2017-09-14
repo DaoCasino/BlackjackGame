@@ -1,8 +1,8 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.12";
+var version = "v. 1.1.14";
 var metaCode = "blackjack_v1";
-var gameCode = "BJ";
+var gameCode = "BJ_m";
 var login_obj = {};
 var arClips = [];
 var language;
@@ -67,7 +67,7 @@ var options_speedgame   = false;
 var options_splitdouble = true;
 var options_split = true;
 var options_double = true;
-var options_save = true;
+var options_save = false;
 var options_multiplayer = true;
 
 var ERROR_CONNECTION = 0;
@@ -81,6 +81,9 @@ var ERROR_DEAL = 7;
 var ERROR_MAX_BET = 8;
 var ERROR_BANKROLLER = 9;
 var ERROR_BALANCE_BET = 10;
+
+var TIME_NEW_CARD  = 600;
+var TIME_SHOW_BTN  = 300;
 
 if(options_rpc){
 	addressCurErc = addressRpcErc;
@@ -295,6 +298,7 @@ function handleComplete(evt) {
 	if(options_debug){
 		version = version + " arcade"
 		options_save = false;
+		options_multiplayer = false;
 	} else if(options_rpc){
 		version = version + " testrpc"
 	} else if(options_testnet){
@@ -490,6 +494,9 @@ function saveData() {
 
 function loadData() {
 	if(isLocalStorageAvailable()){
+		localStorage.removeItem('channel_id');
+		localStorage.removeItem('contract_address');
+		
 		if(options_rpc){
 			// openkey = "0xf1f42f995046e67b79dd5ebafd224ce964740da3";
 			// privkey = "d3b6b98613ce7bd4636c5c98cc17afb0403d690f9c2b646726e08334583de101";
@@ -992,7 +999,7 @@ function visGame() {
 	
 	if(currentScreen){
 		if(ScreenGame){
-			ScreenGame.resetTimer();
+			// ScreenGame.resetTimer();
 		}
 	}
 }

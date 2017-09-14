@@ -9,9 +9,7 @@ ItemUsers.prototype.constructor = ItemUsers;
 ItemUsers.prototype.init = function(_prnt) {
 	this._prnt        = _prnt;
 	this._arUsers     = {};
-	this._arHolder    = [];
-	this._arNewCards  = [];
-	this._arHideCards = [];
+	this._arTagUsers     = {};
 }
 
 ItemUsers.prototype.addUser = function(address, id) {
@@ -26,6 +24,7 @@ ItemUsers.prototype.addUser = function(address, id) {
 	user.y = _H/2+160;
 	this.addChild(user);
 	this._arUsers[id] = user;
+	this._arTagUsers[address] = user;
 	if (Object.keys(this._arUsers).length==1) {
 		user.x = _W/2 - offset;
 		user._side = "left";
@@ -46,10 +45,37 @@ ItemUsers.prototype.getUser = function(id) {
 	return user;
 }
 
+ItemUsers.prototype.getTagUser = function(address) {
+	return this._arTagUsers[address];
+}
+
+ItemUsers.prototype.getUsersArr = function() {
+	return Object.values(this._arUsers);
+}
+
+ItemUsers.prototype.removeUser = function(address) {
+	var user = this._arTagUsers[address];
+	user.clearGame();
+	this.removeChild(user);
+	user = undefined;
+	delete(this._arUsers[address]);
+	delete(this._arTagUsers[address]);
+}
+
 ItemUsers.prototype.clearUsers = function() {
 	for(var key in this._arUsers){
 		this._arUsers[key].clearGame();
 	}
+}
+
+ItemUsers.prototype.removeUsers = function() {
+	for(var key in this._arUsers){
+		var user = this._arUsers[key];
+		user.clearGame();
+		this.removeChild(user);
+	}
+	this._arUsers = {};
+	this._arTagUsers = {};
 }
 
 // SERVER

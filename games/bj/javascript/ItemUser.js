@@ -13,6 +13,7 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	
 	this._prnt = prnt;
 	this._cardSuit;
+	this._address = address;
 	this._arChips = [];
 	this._arSplitChips = [];
 	this._arWinChips = [];
@@ -44,6 +45,7 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	// this._ang = 0
 	this._bSplit = false;
 	this._side = "right";
+	this.scrGame = prnt._prnt;
 	
 	this.addChild(this.chips_mc);
 	this.addChild(this.cards_mc);
@@ -60,6 +62,15 @@ ItemUser.prototype.init = function(prnt, ind, address) {
 	this.tfMySplitPoints.y = -this._ofsP + 1*b-this.tfMySplitPoints.height/2;
 	this.addChild(this.tfMySplitPoints);
 	var adr = address.substr(0,8);
+	if(address == "0xb929a0aa958686e5d1166c999c16ed2b3343a050" ||
+	address == "0x0f276d053a59639e7d5f58d4c653b95c5c815f5b" ||
+	address == "0x5a38f2dc66109d77bbca290d9ffa9c4f9fcc7227"){
+		adr = "J0x"
+	} else if(address == "0x777fb951984ae56f41090e697d39620fd9f27e97"){
+		adr = "kellas"
+	} else if(address == "0x7910076b46bd632309960318f742bcea10f3cb76"){
+		adr = "noxon"
+	}
 	this.tfIdUser = addText(adr, fontSize, "#ffffff", "#000000", "center", 100, 4)
 	this.tfIdUser.x = 0;
 	this.tfIdUser.y = 40;
@@ -250,6 +261,9 @@ ItemUser.prototype.fillChips = function(value, type){
 	var posX = 0;
 	var startY = 0;
 	var left = false;
+	
+	var _objSpeedGame = this.scrGame.getObjGame();
+	
 	if(_objSpeedGame){
 		if(_objSpeedGame.betSplitGame > 0){
 			left = true;
@@ -321,6 +335,7 @@ ItemUser.prototype.addChip = function(name, x, y, type) {
 	} else if(type == "splitWin"){
 		array = this._arWinSplitChips;
 	}
+	var _scaleChip = 0.45;
 	var chip = addObj(name, x, y, _scaleChip);
 	this.chips_mc.addChild(chip);
 	array.push(chip);

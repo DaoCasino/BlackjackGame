@@ -1,7 +1,7 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.8
+ * v 1.0.10
  */
 
 var LogicMultJS = function(params){
@@ -63,6 +63,7 @@ var LogicMultJS = function(params){
 	
 	var _objSpeedGame = {method:"",
 						result:false, 
+						play:false, 
 						idGame:-1, 
 						curGame:{}, 
 						betGame:0, 
@@ -78,7 +79,8 @@ var LogicMultJS = function(params){
 		_objSpeedGame.method = "bjDeal";
 		_idGame ++;
 		_objResult = {main:"", split:"", betMain:0, betSplit:0, profit:-_bet, mixing:false};
-		_objSpeedGame.result = false;
+		_objSpeedGame.result  = false;
+		_objSpeedGame.play    = true;
 		_objSpeedGame.curGame = {};
 		_objSpeedGame.betGame = _bet;
 		_objSpeedGame.betSplitGame = 0;
@@ -193,6 +195,7 @@ var LogicMultJS = function(params){
 		_bDealerStart = true;
 		_bDealerEnd = false;
 
+		_objSpeedGame.play = true;
 		_objSpeedGame.method = "bjDealer";
 		dealCard(false, true, _s);
 		refreshGame(_s);
@@ -202,7 +205,7 @@ var LogicMultJS = function(params){
 		if (_bDealerEnd) return;
 		_bDealerStart = false;
 		_bDealerEnd = true;
-		
+
 		_objSpeedGame.method = "bjDealerStand";
 		_bStand = true;
 		
@@ -309,9 +312,15 @@ var LogicMultJS = function(params){
 	function mixDeck(){
 		_arCards = [];
 		_objResult.mixing = true;
+		var count = COUNT_CARDS*COUNT_DECKS;
+		var id = 0;
 		
-		for(var i=0; i<52; i++){
-			_arDecks[i] = 0;
+		for(var i=0; i<count; i++){
+			_arCards.push(id);
+			id ++;
+			if(id > COUNT_CARDS-1){
+				id = 0;
+			}
 		}
 	}
 	
@@ -325,15 +334,15 @@ var LogicMultJS = function(params){
 		_objSpeedGame.curGame = {"arMyCards":_arMyCards,
 				"arMySplitCards":_arMySplitCards,
 				"arHouseCards":_arHouseCards}
-		
+				
 		if(typeof _callback === 'function'){
 			_callback(_address, _objSpeedGame);
 		}
-		
+		//old
 		if(_objSpeedGame.result){
 			// console.log("Game Over", _objResult.profit, _money);
-			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.25);
-			if(_arCards.length > prcnt){
+			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
+			if(_arCards.length < prcnt){
 				mixDeck();
 			}
 		}
@@ -497,6 +506,8 @@ var LogicMultJS = function(params){
 		}
 		
 		if(_objSpeedGame.result){
+			_objSpeedGame.play = false
+
 			_money += betWin;
 			_objSpeedGame.money = _money;
 			_objResult.profit += betWin;
@@ -511,34 +522,20 @@ var LogicMultJS = function(params){
 			}
 		}
 	}
-
-	function checkCard(rand){
-		if(_arCards.length > 40){
-			mixDeck();
-		}
-		
-		if(_arDecks[rand] < COUNT_DECKS){
-		} else {
-			for(var i=0; i<52; i++){
-				if(_arDecks[i] < COUNT_DECKS){
-					rand = i;
-					break;
-				}
-			}
-		}
-		
-		return rand;
-	}
 	
 	function createCard(cardNumber, val){	
 		var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]);
 		if(val != undefined){
 			hash = [hash[val]];
 		}
-		var rand = bigInt(hash.toString('hex'),16).divmod(52).remainder.value;
-		rand = checkCard(rand);
-		_arCards.push(rand);
-		return rand;
+		
+		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
+		var id = _arCards[rand];
+		_arCards.splice(rand, 1);
+		// console.log("createCard:", _arCards.length, _address);
+		
+		// var id = _prnt.createCard(cardNumber, val); // new
+		return id;
 	}
 	
 	function getPoint(id){
@@ -576,7 +573,7 @@ var LogicMultJS = function(params){
 		
 		return myPoints;
 	}
-
+	
 	function getMySplitPoints(){
 		var mySplitPoints = 0;
 		var countAce = 0;
@@ -700,6 +697,12 @@ var LogicMultJS = function(params){
 			_bStand = true;
 		}
 	}
+	
+	_self.getMyPoints      = getMyPoints;
+	_self.getPoint         = getPoint;
+	_self.getMySplitPoints = getMySplitPoints;
+	_self.getHousePoints   = getHousePoints;
+	_self.mixDeck = mixDeck;
 	
 	return _self;
 }

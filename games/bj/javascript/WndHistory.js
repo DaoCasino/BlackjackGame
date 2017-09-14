@@ -193,6 +193,7 @@ WndHistory.prototype.clickObj = function(item_mc, evt) {
 
 WndHistory.prototype.mouseWheel = function(evt){
 	var offset = _thisWndHistory.hMask - _thisWndHistory.tfName.height;
+	offset = -100;
 	var mouseY = _thisWndHistory.headScroll.y + offset;
 	if(evt.deltaY > 0){
 		mouseY = _thisWndHistory.headScroll.y - offset;
@@ -269,7 +270,8 @@ WndHistory.prototype.touchHandler = function(evt){
 	if(phase=='mousemove' || phase == 'touchmove' || 
 	phase == 'touchstart' || phase == 'mousedown'){
 		if(this._pressHead){
-			this.scrollHead(evt);
+			// this.scrollHead(evt);
+			this.mouseBtn(evt);
 			return;
 		}
 		this.checkButtons(evt);

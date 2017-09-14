@@ -202,7 +202,7 @@ WndBankrolls.prototype.show = function() {
 	
 	var i = 0;
 	for(var tag in ar){
-		if(tag != undefined){
+		if(tag != undefined && tag != "undefined"){
 			var obj = ar[tag];
 			if(load){
 				if(tag == addressContract){
@@ -376,6 +376,7 @@ WndBankrolls.prototype.clickObj = function(item_mc, evt) {
 WndBankrolls.prototype.mouseWheel = function(evt){
 	var count = Math.max(_thisWndBankrolls._countBank - 5, 1);
 	var offset = -_thisWndBankrolls.distSc/count;
+	offset = -80;
 	var mouseY = _thisWndBankrolls.headScroll.y + offset;
 	if(evt.deltaY > 0){
 		mouseY = _thisWndBankrolls.headScroll.y - offset;
