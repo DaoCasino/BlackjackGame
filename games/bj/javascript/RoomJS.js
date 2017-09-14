@@ -48,7 +48,7 @@ var RoomJS = function(){
 		}
 		
 		// check result game
-		/*var num = 0;
+		var num = 0;
 		var gameOver = false;
 		for(var addr in _Users){
 			if (_Users[addr].disabled) {
@@ -68,7 +68,7 @@ var RoomJS = function(){
 				console.log("Mix deck");
 				_self.mixDeck();
 			}
-		}*/
+		}
 	}
 	
 	_self.disableUser = function(address){
@@ -126,8 +126,8 @@ var RoomJS = function(){
 				continue;
 			}
 
-			_Users[addr].logic.mixDeck(); // old
-			// _Users[addr].logic.getResult().mixing = true; // new
+			// _Users[addr].logic.mixDeck();
+			_Users[addr].logic.getResult().mixing = true;
 			num++
 		}
 	}
