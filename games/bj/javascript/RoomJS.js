@@ -1,17 +1,13 @@
 /**
  * Created by DAO.casino
  * BlackJack
- * v 1.0.2
+ * v 1.0.1
  */
 
 var RoomJS = function(){
-	var COUNT_DECKS = 4;
-	var COUNT_CARDS = 52;
-	
 	var _self     = this;
 	var _Users    = {};
 	var _maxUsers = 3;
-	var _arCards = [];
 	
 	_self.addUser = function(address, deposit, id, callback){
 		if (_Users[address]) {
@@ -46,29 +42,6 @@ var RoomJS = function(){
 		if(_Users[address].logic[name]){
 			_Users[address].logic[name].apply(null, params);
 		}
-		
-		// check result game
-		var num = 0;
-		var gameOver = false;
-		for(var addr in _Users){
-			if (_Users[addr].disabled) {
-				continue;
-			}
-
-			if(_Users[addr].logic.getGame().result){
-				gameOver = true;
-			}
-			num++
-		}
-		
-		if(gameOver){
-			console.log("Game Over");
-			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
-			if(_arCards.length < prcnt){
-				console.log("Mix deck");
-				_self.mixDeck();
-			}
-		}
 	}
 	
 	_self.disableUser = function(address){
@@ -93,41 +66,14 @@ var RoomJS = function(){
 			num++
 		}
 	}
-	
-	_self.createCard = function(cardNumber, val){
-		var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]);
-		if(val != undefined){
-			hash = [hash[val]];
-		}
-		
-		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
-		var id = _arCards[rand];
-		_arCards.splice(rand, 1);
-		console.log("createCard:", _arCards.length);
-		return id;
-	}
-	
 	_self.mixDeck = function(){
-		_arCards = [];
-		var count = COUNT_CARDS*COUNT_DECKS;
-		var id = 0;
-		
-		for(var i=0; i<count; i++){
-			_arCards.push(id);
-			id ++;
-			if(id > COUNT_CARDS-1){
-				id = 0;
-			}
-		}
-		
 		var num = 0
 		for(var addr in _Users){
 			if (_Users[addr].disabled) {
 				continue;
 			}
 
-			// _Users[addr].logic.mixDeck();
-			_Users[addr].logic.getResult().mixing = true;
+			_Users[addr].logic.mixDeck();
 			num++
 		}
 	}
@@ -141,9 +87,7 @@ var RoomJS = function(){
 	_self.getTagUser = function(address){
 		return _Users[address];
 	}
-	_self.getDeck = function(){
-		return _arCards;
-	}
+
 	_self.getMaxUsers = function(){
 		return _maxUsers
 	}
