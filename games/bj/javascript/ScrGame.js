@@ -1919,8 +1919,10 @@ var ScrGame = function(){
 				}
 			}
 			
+			var curUser = _room.getTagUser(user_id);
+			if(!curUser){ return; }
+			
 			if (data.action=='call_game_function' && !_bCloseChannel) {
-				var curUser = _room.getTagUser(user_id);
 				if (data.name=='closeAllChannels') {
 					_self.closeChannel();
 					_self.showChips(false);
