@@ -46,7 +46,7 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -229,6 +229,7 @@ var ScrGame = function(){
 		_bWaitBet = false;
 		_bMixing = false;
 		_bSetBet = false;
+		_bWaitUser = false;
 	}
 	
 	_self.createGUI = function(){
@@ -921,14 +922,15 @@ var ScrGame = function(){
 	}
 	
 	_self.showChips = function(value) {
-		if(options_multiplayer && (_bCloseChannel || _bSetBet)){
-			return;
-		}
 		var a = 0.5;
 		var alpha = a;
 		
 		if(value){
 			alpha = 1;
+		}
+		
+		if(options_multiplayer && (_bCloseChannel || _bSetBet)){
+			alpha = 0.5;
 		}
 		if(_startGame || _countBankrollers == 0){
 			alpha = a;
@@ -1876,8 +1878,9 @@ var ScrGame = function(){
 		Casino.onGameStateChange(function(data){
             var user_id = data.user_id;
 
-            if (data.action=='close_game_channel') {
-                _self.hideUser(user_id);
+            if (data.action=='close_game_channel' || 
+			data.action=='user_disconnected_by_timeout') {
+                _self.hideUser(user_id, data.action);
 				_self.checkBetUsers();
 				return;
             }
@@ -1888,29 +1891,7 @@ var ScrGame = function(){
 					_room.mixDeck();
 				}
             }
-			if (data.action=='user_disconnected_by_timeout') {
-				_self.hideUser(user_id);
-				_self.checkBetUsers();
-				_idTurnUser ++;
-				
-				_timeTurn = TIME_TURN;
-				if(_idTurnUser >= _countPlayers){
-					_self.clickDealerStand();
-				} else {
-					if(_idTurnUser == _myIDmult){
-						_timeTurn = TIME_TURN;
-						if(_myPoints < BLACKJACK){
-							_self.updateShowBtn(1);
-						} else {
-							_self.clickStand();
-						}
-					}
-				}
-				
-				if(_bSetBet){
-					_self.showChips(false);
-				}
-            }
+			
 			if (data.action=='room_users') {
 				var data_users = {}
 				room_game_wait = false;
@@ -1941,11 +1922,13 @@ var ScrGame = function(){
 				
 				if (room_game_wait) {
 					if(!_bCloseChannel){
+						_bWaitUser = true;
 						str = getText("Wait, the new game will open soon.");
 						_self.showWndWarning(str);
 					}
 					return;
 				} else {
+					_bWaitUser = false;
 					roomFullCallback(_room.getUsersArr())
 					_room.mixDeck();
 				}
@@ -2030,8 +2013,11 @@ var ScrGame = function(){
 		}
 	}
 	
-	_self.hideUser = function(user_id) {
-		if(_room.getTagUser(user_id)){
+	_self.hideUser = function(user_id, action) {
+		var curUser = _room.getTagUser(user_id);
+		var id = -1;
+		if(curUser){
+			id = curUser.id;
 			_room.removeUser(user_id);
 		}
 		// if(_users.getTagUser(user_id)){
@@ -2042,6 +2028,31 @@ var ScrGame = function(){
 		_countPlayers = _room.getUsersArr().length;
 		if(_countPlayers < 2 && _self.icoCurUser){
 			_self.icoCurUser.visible = false;
+		}
+		
+		_timeTurn = TIME_TURN;
+		
+		if(_startGame && id > -1){
+			if(_idTurnUser == id){
+				_idTurnUser ++;
+				if(_idTurnUser >= _countPlayers){
+					_self.clickDealerStand();
+				} else {
+					_self.refreshLogic(_idTurnUser);
+					if(_idTurnUser == _myIDmult){
+						_timeTurn = TIME_TURN;
+						if(_myPoints < BLACKJACK){
+							_self.updateShowBtn(1);
+						} else {
+							_self.clickStand();
+						}
+					}
+				}
+				
+				if(_bSetBet){
+					_self.showChips(false);
+				}
+			}
 		}
 	}
 	
@@ -2122,7 +2133,6 @@ var ScrGame = function(){
 					_self.showTutorial();
 				}
 			} else {
-				console.log("startGame:", obj);
 				_self.showChips(true);
 				_balanceSession = 0;
 				Casino.Account.getBetsBalance(_self.getBalancePlayer);
@@ -2537,9 +2547,10 @@ var ScrGame = function(){
 	// UPDATE
 	_self.update = function(diffTime){
 		var showTimer = false;
-		if(_timeTurn > 0 && !_bCloseChannel){
+		if(_timeTurn > 0 && !_bCloseChannel && !_bWaitUser){
 			if(_countPlayers > 1){
-				if(_idTurnUser == _myIDmult || !_startGame){
+				if((_idTurnUser == _myIDmult && _startGame) || 
+				(!_startGame && !_bSetBet)){
 					_timeTurn -= diffTime;
 					showTimer = true;
 				}
@@ -2558,8 +2569,8 @@ var ScrGame = function(){
 		}
 		
 		if(_timeTurn < 0){
-			_timeTurn = TIME_TURN;
 			if(_startGame){
+				_timeTurn = TIME_TURN;
 				_self.clickStand();
 			} else {
 				_self.closeChannel();
@@ -2709,7 +2720,7 @@ var ScrGame = function(){
 	}
 
 	_self.clickDeal = function(){
-		if(_bWindow){
+		if(_bWindow || _bSetBet){
 			return false;
 		}
 		
