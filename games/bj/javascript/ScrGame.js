@@ -1876,6 +1876,9 @@ var ScrGame = function(){
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
+			if(_bCloseChannel){
+				return;
+			}
             var user_id = data.user_id;
 
             if (data.action=='close_game_channel' || 
