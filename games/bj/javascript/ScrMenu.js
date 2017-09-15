@@ -118,7 +118,7 @@ ScrMenu.prototype.showBankrolls = function(){
 	this._wndList.x = _W/2;
 	this._wndList.y = _H/2;
 	this.addChild(this._wndList);
-	this._wndList.show();
+	// this._wndList.show();
 }
 
 ScrMenu.prototype.startGame = function(){
@@ -126,7 +126,6 @@ ScrMenu.prototype.startGame = function(){
 		_prnt._wndList.visible = false;
 	}
 	_prnt.removeAllListener();
-	// showSpeedGame();
 	showGame();
 }
 
