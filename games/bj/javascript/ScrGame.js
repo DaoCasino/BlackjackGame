@@ -46,7 +46,7 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -229,6 +229,7 @@ var ScrGame = function(){
 		_bWaitBet = false;
 		_bMixing = false;
 		_bSetBet = false;
+		_bWaitUser = false;
 	}
 	
 	_self.createGUI = function(){
@@ -921,14 +922,15 @@ var ScrGame = function(){
 	}
 	
 	_self.showChips = function(value) {
-		if(options_multiplayer && (_bCloseChannel || _bSetBet)){
-			return;
-		}
 		var a = 0.5;
 		var alpha = a;
 		
 		if(value){
 			alpha = 1;
+		}
+		
+		if(options_multiplayer && (_bCloseChannel || _bSetBet)){
+			alpha = 0.5;
 		}
 		if(_startGame || _countBankrollers == 0){
 			alpha = a;
@@ -1920,11 +1922,13 @@ var ScrGame = function(){
 				
 				if (room_game_wait) {
 					if(!_bCloseChannel){
+						_bWaitUser = true;
 						str = getText("Wait, the new game will open soon.");
 						_self.showWndWarning(str);
 					}
 					return;
 				} else {
+					_bWaitUser = false;
 					roomFullCallback(_room.getUsersArr())
 					_room.mixDeck();
 				}
@@ -2543,9 +2547,10 @@ var ScrGame = function(){
 	// UPDATE
 	_self.update = function(diffTime){
 		var showTimer = false;
-		if(_timeTurn > 0 && !_bCloseChannel){
+		if(_timeTurn > 0 && !_bCloseChannel && !_bWaitUser){
 			if(_countPlayers > 1){
-				if(_idTurnUser == _myIDmult || (!_startGame && !_bSetBet)){
+				if((_idTurnUser == _myIDmult && _startGame) || 
+				(!_startGame && !_bSetBet)){
 					_timeTurn -= diffTime;
 					showTimer = true;
 				}
