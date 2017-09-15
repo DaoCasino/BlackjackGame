@@ -10,6 +10,7 @@ var ScrGame = function(){
 	var TIME_SHOW_BTN  = 300;
 	var TIME_NEW_CARD  = 600;
 	var TIME_GET_STATE = 10000;
+	var TIME_TURN = 30000;
 	var R_WIN          = "WIN!";
 	var R_LOSE         = "LOSE...";
 	var R_BUST         = "BUST!";
@@ -45,7 +46,7 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -87,6 +88,7 @@ var ScrGame = function(){
 	var _idTurnUser = 0;
 	var _myIDmult = 0;
 	var _idTutor = 0;
+	var _timeTurn = 0;
 	
 	var unit = [];
 		unit[0] = "Main";
@@ -226,6 +228,7 @@ var ScrGame = function(){
 		_bCloseChannel = false;
 		_bWaitBet = false;
 		_bMixing = false;
+		_bSetBet = false;
 	}
 	
 	_self.createGUI = function(){
@@ -285,6 +288,10 @@ var ScrGame = function(){
 		this.tfBankrollers.x = icoKey.x - 10;
 		this.tfBankrollers.y = 40+stepY*1 + 38;
 		face_mc.addChild(this.tfBankrollers);
+		this.tfTimer = addText("", 34, "#ffffff", "#000000", "left", 200, 4)
+		this.tfTimer.x = icoKey.x - 10;
+		this.tfTimer.y = 40+stepY*2 + 38;
+		face_mc.addChild(this.tfTimer);
 		this.tfVers= addText(version, fontSize, "#ffffff", "#000000", "right", 400, 4)
 		this.tfVers.x = _W - 10;
 		this.tfVers.y = _H - this.tfVers.height/2 - 10;
@@ -914,7 +921,7 @@ var ScrGame = function(){
 	}
 	
 	_self.showChips = function(value) {
-		if(options_multiplayer && _bCloseChannel){
+		if(options_multiplayer && (_bCloseChannel || _bSetBet)){
 			return;
 		}
 		var a = 0.5;
@@ -1648,8 +1655,10 @@ var ScrGame = function(){
 		var strResultS = "";
 		_startGame = false;
 		_bClear = false;
+		_bSetBet = false;
 		_betGame = 0;
 		_betGameOld = 0;
+		_timeTurn = TIME_TURN;
 		var betMain = objResult.betMain/valToken;
 		var betSplit = objResult.betSplit/valToken;
 		
@@ -1879,6 +1888,9 @@ var ScrGame = function(){
 					_room.mixDeck();
 				}
             }
+			if (data.action=='user_disconnected_by_timeout') {
+				// todo
+            }
 			if (data.action=='room_users') {
 				var data_users = {}
 				room_game_wait = false;
@@ -2076,6 +2088,7 @@ var ScrGame = function(){
 		
 		Casino.startGame(gameCode, addressContract, _balanceSession, function(obj){
 			if(obj == true){
+				_timeTurn = TIME_TURN;
 				if (options_multiplayer) {
 					_self.initRoom(function(arUsers){
 						_idTurnUser = 0;
@@ -2405,6 +2418,7 @@ var ScrGame = function(){
 						_self.clickDealerStand();
 					} else {
 						if(_idTurnUser == _myIDmult){
+							_timeTurn = TIME_TURN;
 							if(_myPoints < BLACKJACK){
 								_self.updateShowBtn(1);
 							} else {
@@ -2499,6 +2513,36 @@ var ScrGame = function(){
 	
 	// UPDATE
 	_self.update = function(diffTime){
+		var showTimer = false;
+		if(_timeTurn > 0 && !_bCloseChannel){
+			if(_countPlayers > 1){
+				if(_idTurnUser == _myIDmult){
+					_timeTurn -= diffTime;
+					showTimer = true;
+				}
+			} else {
+				_timeTurn -= diffTime;
+				showTimer = true;
+			}
+		} 
+		
+		if(_self.tfTimer){
+			if(showTimer){
+				_self.tfTimer.setText(get_normal_time(_timeTurn));
+			} else {
+				_self.tfTimer.setText("");
+			}
+		}
+		
+		if(_timeTurn < 0){
+			_timeTurn = TIME_TURN;
+			if(_startGame){
+				_self.clickStand();
+			} else {
+				_self.closeChannel();
+			}
+		}
+		
 		if(options_pause){
 			return false;
 		}
@@ -2592,6 +2636,7 @@ var ScrGame = function(){
 		_self.btnClear.alpha = 0.5;
 		_self.btnExit.alpha = 0.5;
 		_self.refreshLogic(_myIDmult);
+		_timeTurn = TIME_TURN;
 		
 		if(options_debug){
 			_logic.bjBet(_betGame);
@@ -2606,6 +2651,7 @@ var ScrGame = function(){
 	_self.clickGeneralDeal = function(){
 		_startGame = true;
 		_idTurnUser = 0
+		_timeTurn = TIME_TURN;
 
 		_idGame ++;
 		_arUsersResult = [];
@@ -2629,6 +2675,7 @@ var ScrGame = function(){
 		
 		_startGame = false;
 		_self.icoCurUser.visible = false;
+		_timeTurn = TIME_TURN;
 		
 		var curUser = _room.getTagUser(openkey);
 		if (curUser && curUser.id==0) {
@@ -2645,6 +2692,7 @@ var ScrGame = function(){
 		
 		var seed = makeID();
 		_currentMethod = DEAL;
+		_timeTurn = TIME_TURN;
 		_idGame ++;
 		localStorage._idGame = _idGame;
 		if((_betGame >= _minBet && 
@@ -2655,6 +2703,7 @@ var ScrGame = function(){
 				if(_room){
 					_countPlayers = _room.getUsersArr().length;
 				}
+				_bSetBet = true;
 				if(_countPlayers > 1){
 					this.clickBet();
 				} else {
@@ -2706,6 +2755,7 @@ var ScrGame = function(){
 		var seed = makeID();
 		var isMain = !_bSplit;
 		_currentMethod = HIT;
+		_timeTurn = TIME_TURN;
 		if(options_debug){
 			_logic.bjHit(seed, isMain);
 		} else {
@@ -2779,6 +2829,7 @@ var ScrGame = function(){
 		var seed = makeID();
 		var isMain = !_bSplit;
 		_currentMethod = STAND;
+		_timeTurn = TIME_TURN;
 		
 		if(options_debug){
 			_logic.bjMultStand(seed, isMain);
@@ -2833,6 +2884,7 @@ var ScrGame = function(){
 		var seed = makeID();
 		var isMain = !_bSplit;
 		_currentMethod = DOUBLE;
+		_timeTurn = TIME_TURN;
 		if(options_debug){
 			_logic.bjDouble(seed, isMain);
 		} else {
@@ -2909,6 +2961,7 @@ var ScrGame = function(){
 		_loadSplitCard = 1;
 		_lastPlayerCard = 1;
 		_lastSplitCard = 1;
+		_timeTurn = TIME_TURN;
 		
 		var seed = makeID();
 		_currentMethod = SPLIT;
@@ -2951,6 +3004,7 @@ var ScrGame = function(){
 		_currentMethod = INSURANCE;
 		_valInsurance = _betGame/2;
 		_bWindow = false;
+		_timeTurn = TIME_TURN;
 		if(!options_debug){
 			var name = _arMethodsName[_currentMethod];
 			var transaction = -_valInsurance;
