@@ -1008,7 +1008,7 @@ function compareInvers(a,b) {
 function visGame() {
 	//play
 	options_pause = false;
-	refreshTime();
+	// refreshTime();
 	
 	if(currentScreen){
 		if(ScreenGame){
