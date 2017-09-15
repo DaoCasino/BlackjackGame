@@ -1889,7 +1889,8 @@ var ScrGame = function(){
 				}
             }
 			if (data.action=='user_disconnected_by_timeout') {
-				// todo
+				_self.hideUser(user_id);
+				_self.checkBetUsers();
             }
 			if (data.action=='room_users') {
 				var data_users = {}
