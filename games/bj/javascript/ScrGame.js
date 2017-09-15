@@ -1889,7 +1889,22 @@ var ScrGame = function(){
 				}
             }
 			if (data.action=='user_disconnected_by_timeout') {
-				// todo
+				_self.hideUser(user_id);
+				_self.checkBetUsers();
+				_idTurnUser ++;
+				_timeTurn = TIME_TURN;
+				if(_idTurnUser >= _countPlayers){
+					_self.clickDealerStand();
+				} else {
+					if(_idTurnUser == _myIDmult){
+						_timeTurn = TIME_TURN;
+						if(_myPoints < BLACKJACK){
+							_self.updateShowBtn(1);
+						} else {
+							_self.clickStand();
+						}
+					}
+				}
             }
 			if (data.action=='room_users') {
 				var data_users = {}
