@@ -1151,7 +1151,7 @@ var ScrGame = function(){
 				str = "OOOPS! \n " + getText("error_bankrollers_offline");
 				break;
 			default:
-				str = "ERROR! \n\n " + value + " \n\n " + getText("contact_support");
+				str = "ERROR! \n\n " + value //+ " \n\n " + getText("contact_support");
 				break;
 		}
 		if(_wndWarning){
@@ -1892,6 +1892,7 @@ var ScrGame = function(){
 				_self.hideUser(user_id);
 				_self.checkBetUsers();
 				_idTurnUser ++;
+				
 				_timeTurn = TIME_TURN;
 				if(_idTurnUser >= _countPlayers){
 					_self.clickDealerStand();
@@ -1904,6 +1905,10 @@ var ScrGame = function(){
 							_self.clickStand();
 						}
 					}
+				}
+				
+				if(_bSetBet){
+					_self.showChips(false);
 				}
             }
 			if (data.action=='room_users') {
@@ -2192,6 +2197,9 @@ var ScrGame = function(){
 									String(deposit/valToken) + " != " + String(obj.profit/valToken);
 						if(obj.error == "invalid_profit"){
 							str += "\n" + getText("click_reset");
+						}
+						if(obj.error.message && obj.error.message == "transaction underpriced"){
+							str = getText("error_channel_not_closed");
 						}
 						_self.showError(str);
 						_self.btnExit.alpha = 1;
@@ -2531,7 +2539,7 @@ var ScrGame = function(){
 		var showTimer = false;
 		if(_timeTurn > 0 && !_bCloseChannel){
 			if(_countPlayers > 1){
-				if(_idTurnUser == _myIDmult){
+				if(_idTurnUser == _myIDmult || !_startGame){
 					_timeTurn -= diffTime;
 					showTimer = true;
 				}
@@ -2859,7 +2867,6 @@ var ScrGame = function(){
 				if(isMain){
 					_self.showButtons(false);
 					_idTurnUser ++;
-					// if(_idTurnUser >= _room.getUsersArr().length){
 					if(_idTurnUser >= _countPlayers){
 						_self.clickDealerStand();
 					}

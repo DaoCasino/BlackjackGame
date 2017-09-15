@@ -532,7 +532,7 @@ var LogicMultJS = function(params){
 		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
 		var id = _arCards[rand];
 		_arCards.splice(rand, 1);
-		console.log("createCard:", _arCards.length, _address);
+		// console.log("createCard:", _arCards.length, _address);
 		return id;
 	}
 	
