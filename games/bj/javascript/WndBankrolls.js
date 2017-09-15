@@ -149,7 +149,7 @@ WndBankrolls.prototype.clearList = function() {
 	this._arBankrollers = [];
 	this._arSelected = [];
 }
-
+	
 WndBankrolls.prototype.show = function() {
 	var ar = Casino.getBankrollers(gameCode);
 	var arAdr = Object.keys(ar);
@@ -201,18 +201,30 @@ WndBankrolls.prototype.show = function() {
 	this._selectB = false;
 	
 	var i = 0;
+	var arBankr = [];
 	for(var tag in ar){
 		if(tag != undefined && tag != "undefined"){
 			var obj = ar[tag];
-			if(load){
-				if(tag == addressContract){
-					this.addBankroller(i, tag, obj);
-					i ++;
-				}
-			} else {
-				this.addBankroller(i, tag, obj);
-				i ++;
+			var plays = 0;
+			if(obj && obj.stat){
+				plays = obj.stat.close_game || 0;
 			}
+			var bankroller = {tag:tag, obj:obj, val:plays};
+			arBankr.push(bankroller);
+		}
+	}
+	
+	arBankr.sort(compareInvers);
+	
+	for (var i = 0; i < arBankr.length; i++) {
+		var tag = arBankr[i].tag;
+		var obj = arBankr[i].obj;
+		if(load){
+			if(tag == addressContract){
+				this.addBankroller(i, tag, obj);
+			}
+		} else {
+			this.addBankroller(i, tag, obj);
 		}
 	}
 	

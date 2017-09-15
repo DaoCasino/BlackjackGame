@@ -990,7 +990,20 @@ function hitTestObject(mc1, mc2) {
 function intersects(a, b) {
   return ( a.y1 < b.y2 || a.y2 > b.y1 || a.x2 < b.x1 || a.x1 > b.x2 );
 }
-
+function compare(a,b) {
+	if (a.val < b.val)
+		return -1;
+	if (a.val > b.val)
+		return 1;
+	return 0;
+}
+function compareInvers(a,b) {
+	if (a.val > b.val)
+		return -1;
+	if (a.val < b.val)
+		return 1;
+	return 0;
+}
 
 function visGame() {
 	//play
