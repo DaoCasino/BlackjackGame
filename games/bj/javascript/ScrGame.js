@@ -197,6 +197,8 @@ var ScrGame = function(){
 		_arHistory = [];
 		_arUsersResult = [];
 		_arUsersCoord = [];
+		_dealedCards = [];
+		_arBankrollers = [];
 		
 		_arMethodsName = [];
 		_arMethodsName[INSURANCE] = "insurance";
@@ -1897,6 +1899,7 @@ var ScrGame = function(){
 				} else {
 					_room.mixDeck();
 				}
+				console.log("user_connected:", _bMixing);
             }
 			
 			if (data.action=='room_users') {
@@ -2142,7 +2145,8 @@ var ScrGame = function(){
 				if(obj.error){
 					str = getText("error_"+obj.error).replace(new RegExp("VALUE"), addressContract);
 					console.log("error:", obj.error);
-					_self.showError(str, _self.showBankrolls);
+					// _self.showError(str, _self.showBankrolls);
+					_self.showError(str, window.location.reload());
 					sessionIsOver = false;
 					_objSpeedGame.result = true;
 					_self.isCashoutAvailable();

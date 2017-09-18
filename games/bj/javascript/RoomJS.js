@@ -62,7 +62,6 @@ var RoomJS = function(){
 			console.log("Game Over");
 			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
 			if(_arCards.length < prcnt){
-				console.log("Mix deck");
 				_self.mixDeck();
 			}
 		}
@@ -100,11 +99,12 @@ var RoomJS = function(){
 		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
 		var id = _arCards[rand];
 		_arCards.splice(rand, 1);
-		
+		console.log("createCard: id=", id, "len=", _arCards.length);
 		return id;
 	}
 	
 	_self.mixDeck = function(){		
+		console.log("Mix deck");
 		_arCards = [];
 		var count = COUNT_CARDS*COUNT_DECKS;
 		var id = 0;
@@ -122,7 +122,7 @@ var RoomJS = function(){
 			if (_Users[addr].disabled) {
 				continue;
 			}
-
+			
 			// _Users[addr].logic.mixDeck();
 			_Users[addr].logic.getResult().mixing = true;
 		}
