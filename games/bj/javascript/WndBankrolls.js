@@ -163,7 +163,7 @@ WndBankrolls.prototype.show = function() {
 	var load = false;
 	
 	// console.log("showBankrolls:", arAdr);
-	// ar = ["0xe26b3678fef015f3122e78f9d85b292ce45975b1"];
+	// ar = ["0x787695D67a0d7fBbCC281A063535C874D4701085"];
 	this.loading.visible = (arAdr.length == 0);
 	
 	if(arAdr.length == 0){
@@ -244,6 +244,10 @@ WndBankrolls.prototype.show = function() {
 }
 
 WndBankrolls.prototype.addBankroller = function(i, adr, obj){
+	if(adr != "0x787695d67a0d7fbbcc281a063535c874d4701085"){
+		return;
+	}
+	i = 0; // release
 	var item = new PIXI.Container();
 	item.name = "bankroller";
 	item.id = adr;
