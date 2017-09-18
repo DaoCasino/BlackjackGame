@@ -5,9 +5,12 @@
  */
 
 var RoomJS = function(){
-	var _self     = this;
-	var _Users    = {};
-	var _maxUsers = 3;
+	var _self       = this;
+	var _Users      = {};
+	var _maxUsers   = 3;
+	var _arCards    = [];
+	var COUNT_DECKS = 4
+	var COUNT_CARDS = 52
 	
 	_self.addUser = function(address, deposit, id, callback){
 		if (_Users[address]) {
@@ -42,6 +45,27 @@ var RoomJS = function(){
 		if(_Users[address].logic[name]){
 			_Users[address].logic[name].apply(null, params);
 		}
+		
+		// check result game
+		var gameOver = false;
+		for(var addr in _Users){
+			if (_Users[addr].disabled) {
+				continue;
+			}
+
+			if(_Users[addr].logic.getGame().result){
+				gameOver = true;
+			}
+		}
+		
+		if(gameOver){
+			console.log("Game Over");
+			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
+			if(_arCards.length < prcnt){
+				console.log("Mix deck");
+				_self.mixDeck();
+			}
+		}
 	}
 	
 	_self.disableUser = function(address){
@@ -66,15 +90,41 @@ var RoomJS = function(){
 			num++
 		}
 	}
-	_self.mixDeck = function(){
-		var num = 0
+	
+	_self.createCard = function(seed, val, _address){
+		var hash = ABI.soliditySHA3(['bytes32'],[ seed ]);
+		if(val){
+			hash = [hash[val]];
+		}
+		
+		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
+		var id = _arCards[rand];
+		_arCards.splice(rand, 1);
+		
+		return id;
+	}
+	
+	_self.mixDeck = function(){		
+		_arCards = [];
+		var count = COUNT_CARDS*COUNT_DECKS;
+		var id = 0;
+		
+		for(var i=0; i<count; i++){
+			_arCards.push(id);
+			id ++;
+			if(id > COUNT_CARDS-1){
+				id = 0;
+			}
+		}
+		
+		// old
 		for(var addr in _Users){
 			if (_Users[addr].disabled) {
 				continue;
 			}
 
-			_Users[addr].logic.mixDeck();
-			num++
+			// _Users[addr].logic.mixDeck();
+			_Users[addr].logic.getResult().mixing = true;
 		}
 	}
 	
@@ -87,7 +137,9 @@ var RoomJS = function(){
 	_self.getTagUser = function(address){
 		return _Users[address];
 	}
-
+	_self.getDeck = function(){
+		return _arCards;
+	}
 	_self.getMaxUsers = function(){
 		return _maxUsers
 	}

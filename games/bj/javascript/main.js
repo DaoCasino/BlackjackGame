@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.15";
+var version = "v. 1.1.16";
 var metaCode = "blackjack_v1";
 var gameCode = "BJ_m";
 var login_obj = {};

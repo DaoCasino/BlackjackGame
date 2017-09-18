@@ -1581,6 +1581,10 @@ var ScrGame = function(){
 		}
 	}
 
+	_self.createCard = function(cardNumber, val, _address) {
+		return _room.createCard(cardNumber, val, _address);
+	}
+	
 	// CHECK
 	_self.isCashoutAvailable = function() {
 		if(login_obj["openChannel"] && _objSpeedGame.result){
@@ -1964,13 +1968,9 @@ var ScrGame = function(){
 					balance:login_obj["deposit"], 
 					address:openkey, 
 					callback:_self.responseServer, 
-					bMultiplayer:false};
+					bMultiplayer:options_multiplayer};
 		
 		_logic = new LogicMultJS(params);
-	}
-
-	_self.initGame = function() {
-		console.log("initGame");
 	}
 	
 	_self.refreshLogic = function(id){
@@ -2349,7 +2349,6 @@ var ScrGame = function(){
 	// SERVER
 	_self.responseServer = function(address, objGame) {
 		// show action
-		
 		if(address == openkey){
 			var balanceSession = _balanceSession;
 			var arMy = [];
@@ -2695,9 +2694,12 @@ var ScrGame = function(){
 		_self.icoCurUser.visible = true;
 		
 		var curUser = _room.getTagUser(openkey);
+		if (!curUser) {
+			return
+		}
+
 		_self.clickHit();
 		_self.clickHit();
-		
 		if (curUser.id==0) {
 			var seed = makeID();
 			Casino.callGameFunction(_idGame, msgID(), 'bjDealer', [seed]);

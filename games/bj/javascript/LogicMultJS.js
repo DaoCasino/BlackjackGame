@@ -523,16 +523,8 @@ var LogicMultJS = function(params){
 		}
 	}
 	
-	function createCard(cardNumber, val){	
-		var hash = ABI.soliditySHA3(['bytes32'],[ cardNumber ]);
-		if(val != undefined){
-			hash = [hash[val]];
-		}
-		
-		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
-		var id = _arCards[rand];
-		_arCards.splice(rand, 1);
-		// console.log("createCard:", _arCards.length, _address);
+	function createCard(cardNumber, val){
+		var id = _prnt.createCard(cardNumber, val, _address);
 		return id;
 	}
 	
