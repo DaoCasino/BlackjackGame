@@ -2168,7 +2168,7 @@ var ScrGame = function(){
 		if(_bCloseChannel){
 			return false;
 		}
-		
+		console.log("closeChannel");
 		if(options_debug){
 			var deposit = _balanceSession - login_obj["deposit"];
 			sessionIsOver = true;
@@ -2586,6 +2586,7 @@ var ScrGame = function(){
 				_timeTurn = TIME_TURN;
 				_self.clickStand();
 			} else {
+				_objSpeedGame.result = true
 				_self.closeChannel();
 			}
 		}
