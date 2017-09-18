@@ -46,7 +46,8 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser,
+		_bError;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -232,6 +233,7 @@ var ScrGame = function(){
 		_bMixing = false;
 		_bSetBet = false;
 		_bWaitUser = false;
+		_bError = false;
 	}
 	
 	_self.createGUI = function(){
@@ -1126,6 +1128,7 @@ var ScrGame = function(){
 	}
 
 	_self.showError = function(value, callback) {
+		_bError = true;
 		var str = "ERR"
 		switch(value){
 			case ERROR_BUF:
@@ -1161,7 +1164,11 @@ var ScrGame = function(){
 		if(_wndWarning){
 			_wndWarning.visible = false;
 		}
-		_self.createWndInfo(str, callback);
+		_self.createWndInfo(str, 
+			function() {
+				_bError = false;
+				callback();
+			});
 	}
 
 	_self.showInsurance = function() {
@@ -1882,7 +1889,7 @@ var ScrGame = function(){
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
-			if(_bCloseChannel){
+			if(_bCloseChannel || _bError){
 				return;
 			}
             var user_id = data.user_id;
