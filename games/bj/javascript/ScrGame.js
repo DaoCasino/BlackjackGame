@@ -1980,7 +1980,7 @@ var ScrGame = function(){
 					callback:_self.responseServer, 
 					bMultiplayer:options_multiplayer};
 		
-		_logic = new LogicMultJS(params);
+		_logic = new LogicJS(params);
 	}
 	
 	_self.refreshLogic = function(id){
@@ -2129,8 +2129,9 @@ var ScrGame = function(){
 		_bCloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_self.showWndWarning(str);
-		
+		console.log("openChannel");
 		Casino.startGame(gameCode, addressContract, _balanceSession, function(obj){
+			console.log("startGame:", obj);
 			if(obj == true){
 				_timeTurn = TIME_TURN;
 				if (options_multiplayer) {

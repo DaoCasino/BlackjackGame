@@ -18,7 +18,7 @@ var RoomJS = function(){
 		}
 		
 		var params = {prnt:_self, balance:deposit, address:address, callback:callback, bMultiplayer:true};
-		var logic = new LogicMultJS(params);
+		var logic = new LogicJS(params);
 		
 		if (typeof id === 'undefined') {
 			id = Object.keys(_Users).length
@@ -104,7 +104,6 @@ var RoomJS = function(){
 	}
 	
 	_self.mixDeck = function(){		
-		console.log("Mix deck");
 		_arCards = [];
 		var count = COUNT_CARDS*COUNT_DECKS;
 		var id = 0;
@@ -116,6 +115,8 @@ var RoomJS = function(){
 				id = 0;
 			}
 		}
+		
+		console.log("Mix deck:", _arCards);
 		
 		// old
 		for(var addr in _Users){
