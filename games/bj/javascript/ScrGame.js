@@ -929,6 +929,10 @@ var ScrGame = function(){
 		var a = 0.5;
 		var alpha = a;
 		
+		if(_bWaitUser==true){
+			return;
+		}
+		
 		if(value){
 			alpha = 1;
 		}
@@ -2608,7 +2612,7 @@ var ScrGame = function(){
 		if(_bWaitBet && _balance > 0){
 			_bWaitBet = false;
 			_wndWarning.visible = false;
-			_self.showChips();
+			// _self.showChips();
 		}
 		
 		if(_wndWarning){
