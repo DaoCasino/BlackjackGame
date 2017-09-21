@@ -244,10 +244,10 @@ WndBankrolls.prototype.show = function() {
 }
 
 WndBankrolls.prototype.addBankroller = function(i, adr, obj){
-	if(adr != "0x787695d67a0d7fbbcc281a063535c874d4701085"){
-		return;
-	}
-	i = 0; // release
+	// if(adr != "0x787695d67a0d7fbbcc281a063535c874d4701085"){ // release
+		// return;
+	// }
+	// i = 0; // release
 	var item = new PIXI.Container();
 	item.name = "bankroller";
 	item.id = adr;

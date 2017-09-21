@@ -46,7 +46,8 @@ var ScrGame = function(){
 		_dealedCards, _arBankrollers, _arMethodsName, _arCoords;
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
-		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser;
+		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser,
+		_bError;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -197,6 +198,8 @@ var ScrGame = function(){
 		_arHistory = [];
 		_arUsersResult = [];
 		_arUsersCoord = [];
+		_dealedCards = [];
+		_arBankrollers = [];
 		
 		_arMethodsName = [];
 		_arMethodsName[INSURANCE] = "insurance";
@@ -230,6 +233,7 @@ var ScrGame = function(){
 		_bMixing = false;
 		_bSetBet = false;
 		_bWaitUser = false;
+		_bError = false;
 	}
 	
 	_self.createGUI = function(){
@@ -925,6 +929,10 @@ var ScrGame = function(){
 		var a = 0.5;
 		var alpha = a;
 		
+		if(_bWaitUser==true){
+			return;
+		}
+		
 		if(value){
 			alpha = 1;
 		}
@@ -1124,6 +1132,7 @@ var ScrGame = function(){
 	}
 
 	_self.showError = function(value, callback) {
+		_bError = true;
 		var str = "ERR"
 		switch(value){
 			case ERROR_BUF:
@@ -1159,7 +1168,11 @@ var ScrGame = function(){
 		if(_wndWarning){
 			_wndWarning.visible = false;
 		}
-		_self.createWndInfo(str, callback);
+		_self.createWndInfo(str, 
+			function() {
+				_bError = false;
+				callback();
+			});
 	}
 
 	_self.showInsurance = function() {
@@ -1581,6 +1594,10 @@ var ScrGame = function(){
 		}
 	}
 
+	_self.createCard = function(cardNumber, val, _address) {
+		return _room.createCard(cardNumber, val, _address);
+	}
+	
 	// CHECK
 	_self.isCashoutAvailable = function() {
 		if(login_obj["openChannel"] && _objSpeedGame.result){
@@ -1876,7 +1893,7 @@ var ScrGame = function(){
 		var room_game_wait = false;
 		var prev_room_game_wait = 'none';
 		Casino.onGameStateChange(function(data){
-			if(_bCloseChannel){
+			if(_bCloseChannel || _bError){
 				return;
 			}
             var user_id = data.user_id;
@@ -1893,6 +1910,7 @@ var ScrGame = function(){
 				} else {
 					_room.mixDeck();
 				}
+				console.log("user_connected:", _bMixing);
             }
 			
 			if (data.action=='room_users') {
@@ -1964,13 +1982,9 @@ var ScrGame = function(){
 					balance:login_obj["deposit"], 
 					address:openkey, 
 					callback:_self.responseServer, 
-					bMultiplayer:false};
+					bMultiplayer:options_multiplayer};
 		
-		_logic = new LogicMultJS(params);
-	}
-
-	_self.initGame = function() {
-		console.log("initGame");
+		_logic = new LogicJS(params);
 	}
 	
 	_self.refreshLogic = function(id){
@@ -2119,8 +2133,9 @@ var ScrGame = function(){
 		_bCloseChannel = false;
 		var str = getText("open_channel_start").replace(new RegExp("SPL"), "\n");
 		_self.showWndWarning(str);
-		
+		console.log("openChannel");
 		Casino.startGame(gameCode, addressContract, _balanceSession, function(obj){
+			console.log("startGame:", obj);
 			if(obj == true){
 				_timeTurn = TIME_TURN;
 				if (options_multiplayer) {
@@ -2142,7 +2157,8 @@ var ScrGame = function(){
 				if(obj.error){
 					str = getText("error_"+obj.error).replace(new RegExp("VALUE"), addressContract);
 					console.log("error:", obj.error);
-					_self.showError(str, _self.showBankrolls);
+					// _self.showError(str, _self.showBankrolls);
+					_self.showError(str, window.location.reload());
 					sessionIsOver = false;
 					_objSpeedGame.result = true;
 					_self.isCashoutAvailable();
@@ -2157,7 +2173,7 @@ var ScrGame = function(){
 		if(_bCloseChannel){
 			return false;
 		}
-		
+		console.log("closeChannel");
 		if(options_debug){
 			var deposit = _balanceSession - login_obj["deposit"];
 			sessionIsOver = true;
@@ -2349,7 +2365,6 @@ var ScrGame = function(){
 	// SERVER
 	_self.responseServer = function(address, objGame) {
 		// show action
-		
 		if(address == openkey){
 			var balanceSession = _balanceSession;
 			var arMy = [];
@@ -2576,6 +2591,7 @@ var ScrGame = function(){
 				_timeTurn = TIME_TURN;
 				_self.clickStand();
 			} else {
+				_objSpeedGame.result = true
 				_self.closeChannel();
 			}
 		}
@@ -2596,7 +2612,7 @@ var ScrGame = function(){
 		if(_bWaitBet && _balance > 0){
 			_bWaitBet = false;
 			_wndWarning.visible = false;
-			_self.showChips();
+			// _self.showChips();
 		}
 		
 		if(_wndWarning){
@@ -2695,9 +2711,12 @@ var ScrGame = function(){
 		_self.icoCurUser.visible = true;
 		
 		var curUser = _room.getTagUser(openkey);
+		if (!curUser) {
+			return
+		}
+
 		_self.clickHit();
 		_self.clickHit();
-		
 		if (curUser.id==0) {
 			var seed = makeID();
 			Casino.callGameFunction(_idGame, msgID(), 'bjDealer', [seed]);
