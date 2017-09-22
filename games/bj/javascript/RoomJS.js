@@ -42,7 +42,7 @@ var RoomJS = function(){
 	}
 
 	_self.callFunction = function(address, name, params){
-		if(_Users[address].logic[name]){
+		if(_Users && _Users[address] && _Users[address].logic && _Users[address].logic[name]){
 			_Users[address].logic[name].apply(null, params);
 		}
 		
