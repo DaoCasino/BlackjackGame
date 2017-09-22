@@ -1728,6 +1728,10 @@ var ScrGame = function(){
 			_room.mixDeck();
 			_mixingCard.visible = true;
 			_timeMixing = 3000;
+			
+			
+ 			Casino.callGameFunction(_idGame, msgID(), 'BJ_mixDeck', []);
+
 			var str = getText("mixed_decks").replace(new RegExp("SPL"), "\n");
 			_self.showWndWarning(str);
 		}
