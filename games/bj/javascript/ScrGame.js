@@ -1169,10 +1169,14 @@ var ScrGame = function(){
 			_wndWarning.visible = false;
 		}
 		_self.createWndInfo(str, 
-			function() {
-				_bError = false;
-				callback();
-			});
+            function() {
+                _bError = false;
+                if (callback) {
+                    if (typeof callback == 'function') {
+                        callback();
+                    }
+                }
+            });
 	}
 
 	_self.showInsurance = function() {
@@ -1896,7 +1900,7 @@ var ScrGame = function(){
 			if(_bCloseChannel || _bError){
 				return;
 			}
-            var user_id = data.user_id;
+            var user_id = data.call_user_id || data.user_id;
 
             if (data.action=='close_game_channel' || 
 			data.action=='user_disconnected_by_timeout') {
@@ -1958,13 +1962,11 @@ var ScrGame = function(){
 			var curUser = _room.getTagUser(user_id);
 			if(!curUser){ return; }
 			
-			if (data.action=='call_game_function' && !_bCloseChannel) {
-				if (data.name=='closeAllChannels') {
-					_self.closeChannel();
-					_self.showChips(false);
-					return;
+			if (data.action=='B_call_game_function' && !_bCloseChannel) {
+				if (openkey==data.call_user_id) {
+					return
 				}
-				
+
 				if (curUser) {
 					_self.refreshLogic(curUser.id);
 					_room.callFunction(user_id, data.name, data.args)
@@ -2807,23 +2809,27 @@ var ScrGame = function(){
 		if(_bWindow){
 			return false;
 		}
-		
-		var seed = makeID();
-		var isMain = !_bSplit;
+
+		console.log('clickHit')
+
+		var seed       = makeID();
+		var isMain     = !_bSplit;
 		_currentMethod = HIT;
-		_timeTurn = TIME_TURN;
+		_timeTurn      = TIME_TURN;
+		
 		if(options_debug){
 			_logic.bjHit(seed, isMain);
 		} else {
+			console.log('seed:',seed)
 			_self.signSeed(seed, function(result){
-				var arParams = ['confirm('+seed+')', isMain];
+				console.log('signSeed result:',result)
+				console.log('options_multiplayer:', options_multiplayer)
 				if(options_multiplayer){
 					var curUser = _room.getTagUser(openkey);
-					arParams = [result, isMain];
 					_logic = curUser.logic;
 				}
 				
-				Casino.callGameFunction(_idGame, msgID(), 'bjHit', arParams);
+				Casino.callGameFunction(_idGame, msgID(), 'bjHit', ['confirm('+seed+')', isMain]);
 				_logic.bjHit(result, isMain);
 			});
 		}
