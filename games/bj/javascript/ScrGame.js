@@ -2175,7 +2175,7 @@ var ScrGame = function(){
 		if(_bCloseChannel){
 			return false;
 		}
-		console.log("closeChannel");
+		
 		if(options_debug){
 			var deposit = _balanceSession - login_obj["deposit"];
 			sessionIsOver = true;
@@ -2234,7 +2234,7 @@ var ScrGame = function(){
 						}
 						_self.showError(str);
 						_self.btnExit.alpha = 1;
-						_bCloseChannel = false;
+						// _bCloseChannel = false;
 					}
 				})
 			} else {
@@ -2810,8 +2810,6 @@ var ScrGame = function(){
 			return false;
 		}
 
-		console.log('clickHit')
-
 		var seed       = makeID();
 		var isMain     = !_bSplit;
 		_currentMethod = HIT;
@@ -2822,8 +2820,6 @@ var ScrGame = function(){
 		} else {
 			console.log('seed:',seed)
 			_self.signSeed(seed, function(result){
-				console.log('signSeed result:',result)
-				console.log('options_multiplayer:', options_multiplayer)
 				if(options_multiplayer){
 					var curUser = _room.getTagUser(openkey);
 					_logic = curUser.logic;
