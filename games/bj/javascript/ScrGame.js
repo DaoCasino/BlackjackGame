@@ -47,7 +47,7 @@ var ScrGame = function(){
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
 		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser,
-		_bError, _bWaitUser2=true;
+		_bError, _bWaitUser2;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -234,6 +234,7 @@ var ScrGame = function(){
 		_bSetBet = false;
 		_bWaitUser = false;
 		_bError = false;
+		_bWaitUser2 = true;
 	}
 	
 	_self.createGUI = function(){
