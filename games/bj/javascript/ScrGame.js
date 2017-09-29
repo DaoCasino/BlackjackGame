@@ -47,7 +47,7 @@ var ScrGame = function(){
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
 		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser,
-		_bError;
+		_bError, _bWaitUser2;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -234,6 +234,7 @@ var ScrGame = function(){
 		_bSetBet = false;
 		_bWaitUser = false;
 		_bError = false;
+		_bWaitUser2 = true;
 	}
 	
 	_self.createGUI = function(){
@@ -932,7 +933,6 @@ var ScrGame = function(){
 		if(_bWaitUser==true){
 			return;
 		}
-		
 		if(value){
 			alpha = 1;
 		}
@@ -958,7 +958,7 @@ var ScrGame = function(){
 	_self.showButtons = function(value) {
 		var a = 0.5;
 		var alpha = a;
-		
+
 		if(value && !_objSpeedGame.result){
 			alpha = 1;
 		}
@@ -1952,11 +1952,13 @@ var ScrGame = function(){
 				if (room_game_wait) {
 					if(!_bCloseChannel){
 						_bWaitUser = true;
+						_bWaitUser2 = true;
 						str = getText("Wait, the new game will open soon.");
 						_self.showWndWarning(str);
 					}
 					return;
 				} else {
+					_bWaitUser2=false
 					_bWaitUser = false;
 					roomFullCallback(_room.getUsersArr())
 					_room.mixDeck();
@@ -2030,7 +2032,11 @@ var ScrGame = function(){
 		
 		if (_countBankrollers > 0) {
 			_self.getAdrBankroll();
-			_self.showWndBank();
+			if(_balance < _minBet){
+				_self.showError(ERROR_BALANCE_BET, _self.faucet);
+				_self.showChips(true);
+			}else
+				_self.showWndBank();
 		} else {
 			_self.showBankrolls();
 		}
@@ -2110,7 +2116,11 @@ var ScrGame = function(){
 		_self.refreshLogic(_myIDmult);
 		_self.refreshUsers();
 		
-		_self.showChips(true);
+		
+
+		if(_bWaitUser2==false){
+			_self.showChips(true);
+		}
 	}
 
 	_self.setUserData = function() {
@@ -2200,6 +2210,9 @@ var ScrGame = function(){
 				_self.showChips(false);
 				_self.btnExit.alpha = 0.5;
 				_bCloseChannel = true;
+				_self.btnDeal.alpha = 0.5;
+				_self.btnClear.alpha = 0.5;
+				_self.clearBet();
 				var str = getText("close_channel_start").replace(new RegExp("SPL"), "\n");
 				_self.showWndWarning(str);
 				
@@ -2748,7 +2761,7 @@ var ScrGame = function(){
 	}
 
 	_self.clickDeal = function(){
-		if(_bWindow || _bSetBet){
+		if(_bWindow || _bSetBet || _bCloseChannel){
 			return false;
 		}
 		
@@ -3098,6 +3111,12 @@ var ScrGame = function(){
 	}
 
 	_self.clickChip = function(item_mc){
+		if(_balanceSession < _minBet){
+			_self.showError(ERROR_BALANCE_BET, _self.faucet);
+			_self.showChips(true);
+			return;
+		}
+
 		if(!login_obj["openChannel"]){
 			_self.showWndBank();
 			return false;
@@ -3131,7 +3150,7 @@ var ScrGame = function(){
 			_self.showError(ERROR_MAX_BET);
 			_betGame = oldBet;
 			_self.showChips(true);
-		} else {
+		} else{
 			var str = "Your bet: " + String(convertToken(_betGame));
 			_self.tfYourBet.setText(str);
 			_self.tfSplitBet.setText("");
