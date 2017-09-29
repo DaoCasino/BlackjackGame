@@ -47,7 +47,7 @@ var ScrGame = function(){
 	// booleans
 	var _startGame, _bClear, _bStand, _bSplit, _bWindow, _bClickApprove,_bStandSplit,
 		_bEndTurnSplit, _bGameOver, _bCloseChannel, _bWaitBet, _bMixing, _bSetBet, _bWaitUser,
-		_bError;
+		_bError, _bWaitUser2=true;
 	
 	var urlEtherscan = "https://api.etherscan.io/";
 	
@@ -932,7 +932,6 @@ var ScrGame = function(){
 		if(_bWaitUser==true){
 			return;
 		}
-		
 		if(value){
 			alpha = 1;
 		}
@@ -1952,11 +1951,13 @@ var ScrGame = function(){
 				if (room_game_wait) {
 					if(!_bCloseChannel){
 						_bWaitUser = true;
+						_bWaitUser2 = true;
 						str = getText("Wait, the new game will open soon.");
 						_self.showWndWarning(str);
 					}
 					return;
 				} else {
+					_bWaitUser2=false
 					_bWaitUser = false;
 					roomFullCallback(_room.getUsersArr())
 					_room.mixDeck();
@@ -2114,7 +2115,11 @@ var ScrGame = function(){
 		_self.refreshLogic(_myIDmult);
 		_self.refreshUsers();
 		
-		_self.showChips(true);
+		
+
+		if(_bWaitUser2==false){
+			_self.showChips(true);
+		}
 	}
 
 	_self.setUserData = function() {
@@ -3105,8 +3110,7 @@ var ScrGame = function(){
 	}
 
 	_self.clickChip = function(item_mc){
-
-		if(_balance < _minBet){
+		if(_balanceSession < _minBet){
 			_self.showError(ERROR_BALANCE_BET, _self.faucet);
 			_self.showChips(true);
 			return;
