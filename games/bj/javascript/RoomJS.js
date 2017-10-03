@@ -9,6 +9,7 @@ var RoomJS = function(){
 	var _Users      = {};
 	var _maxUsers   = 3;
 	var _arCards    = [];
+	var _callback;
 	var COUNT_DECKS = 4
 	var COUNT_CARDS = 52
 	
@@ -19,6 +20,7 @@ var RoomJS = function(){
 		
 		var params = {prnt:_self, balance:deposit, address:address, callback:callback, bMultiplayer:true};
 		var logic = new LogicJS(params);
+		_callback = params.callback;
 		
 		if (typeof id === 'undefined') {
 			id = Object.keys(_Users).length
@@ -59,7 +61,7 @@ var RoomJS = function(){
 		}
 		
 		if(gameOver){
-			console.log("Game Over");
+			_callback("GameOver");
 			var prcnt = Math.ceil(COUNT_DECKS*COUNT_CARDS*0.75);
 			if(_arCards.length < prcnt){
 				_self.mixDeck();
