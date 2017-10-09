@@ -11,6 +11,7 @@ var ScrGame = function(){
 	var TIME_NEW_CARD  = 600;
 	var TIME_GET_STATE = 10000;
 	var TIME_TURN = 30000;
+	var TIME_GAMEOVER = 2000;
 	var R_WIN          = "WIN!";
 	var R_LOSE         = "LOSE...";
 	var R_BUST         = "BUST!";
@@ -84,6 +85,7 @@ var ScrGame = function(){
 	var _timeShowButtons = 0;
 	var _timeGetState = 0;
 	var _timeMixing = 0;
+	var _timeGameOver = 0;
 	var _currentMethod = -1;
 	var _idGame = localStorage._idGame || 0;
 	var _idTurnUser = 0;
@@ -1236,7 +1238,7 @@ var ScrGame = function(){
 	_self.showResult = function(_name, _x, _y, type, bet) {
 		var delay = _arNewCards.length+1;
 		_self.showTextResult(_name, _x, _y);
-		
+		console.log("showResult", _name);
 		var array = _arChips;
 		if(type == "split"){
 			array = _arSplitChips;
@@ -1735,10 +1737,12 @@ var ScrGame = function(){
 			var str = getText("mixed_decks").replace(new RegExp("SPL"), "\n");
 			_self.showWndWarning(str);
 		}
-		
-		if(_balanceSession == 0){
+
+		if(_balanceSession < _minBet && _countPlayers < 2 ){
 			_self.closeChannel();
 			_self.showChips(false);
+		}else{
+			_self.gameOver();
 		}
 	}
 	
@@ -1921,7 +1925,7 @@ var ScrGame = function(){
 				console.log("user_connected:", _bMixing);
             }
 			
-			if (data.action=='room_users') {
+			if (data.action=='room_users' && !_startGame) {
 				var data_users = {}
 				room_game_wait = false;
 				for(var k in data.users){
@@ -1955,6 +1959,8 @@ var ScrGame = function(){
 						_bWaitUser2 = true;
 						str = getText("Wait, the new game will open soon.");
 						_self.showWndWarning(str);
+						_self.showButtons(false);
+						_self.showChips(false);
 					}
 					return;
 				} else {
@@ -2383,6 +2389,15 @@ var ScrGame = function(){
 
 	// SERVER
 	_self.responseServer = function(address, objGame) {
+		if(address == "GameOver"){/*
+			console.log("responseServer GameOver", _balanceSession);
+			if(_balanceSession == 0){
+				_self.closeChannel();
+				_self.showChips(false);
+			}*/
+			return;
+		}
+
 		// show action
 		if(address == openkey){
 			var balanceSession = _balanceSession;
@@ -2552,6 +2567,7 @@ var ScrGame = function(){
 	_self.gameOver = function(){
 		if(!_bGameOver){
 			_bGameOver = true;
+			_timeGameOver = TIME_GAMEOVER;
 			_self.showChips(true);
 			_self.showButtons(false);
 			
@@ -2614,7 +2630,19 @@ var ScrGame = function(){
 				_self.closeChannel();
 			}
 		}
-		
+
+		if(_bGameOver && _timeGameOver > 0){
+			_timeGameOver -= diffTime;
+			if(_timeGameOver < 0){
+				_timeGameOver = 0;
+				if(_balanceSession < _minBet){
+					_self.closeChannel();
+					_self.showChips(false);
+				}
+
+			}
+		}
+
 		if(options_pause){
 			return false;
 		}
@@ -2733,7 +2761,7 @@ var ScrGame = function(){
 		if (!curUser) {
 			return
 		}
-
+		console.log("click general deal",_countPlayers);
 		_self.clickHit();
 		_self.clickHit();
 		if (curUser.id==0) {
@@ -2778,6 +2806,7 @@ var ScrGame = function(){
 				if(_room){
 					_countPlayers = _room.getUsersArr().length;
 				}
+				console.log("click deal",_countPlayers);
 				_bSetBet = true;
 				if(_countPlayers > 1){
 					this.clickBet();
@@ -2835,7 +2864,6 @@ var ScrGame = function(){
 		if(options_debug){
 			_logic.bjHit(seed, isMain);
 		} else {
-			console.log('seed:',seed)
 			_self.signSeed(seed, function(result){
 				if(options_multiplayer){
 					var curUser = _room.getTagUser(openkey);
@@ -3111,7 +3139,7 @@ var ScrGame = function(){
 	}
 
 	_self.clickChip = function(item_mc){
-		if(_balanceSession < _minBet){
+		if(_balance < _minBet && _bCloseChannel==true){
 			_self.showError(ERROR_BALANCE_BET, _self.faucet);
 			_self.showChips(true);
 			return;
