@@ -70,6 +70,6 @@
 	error_channel_allready_open="Channel allready open."
 	error_game_allready_started="Game allready started."
 	error_user_offline="User VALUE offline."
-	error_channel_not_closed="Ropsten network is unavailable. Please, try again later. Reset the game."
-	error_channel_not_open="Ropsten network is unavailable. Please, try again later."
+	error_channel_not_closed="The bankroll does not have enough gold to open the channel."
+	error_channel_not_open="You do not have enough ethereum to open the channel."
 />
