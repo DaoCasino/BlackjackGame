@@ -2836,6 +2836,7 @@ var ScrGame = function(){
 			}
 		} else {
 			if(_countBankrollers > 0){
+				console.log("ERROR_BANK:", _balanceBank, "Eth")
 				this.showError(ERROR_BANK);
 			} else {
 				_self.showBankrolls();
