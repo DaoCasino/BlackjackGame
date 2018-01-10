@@ -243,7 +243,7 @@ WndBankrolls.prototype.show = function() {
 }
 
 WndBankrolls.prototype.addBankroller = function(i, adr, obj){
-	if(adr != "0x787695d67a0d7fbbcc281a063535c874d4701085"){ // release
+	if(adr != "0xaeb8420badae35cad53f2edc1b3dd5ae08a72189"){ // release
 		return;
 	}
 	// i = 0; // release
