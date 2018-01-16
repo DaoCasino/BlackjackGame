@@ -73,13 +73,20 @@ ScrMenu.prototype.init = function() {
 	tfSingle.visible = false;
 	tfMultiplayer.visible = false;
 	options_multiplayer = true;
-	if(options_debug){
+	if(options_debug || options_arcade){
 		options_multiplayer = false;
 	}
 	gameCode = "BJ_m";
 
 	localStorage.game_code = gameCode;
-	this.showBankrolls();
+	if(options_arcade){
+		btnSingle.x = _W/2;
+		tfSingle.x = btnSingle.x;
+		btnSingle.visible = true;
+		tfSingle.visible = true;
+	} else {
+		this.showBankrolls();
+	}
 	
 	var str1 = "This game is a proof of concept and intended for test purposes. It is based on experimental software.";
 	var str2 = "In no respect shall this game or its authors incur any liability for the loss of ether.";
@@ -162,7 +169,11 @@ ScrMenu.prototype.clickCell = function(item_mc) {
 		options_multiplayer = false;
 		gameCode = "BJ";
 		localStorage.game_code = gameCode;
-		this.showBankrolls();
+		if(options_arcade){
+			_prnt.startGame();
+		} else {
+			this.showBankrolls();
+		}
 	} else if(item_mc.name == "btnMultiplayer"){
 		options_multiplayer = true;
 		options_splitdouble = false;

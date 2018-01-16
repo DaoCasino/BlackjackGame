@@ -420,7 +420,7 @@ var ScrGame = function(){
 			btnDouble.hint = getText("hint_double");
 		}
 		
-		if(!options_rpc && !options_debug){
+		if(!options_rpc && !options_debug && !options_arcade){
 			var btnContract = addButton("btnContract", 80, _H - 80);
 			btnContract.name = "btnSmart";
 			btnContract.interactive = true;
@@ -489,7 +489,7 @@ var ScrGame = function(){
 		btnReset.hint2 = getText("reset_data");
 		btnHistory.hint2 = getText("history_game");
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			btnExit.visible = false;
 			btnReset.visible = false;
 		}
@@ -817,7 +817,9 @@ var ScrGame = function(){
 		} else if(login_obj["tutor_closechannel"] != true && _balanceSession >= 0 && 
 		!_startGame && _self.btnExit.alpha == 1){
 			_idTutor = 4;
-			_self.showTooltip(_self.btnExit, getText("tutor_closechannel"), _self.btnExit.x, _self.btnExit.y);
+			if(!options_arcade){
+				_self.showTooltip(_self.btnExit, getText("tutor_closechannel"), _self.btnExit.x, _self.btnExit.y);
+			}
 		}
 	}
 
@@ -859,7 +861,7 @@ var ScrGame = function(){
 					_balanceSession = value;
 					_self.refreshBalance();
 					_self.openChannel();
-					if(options_debug){
+					if(options_debug || options_arcade){
 						login_obj["openChannel"] = true;
 						sessionIsOver = false;
 						_self.showChips(true);
@@ -1238,7 +1240,7 @@ var ScrGame = function(){
 	_self.showResult = function(_name, _x, _y, type, bet) {
 		var delay = _arNewCards.length+1;
 		_self.showTextResult(_name, _x, _y);
-		console.log("showResult", _name);
+		
 		var array = _arChips;
 		if(type == "split"){
 			array = _arSplitChips;
@@ -1601,7 +1603,24 @@ var ScrGame = function(){
 	}
 
 	_self.createCard = function(cardNumber, val, _address) {
-		return _room.createCard(cardNumber, val, _address);
+		if(options_arcade){
+			return _logic.createCard(cardNumber, val);
+		} else {
+			return _room.createCard(cardNumber, val, _address);
+		}
+	}
+	
+	_self.createCard = function(seed, val, _address){
+		var hash = ABI.soliditySHA3(['bytes32'],[ seed ]);
+		if(val){
+			hash = [hash[val]];
+		}
+		
+		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
+		var id = _arCards[rand];
+		_arCards.splice(rand, 1);
+		
+		return id;
 	}
 	
 	// CHECK
@@ -2015,9 +2034,9 @@ var ScrGame = function(){
 	}
 	
 	_self.getBankrolls = function(){
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_countBankrollers = 1;
-			_balanceSession = 10*valToken;
+			_balanceSession = 100*valToken;
 			_balance = 0;
 			_self.refreshBalance();
 			login_obj["openChannel"] = true;
@@ -2196,7 +2215,7 @@ var ScrGame = function(){
 			return false;
 		}
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			var deposit = _balanceSession - login_obj["deposit"];
 			sessionIsOver = true;
 			login_obj["openChannel"] = false;
@@ -2571,28 +2590,32 @@ var ScrGame = function(){
 			_self.showChips(true);
 			_self.showButtons(false);
 			
-			 Casino.callGameFunction(_idGame, msgID(), 
-				'refreshGame', []
-			);
-			
-			_room.getUsersArr().forEach( function(user) {
-				user.logic.refreshGame();
-				if(user.address == openkey){
-					if(_objSpeedGame.betGame > 0){
+			if(options_arcade){
+				_logic.refreshGame();
+			} else {
+				Casino.callGameFunction(_idGame, msgID(), 
+					'refreshGame', []
+				);
+				
+				_room.getUsersArr().forEach( function(user) {
+					user.logic.refreshGame();
+					if(user.address == openkey){
+						if(_objSpeedGame.betGame > 0){
+							createjs.Tween.get({}).call(function(){
+											_self.checkResult(user.logic.getResult());
+											_self.refreshBalance();
+											_objSpeedGame.betGame = 0;
+											_objSpeedGame.betSplitGame = 0;
+										});
+						}
+						_self.isCashoutAvailable();
+					} else {
 						createjs.Tween.get({}).call(function(){
-										_self.checkResult(user.logic.getResult());
-										_self.refreshBalance();
-										_objSpeedGame.betGame = 0;
-										_objSpeedGame.betSplitGame = 0;
-									});
+											_self.checkUserResult(user);
+										});
 					}
-					_self.isCashoutAvailable();
-				} else {
-					createjs.Tween.get({}).call(function(){
-										_self.checkUserResult(user);
-									});
-				}
-			})
+				})
+			}
 			_arHistory.push({name:"end_game", balance:_balanceSession});
 		}
 	}
@@ -2600,7 +2623,7 @@ var ScrGame = function(){
 	// UPDATE
 	_self.update = function(diffTime){
 		var showTimer = false;
-		if(_timeTurn > 0 && !_bCloseChannel && !_bWaitUser){
+		if(_timeTurn > 0 && !_bCloseChannel && !_bWaitUser && !options_arcade){
 			if(_countPlayers > 1){
 				if((_idTurnUser == _myIDmult && _startGame) || 
 				(!_startGame && !_bSetBet)){
@@ -2738,7 +2761,7 @@ var ScrGame = function(){
 		_self.refreshLogic(_myIDmult);
 		_timeTurn = TIME_TURN;
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjBet(_betGame);
 		} else {
 			Casino.callGameFunction(_idGame, msgID(), 
@@ -2801,12 +2824,12 @@ var ScrGame = function(){
 		if((_betGame >= _minBet && 
 		_balanceBank >= (_betGame/valToken)*3) && 
 		_countBankrollers > 0){
-			if(_balancePlEth > 0){
+			if(_balancePlEth > 0 || options_arcade){
 				_arHistory.push({name:"start_game"});
 				if(_room){
 					_countPlayers = _room.getUsersArr().length;
 				}
-				console.log("click deal",_countPlayers);
+				
 				_bSetBet = true;
 				if(_countPlayers > 1){
 					this.clickBet();
@@ -2818,7 +2841,7 @@ var ScrGame = function(){
 					_startGame = true;
 					_idTurnUser = 0;
 					_arUsersResult = [];
-					if(options_debug){
+					if(options_debug || options_arcade){
 						_logic.bjDeal(seed, _betGame);
 					} else {
 						Casino.callGameFunction(_idGame, msgID(), 
@@ -2862,7 +2885,7 @@ var ScrGame = function(){
 		_currentMethod = HIT;
 		_timeTurn      = TIME_TURN;
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjHit(seed, isMain);
 		} else {
 			_self.signSeed(seed, function(result){
@@ -2892,7 +2915,7 @@ var ScrGame = function(){
 		var isMain = !_bSplit;
 		_currentMethod = STAND;
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjStand(seed, isMain);
 		} else {
 			_self.signSeed(seed, function(result){
@@ -2935,7 +2958,7 @@ var ScrGame = function(){
 		_currentMethod = STAND;
 		_timeTurn = TIME_TURN;
 		
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjMultStand(seed, isMain);
 		} else {
 			_self.signSeed(seed, function(result){
@@ -2988,7 +3011,7 @@ var ScrGame = function(){
 		var isMain = !_bSplit;
 		_currentMethod = DOUBLE;
 		_timeTurn = TIME_TURN;
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjDouble(seed, isMain);
 		} else {
 			Casino.callGameFunction(_idGame, msgID(), 
@@ -3023,7 +3046,7 @@ var ScrGame = function(){
 		var seed = makeID();
 		var isMain = !_bSplit;
 		_currentMethod = DOUBLE;
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjMultDouble(seed, isMain);
 		} else {
 			Casino.callGameFunction(_idGame, msgID(), 
@@ -3068,7 +3091,7 @@ var ScrGame = function(){
 		
 		var seed = makeID();
 		_currentMethod = SPLIT;
-		if(options_debug){
+		if(options_debug || options_arcade){
 			_logic.bjSplit(seed);
 		} else {
 			Casino.callGameFunction(_idGame, msgID(), 
@@ -3108,7 +3131,7 @@ var ScrGame = function(){
 		_valInsurance = _betGame/2;
 		_bWindow = false;
 		_timeTurn = TIME_TURN;
-		if(!options_debug){
+		if(!options_debug && !options_arcade){
 			var name = _arMethodsName[_currentMethod];
 			var transaction = -_valInsurance;
 			_arHistory.push({name:name, transaction:transaction});
@@ -3167,7 +3190,7 @@ var ScrGame = function(){
 			_self.showWndBank();
 			_betGame = oldBet;
 			return false;
-		} else if(_balancePlEth < 0.01){
+		} else if(_balancePlEth < 0.01 && !options_arcade){
 			_self.showError(ERROR_BALANCE);
 			_betGame = oldBet;
 			_self.showChips(true);
