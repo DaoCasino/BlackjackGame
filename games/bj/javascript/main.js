@@ -1,6 +1,6 @@
 var _W = 1920;
 var _H = 1080;
-var version = "v. 1.1.17";
+var version = "v. 1.1.18";
 var metaCode = "blackjack_v1";
 var gameCode = "BJ_m";
 var login_obj = {};
@@ -51,6 +51,7 @@ var	addressSpeedContract = "0x201e9af94fdfd81cb5d387960cc270c5a8c0c698";
 var addressCurErc = "";
 
 var options_debug       = false;
+var options_arcade      = true;
 var options_test        = false;
 var options_ethereum    = true;
 var options_mainet      = false;
@@ -295,7 +296,7 @@ function handleComplete(evt) {
 		options_mainet = false;
 	}
 	options_testnet = !options_mainet;
-	if(options_debug){
+	if(options_debug || options_arcade){
 		version = version + " arcade"
 		options_save = false;
 		options_multiplayer = false;

@@ -309,6 +309,19 @@ var LogicJS = function(params){
 		refreshGame(_s);
 	}
 	
+	_self.createCard = function(seed, val){
+		var hash = ABI.soliditySHA3(['bytes32'],[ seed ]);
+		if(val){
+			hash = [hash[val]];
+		}
+		
+		var rand = bigInt(hash.toString('hex'),16).divmod(_arCards.length).remainder.value;
+		var id = _arCards[rand];
+		_arCards.splice(rand, 1);
+		
+		return id;
+	}
+	
 	function mixDeck(){
 		_arCards = [];
 		_objResult.mixing = true;
@@ -524,7 +537,14 @@ var LogicJS = function(params){
 	}
 	
 	function createCard(cardNumber, val){
-		var id = _prnt.createCard(cardNumber, val, _address);
+		var id = 0;
+		
+		if(options_arcade){
+			id = _self.createCard(cardNumber, val);
+		} else {
+			id = _prnt.createCard(cardNumber, val);
+		}
+		
 		return id;
 	}
 	
